@@ -1,10 +1,11 @@
 import { Tabs } from 'expo-router';
+import type { ColorValue } from 'react-native';
 import { Icon, type IconName } from '@/src/components';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 function tabIcon(name: IconName) {
-  return ({ color, focused }: { color: string; focused: boolean }) => (
-    <Icon name={focused ? name : (`${name}-outline` as IconName)} size={22} color={color} />
+  return ({ color, focused }: { color: ColorValue; focused: boolean }) => (
+    <Icon name={focused ? name : (`${name}-outline` as IconName)} size={22} color={color as string} />
   );
 }
 

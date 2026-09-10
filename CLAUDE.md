@@ -1,7 +1,8 @@
 # Distributor App — working notes for Claude
 
-React Native + **Expo SDK 54 (pinned — do NOT upgrade)**. Distributor-facing app on an
-Odoo backend: stock management, delivery, invoices. Ships to iOS + Android via EAS.
+React Native + **Expo SDK 57**. Distributor-facing app on an Odoo backend: stock
+management, delivery, invoices. Ships to iOS + Android via EAS. Runs in the current
+store Expo Go.
 
 ## Golden rules
 
@@ -39,6 +40,6 @@ Backend (REST vs JSON-RPC) is not finalized. Default transport is `mock`
 ## Commands
 
 - `npx expo start` — run in Expo Go / dev client
-- `npx tsx src/lib/money.ts` / `src/lib/status.ts` — pure-logic self-checks
+- `npx tsx src/lib/checks.ts` — pure-logic self-checks (money formatting, overdue)
 - `npx expo-doctor`
 - `eas build --platform android|ios --profile development` — device build (iOS must be EAS; no Mac)

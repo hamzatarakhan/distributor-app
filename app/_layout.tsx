@@ -1,8 +1,3 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider as NavThemeProvider,
-} from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -30,7 +25,7 @@ function RootNavigator() {
   }
 
   return (
-    <NavThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.card },
@@ -56,7 +51,7 @@ function RootNavigator() {
         </Stack.Protected>
       </Stack>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-    </NavThemeProvider>
+    </>
   );
 }
 
