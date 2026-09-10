@@ -1,98 +1,126 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { View } from 'react-native';
+import {
+  Badge, Card, ListRow, Money, Screen, SectionHeader, StatCard, StatRow, Text,
+} from '@/src/components';
+import { useDeliveries, useInventory, useInvoices, useProfile } from '@/src/hooks/data';
+import { invoiceStatus, isOverdue, pickingStatus } from '@/src/lib/status';
+import { useTheme } from '@/src/theme/ThemeProvider';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function Dashboard() {
+  const { spacing } = useTheme();
+  const profile = useProfile();
+  const deliveries = useDeliveries({ status: 'all' });
+  const inventory = useInventory({});
+  const invoices = useInvoices({ filter: 'all' });
 
-export default function HomeScreen() {
+  const refreshing =
+    deliveries.isRefetching || inventory.isRefetching || invoices.isRefetching || profile.isRefetching;
+  const refetchAll = () => {
+    profile.refetch();
+    deliveries.refetch();
+    inventory.refetch();
+    invoices.refetch();
+  };
+
+  const today = new Date().toISOString().slice(0, 10);
+  const allDeliveries = deliveries.data?.items ?? [];
+  const todays = allDeliveries.filter((d) => d.scheduledDate === today && d.status !== 'done');
+  const ready = allDeliveries.filter((d) => d.status === 'ready');
+  const lowStock = (inventory.data?.items ?? []).filter(
+    (i) => i.reorderPoint != null && i.onHand < i.reorderPoint,
+  );
+  const openInvoices = (invoices.data?.items ?? []).filter((i) => i.amountDue > 0);
+  const overdue = openInvoices.filter((i) => isOverdue(i.dueDate, i.amountDue));
+  const overdueTotal = overdue.reduce((s, i) => s + i.amountDue, 0);
+  const currency = openInvoices[0]?.currency ?? 'USD';
+
+  const loading = deliveries.isLoading || inventory.isLoading || invoices.isLoading;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <Screen
+      onRefresh={refetchAll}
+      refreshing={refreshing}
+      loading={loading}
+      error={deliveries.error ?? inventory.error ?? invoices.error}
+      onRetry={refetchAll}>
+      <Text variant="h1">Hi{profile.data ? `, ${profile.data.name.split(' ')[0]}` : ''}</Text>
+      {profile.data?.warehouses?.[0] ? (
+        <Text tone="muted" variant="caption">{profile.data.warehouses[0]}</Text>
+      ) : null}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <StatRow>
+        <StatCard label="Deliveries today" value={String(todays.length)} />
+        <StatCard label="Ready to ship" value={String(ready.length)} />
+        <StatCard label="Open invoices" value={String(openInvoices.length)} />
+        <StatCard
+          label="Overdue"
+          value={overdueTotal ? `${overdueTotal.toFixed(0)} ${currency}` : '0'}
+          tone={overdueTotal ? 'danger' : 'text'}
+        />
+      </StatRow>
+
+      <SectionHeader
+        title="Today's deliveries"
+        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/deliveries')}>See all</Text>}
+      />
+      {todays.length === 0 ? (
+        <Card><Text tone="muted" variant="caption">Nothing scheduled for today.</Text></Card>
+      ) : (
+        <View style={{ gap: spacing.md }}>
+          {todays.slice(0, 5).map((d) => (
+            <ListRow
+              key={d.id}
+              title={d.partnerName ?? d.reference}
+              subtitle={`${d.reference} · ${d.itemCount} items`}
+              right={<Badge {...pickingStatus[d.status]} />}
+              onPress={() => router.push(`/deliveries/${d.id}`)}
+            />
+          ))}
+        </View>
+      )}
+
+      <SectionHeader title="Low / negative stock" />
+      {lowStock.length === 0 ? (
+        <Card><Text tone="muted" variant="caption">All products above reorder point.</Text></Card>
+      ) : (
+        <View style={{ gap: spacing.md }}>
+          {lowStock.slice(0, 5).map((i) => (
+            <ListRow
+              key={i.productId}
+              title={i.name}
+              subtitle={i.reference}
+              right={<Text variant="bodySemi" tone={i.onHand < 0 ? 'danger' : 'text'}>{i.onHand} {i.uom}</Text>}
+              onPress={() => router.push(`/stock/${i.productId}`)}
+            />
+          ))}
+        </View>
+      )}
+
+      <SectionHeader
+        title="Overdue invoices"
+        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/invoices')}>See all</Text>}
+      />
+      {overdue.length === 0 ? (
+        <Card><Text tone="muted" variant="caption">No overdue invoices.</Text></Card>
+      ) : (
+        <View style={{ gap: spacing.md }}>
+          {overdue.slice(0, 5).map((inv) => (
+            <ListRow
+              key={inv.id}
+              title={inv.customerName}
+              subtitle={`${inv.number} · due ${inv.dueDate}`}
+              right={
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                  <Money value={inv.amountDue} currency={inv.currency} />
+                  <Badge {...invoiceStatus[inv.status]} />
+                </View>
+              }
+              onPress={() => router.push(`/invoices/${inv.id}`)}
+            />
+          ))}
+        </View>
+      )}
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
