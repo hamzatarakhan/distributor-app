@@ -35,7 +35,7 @@ export function ListRow({
         borderWidth: selected ? 0.5 : 1,
         borderRadius: radii.md,
         padding: spacing.lg,
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'center',
         gap: spacing.md,
         opacity: pressed && onPress ? 0.9 : 1,

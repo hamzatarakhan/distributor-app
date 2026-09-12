@@ -17,7 +17,7 @@ export function DetailRow({
   return (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: spacing.md,
@@ -30,10 +30,11 @@ export function DetailRow({
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
+  const { isRTL } = useLocale();
   return (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 8,

@@ -6,17 +6,19 @@ import { useTranslation } from 'react-i18next';
 import { Button, Icon, Text } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useAuth } from '@/src/auth/AuthContext';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 function LabeledInput(props: React.ComponentProps<typeof TextInput> & { label: string; right?: React.ReactNode }) {
   const { colors, radii } = useTheme();
+  const { isRTL } = useLocale();
   const { label, right, style, ...rest } = props;
   return (
     <View style={{ gap: 6 }}>
       <Text variant="captionSemi" tone="muted">{label}</Text>
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: isRTL ? 'row-reverse' : 'row',
           alignItems: 'center',
           backgroundColor: colors.card,
           borderColor: colors.border,

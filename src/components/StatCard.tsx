@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Card } from './Card';
 import { Text } from './Text';
 
@@ -23,7 +24,10 @@ export function StatCard({
 
 export function StatRow({ children }: { children: React.ReactNode }) {
   const { spacing } = useTheme();
+  const { isRTL } = useLocale();
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>{children}</View>
+    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: spacing.md }}>
+      {children}
+    </View>
   );
 }

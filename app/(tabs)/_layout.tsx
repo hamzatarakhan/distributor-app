@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import type { ColorValue } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from '@/src/components';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 function tabIcon(name: IconName) {
@@ -13,12 +14,19 @@ function tabIcon(name: IconName) {
 export default function TabLayout() {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textFaint,
-        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
+        // Reverses the visual order of tabs for RTL without touching route declaration order
+        // (which stays fixed so `index` remains the initial tab regardless of locale).
+        tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+          flexDirection: isRTL ? 'row-reverse' : 'row',
+        },
         headerStyle: { backgroundColor: colors.card },
         headerTintColor: colors.text,
         headerShadowVisible: false,

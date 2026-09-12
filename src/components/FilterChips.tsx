@@ -1,5 +1,6 @@
 import { ScrollView, Pressable } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Text } from './Text';
 
 // Chip convention (solid fill when active) — distinct from ListRow's tint. design-system #1.
@@ -13,6 +14,7 @@ export function FilterChips<T extends string>({
   onChange: (v: T) => void;
 }) {
   const { colors, radii, spacing, typography } = useTheme();
+  const { isRTL } = useLocale();
   // Pin an explicit height matching the pill's own content height (padding + line height +
   // border). Without it, this horizontal ScrollView inherits whatever leftover vertical space
   // the outer Screen's flexGrow:1 scroll content leaves on a short screen, and centering its
@@ -23,7 +25,12 @@ export function FilterChips<T extends string>({
       horizontal
       showsHorizontalScrollIndicator={false}
       style={{ flexGrow: 0, height: chipHeight }}
-      contentContainerStyle={{ gap: spacing.sm, paddingEnd: spacing.lg, alignItems: 'center' }}>
+      contentContainerStyle={{
+        gap: spacing.sm,
+        alignItems: 'center',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
+        ...(isRTL ? { paddingLeft: spacing.lg } : { paddingRight: spacing.lg }),
+      }}>
       {options.map((o) => {
         const active = o.value === value;
         return (

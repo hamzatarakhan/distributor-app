@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/src/i18n';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Icon } from './Icon';
 import { Text } from './Text';
 import { Button } from './Button';
@@ -16,6 +17,7 @@ export function errorMessage(error: unknown): string {
 export function ErrorBanner({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const { colors, spacing, radii } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   return (
     <View
       style={{
@@ -26,7 +28,7 @@ export function ErrorBanner({ error, onRetry }: { error: unknown; onRetry?: () =
         padding: spacing.lg,
         gap: spacing.sm,
       }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: spacing.sm }}>
         <Icon name="alert-circle-outline" size={20} color={colors.danger} />
         <Text tone="danger" variant="bodySemi">{t('common.couldNotLoad')}</Text>
       </View>

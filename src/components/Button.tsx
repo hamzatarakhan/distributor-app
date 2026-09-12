@@ -5,6 +5,7 @@ import {
   type PressableProps,
 } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
@@ -30,6 +31,7 @@ export function Button({
   fullWidth?: boolean;
 } & Omit<PressableProps, 'style'> & { style?: any }) {
   const { colors, spacing, radii } = useTheme();
+  const { isRTL } = useLocale();
   const isDisabled = disabled || loading;
 
   const bg = {
@@ -59,7 +61,7 @@ export function Button({
           alignSelf: fullWidth ? 'stretch' : 'auto',
           alignItems: 'center',
           justifyContent: 'center',
-          flexDirection: 'row',
+          flexDirection: isRTL ? 'row-reverse' : 'row',
           gap: spacing.sm,
         },
         style,
@@ -68,7 +70,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={fg} />
       ) : (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: spacing.sm }}>
           {icon ? <Icon name={icon} size={18} color={fg} /> : null}
           <Text variant="bodySemi" style={{ color: fg }}>{title}</Text>
         </View>

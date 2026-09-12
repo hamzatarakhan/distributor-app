@@ -9,6 +9,7 @@ import {
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useConfirmReceipt, useReceipt } from '@/src/hooks/data';
 import { pickingStatusKey, pickingStatusTone } from '@/src/lib/status';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function ReceiptDetail() {
@@ -16,6 +17,7 @@ export default function ReceiptDetail() {
   const receiptId = Number(id);
   const { colors, spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   const { data, isLoading, error, refetch, isRefetching } = useReceipt(receiptId);
   const confirm = useConfirmReceipt(receiptId);
   const [qty, setQty] = useState<Record<number, number>>({});
@@ -63,7 +65,7 @@ export default function ReceiptDetail() {
         }>
         {data ? (
           <>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="h1">{data.reference}</Text>
               <Badge label={t(pickingStatusKey[data.status])} tone={pickingStatusTone[data.status]} />
             </View>
@@ -77,7 +79,7 @@ export default function ReceiptDetail() {
             {lines.map((l) => (
               <Card key={l.id}>
                 <Text variant="title">{l.product}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="caption" tone="muted">{t('receiptDetail.demand', { qty: l.demandQty, uom: l.uom })}</Text>
                   {canConfirm ? (
                     <QtyStepper

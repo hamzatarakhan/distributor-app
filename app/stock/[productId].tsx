@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Card, DetailRow, Divider, Screen, SectionHeader, Text } from '@/src/components';
 import { useProduct } from '@/src/hooks/data';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function ProductDetail() {
@@ -11,6 +12,7 @@ export default function ProductDetail() {
   const { data, isLoading, error, refetch, isRefetching } = useProduct(id);
   const { spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
 
   return (
     <Screen
@@ -56,7 +58,7 @@ export default function ProductDetail() {
             <View style={{ gap: spacing.sm }}>
               {data.moves.map((m) => (
                 <Card key={m.id}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
                     <Text variant="captionSemi">{m.from} → {m.to}</Text>
                     <Text variant="captionSemi" tone={m.qty < 0 ? 'danger' : 'success'}>
                       {m.qty > 0 ? '+' : ''}{m.qty} {m.uom}

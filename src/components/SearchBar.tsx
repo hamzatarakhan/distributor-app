@@ -1,6 +1,7 @@
 import { TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Icon } from './Icon';
 
 export function SearchBar({
@@ -14,10 +15,11 @@ export function SearchBar({
 }) {
   const { colors, radii, spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   return (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'center',
         gap: spacing.sm,
         backgroundColor: colors.card,
@@ -32,7 +34,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         placeholder={placeholder ?? t('common.search')}
         placeholderTextColor={colors.textFaint}
-        style={{ flex: 1, color: colors.text, paddingVertical: 10, fontSize: 15 }}
+        style={{ flex: 1, color: colors.text, paddingVertical: 10, fontSize: 15, textAlign: isRTL ? 'right' : 'left' }}
         clearButtonMode="while-editing"
         autoCapitalize="none"
         autoCorrect={false}

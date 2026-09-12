@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Alert, DevSettings, I18nManager } from 'react-native';
 import i18n, { type Locale } from './index';
 
 const STORAGE_KEY = 'locale.v1';
@@ -13,35 +12,12 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-// I18nManager's RTL flag is native and persists across app launches on its own (independent of
-// our AsyncStorage key), but no app is allowed to kill/relaunch its own process on iOS or
-// Android — that's an OS restriction, not something any RN API works around. So a language
-// switch that flips RTL can only be *fully* mirrored (every already-mounted native view included)
-// starting from the app's next real cold start; forceRTL/allowRTL below persists the flag for
-// that. `expo-updates`' Updates.reloadAsync() would do a full native reload in a standalone/EAS
-// build, but it isn't supported in Expo Go at all — importing it crashes Expo Go outright, so it
-// can't be used while this app's primary target is still Expo Go. DevSettings.reload() (dev-only)
-// at least re-executes the whole JS bundle against the now-updated native RTL flag, which is
-// enough for this app (everything here is plain Yoga flexbox, no custom native views), so it
-// usually finishes the mirror in-place — the Alert below tells the dealer to fully close and
-// reopen the app if anything still reads left-to-right after that.
-function reloadForDirectionChange(rtl: boolean) {
-  Alert.alert(
-    rtl ? 'تم التبديل إلى العربية' : 'Switched to English',
-    rtl
-      ? 'سيُعاد تحميل التطبيق الآن. إذا بقي أي جزء من الشاشة بدون انعكاس، أغلق التطبيق بالكامل من قائمة التطبيقات المفتوحة وأعد فتحه.'
-      : 'The app will reload now. If anything still looks mirrored, fully close the app from the app switcher and reopen it.',
-    [
-      {
-        text: rtl ? 'حسناً' : 'OK',
-        onPress: () => {
-          if (__DEV__) DevSettings.reload();
-        },
-      },
-    ],
-  );
-}
-
+// Mirroring is done manually (every row-laying-out component reads `isRTL` from this context
+// and picks 'row' vs 'row-reverse' itself) instead of via I18nManager.forceRTL(). That native
+// flag only takes full effect after a real OS-level relaunch — something no app can trigger on
+// itself on iOS or Android, and Expo Go can't use expo-updates' reloadAsync() to fake one either
+// (importing expo-updates crashes Expo Go outright). Manual mirroring flips instantly, in Expo
+// Go and any standalone build alike, with no restart and no dead ends.
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
@@ -60,13 +36,6 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     setLocaleState(l);
     i18n.changeLanguage(l);
     AsyncStorage.setItem(STORAGE_KEY, l).catch(() => {});
-
-    const rtl = l === 'ar';
-    if (I18nManager.isRTL !== rtl) {
-      I18nManager.allowRTL(rtl);
-      I18nManager.forceRTL(rtl);
-      reloadForDirectionChange(rtl);
-    }
   };
 
   const value = useMemo<LocaleContextValue>(

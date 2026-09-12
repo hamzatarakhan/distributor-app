@@ -6,11 +6,13 @@ import { Badge, Card, FilterChips, ListRow, Money, Screen, SearchBar, Text } fro
 import { useInvoices } from '@/src/hooks/data';
 import { useDebounced } from '@/src/lib/useDebounced';
 import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function InvoicesScreen() {
   const { spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   const FILTERS = [
     { value: 'open', label: t('invoices.filterOpen') },
     { value: 'overdue', label: t('invoices.filterOverdue') },
@@ -37,7 +39,7 @@ export default function InvoicesScreen() {
       <SearchBar value={search} onChangeText={setSearch} placeholder={t('invoices.searchPlaceholder')} />
       <FilterChips value={filter} onChange={setFilter} options={FILTERS as any} />
       {outstanding > 0 ? (
-        <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Card style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text variant="caption" tone="muted">{t('invoices.outstanding', { count: items.length })}</Text>
           <Money value={outstanding} currency={currency} variant="title" />
         </Card>

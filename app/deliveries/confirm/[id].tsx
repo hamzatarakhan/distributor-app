@@ -7,6 +7,7 @@ import {
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useConfirmDelivery, useDelivery } from '@/src/hooks/data';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function ConfirmDelivery() {
@@ -14,6 +15,7 @@ export default function ConfirmDelivery() {
   const deliveryId = Number(id);
   const { colors, spacing, radii } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   const { data, isLoading, error, refetch } = useDelivery(deliveryId);
   const confirm = useConfirmDelivery(deliveryId);
   const [qty, setQty] = useState<Record<number, number>>({});
@@ -68,7 +70,7 @@ export default function ConfirmDelivery() {
             {lines.map((l) => (
               <Card key={l.id}>
                 <Text variant="title">{l.product}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="caption" tone="muted">{t('deliveryConfirm.ordered', { qty: l.demandQty, uom: l.uom })}</Text>
                   <QtyStepper
                     value={q(l.id, l.demandQty)}
@@ -95,6 +97,7 @@ export default function ConfirmDelivery() {
                 color: colors.text,
                 minHeight: 72,
                 textAlignVertical: 'top',
+                textAlign: isRTL ? 'right' : 'left',
               }}
             />
 

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Icon } from './Icon';
 
 // Bottom sheet = native Modal anchored to the bottom. No extra library.
@@ -17,6 +18,7 @@ export function Sheet({
   showClose?: boolean;
 }) {
   const { colors, spacing, radii } = useTheme();
+  const { isRTL } = useLocale();
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -37,7 +39,12 @@ export function Sheet({
             <Pressable
               onPress={onClose}
               hitSlop={10}
-              style={{ position: 'absolute', top: spacing.lg, right: spacing.lg, zIndex: 1 }}>
+              style={{
+                position: 'absolute',
+                top: spacing.lg,
+                zIndex: 1,
+                ...(isRTL ? { left: spacing.lg } : { right: spacing.lg }),
+              }}>
               <Icon name="close" size={22} color={colors.textFaint} />
             </Pressable>
           ) : null}

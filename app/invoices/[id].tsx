@@ -41,7 +41,7 @@ export default function InvoiceDetail() {
       onRetry={refetch}>
       {data ? (
         <>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text variant="h1">{data.number}</Text>
             <Badge label={t(invoiceStatusKey[data.status])} tone={invoiceStatusTone[data.status]} />
           </View>
@@ -66,7 +66,7 @@ export default function InvoiceDetail() {
             {(data.lines ?? []).map((l, i) => (
               <View key={l.id}>
                 {i > 0 ? <Divider /> : null}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', gap: spacing.md }}>
                   <Text variant="caption" style={{ flex: 1 }}>{l.description}</Text>
                   <Text variant="caption" tone="muted">{l.qty} × {l.unitPrice}</Text>
                 </View>

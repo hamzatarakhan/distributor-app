@@ -4,10 +4,12 @@ import {
   Badge, Button, Card, ConfirmSheet, FilterChips, ListRow, Money, QtyStepper,
   ResultSheet, Screen, SearchBar, SectionHeader, StatCard, StatRow, Text, type ResultState,
 } from '@/src/components';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function KitchenSink() {
   const { spacing } = useTheme();
+  const { isRTL } = useLocale();
   const [chip, setChip] = useState('a');
   const [sel, setSel] = useState(1);
   const [qty, setQty] = useState(3);
@@ -32,7 +34,7 @@ export default function KitchenSink() {
       <Button title="Loading" loading onPress={() => {}} />
 
       <SectionHeader title="Badges" />
-      <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
         <Badge label="Success" tone="success" />
         <Badge label="Warning" tone="warning" />
         <Badge label="Info" tone="info" />
