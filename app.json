@@ -50,7 +50,12 @@
       "reactCompiler": true
     },
     "extra": {
-      "apiTransport": "mock"
-    }
+      "apiTransport": "mock",
+      "router": {},
+      "eas": {
+        "projectId": "6e2e8f21-4bd5-422d-9741-d69590eb0ad6"
+      }
+    },
+    "owner": "hamzatarakhan2000"
   }
 }
