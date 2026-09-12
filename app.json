@@ -50,8 +50,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "apiTransport": "mock",
-      "eas": {}
+      "apiTransport": "mock"
     }
   }
 }
