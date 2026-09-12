@@ -23,7 +23,7 @@ export function FilterChips<T extends string>({
       horizontal
       showsHorizontalScrollIndicator={false}
       style={{ flexGrow: 0, height: chipHeight }}
-      contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.lg, alignItems: 'center' }}>
+      contentContainerStyle={{ gap: spacing.sm, paddingEnd: spacing.lg, alignItems: 'center' }}>
       {options.map((o) => {
         const active = o.value === value;
         return (

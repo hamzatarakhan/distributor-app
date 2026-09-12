@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Text } from './Text';
 
 export function DetailRow({
@@ -12,6 +13,7 @@ export function DetailRow({
   valueNode?: React.ReactNode;
 }) {
   const { spacing } = useTheme();
+  const { isRTL } = useLocale();
   return (
     <View
       style={{
@@ -22,7 +24,7 @@ export function DetailRow({
         paddingVertical: 6,
       }}>
       <Text variant="caption" tone="muted">{label}</Text>
-      {valueNode ?? <Text variant="captionSemi" style={{ flexShrink: 1, textAlign: 'right' }}>{value}</Text>}
+      {valueNode ?? <Text variant="captionSemi" style={{ flexShrink: 1, textAlign: isRTL ? 'left' : 'right' }}>{value}</Text>}
     </View>
   );
 }

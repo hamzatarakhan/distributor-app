@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { DevSettings, I18nManager } from 'react-native';
-import * as Updates from 'expo-updates';
+import { Alert, DevSettings, I18nManager } from 'react-native';
 import i18n, { type Locale } from './index';
 
 const STORAGE_KEY = 'locale.v1';
@@ -15,17 +14,32 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 // I18nManager's RTL flag is native and persists across app launches on its own (independent of
-// our AsyncStorage key) — but it only takes full effect, for every already-mounted native view,
-// after the app process restarts. Updates.reloadAsync() does that in a standalone/EAS build;
-// it throws in Expo Go, where DevSettings.reload() (a JS-context reload) is the closest
-// available substitute — good enough to re-render this session RTL-correct in most cases, though
-// a manual force-close from Expo Go's own app switcher is the only way to be 100% sure.
-async function reloadApp() {
-  try {
-    await Updates.reloadAsync();
-  } catch {
-    if (__DEV__) DevSettings.reload();
-  }
+// our AsyncStorage key), but no app is allowed to kill/relaunch its own process on iOS or
+// Android — that's an OS restriction, not something any RN API works around. So a language
+// switch that flips RTL can only be *fully* mirrored (every already-mounted native view included)
+// starting from the app's next real cold start; forceRTL/allowRTL below persists the flag for
+// that. `expo-updates`' Updates.reloadAsync() would do a full native reload in a standalone/EAS
+// build, but it isn't supported in Expo Go at all — importing it crashes Expo Go outright, so it
+// can't be used while this app's primary target is still Expo Go. DevSettings.reload() (dev-only)
+// at least re-executes the whole JS bundle against the now-updated native RTL flag, which is
+// enough for this app (everything here is plain Yoga flexbox, no custom native views), so it
+// usually finishes the mirror in-place — the Alert below tells the dealer to fully close and
+// reopen the app if anything still reads left-to-right after that.
+function reloadForDirectionChange(rtl: boolean) {
+  Alert.alert(
+    rtl ? 'تم التبديل إلى العربية' : 'Switched to English',
+    rtl
+      ? 'سيُعاد تحميل التطبيق الآن. إذا بقي أي جزء من الشاشة بدون انعكاس، أغلق التطبيق بالكامل من قائمة التطبيقات المفتوحة وأعد فتحه.'
+      : 'The app will reload now. If anything still looks mirrored, fully close the app from the app switcher and reopen it.',
+    [
+      {
+        text: rtl ? 'حسناً' : 'OK',
+        onPress: () => {
+          if (__DEV__) DevSettings.reload();
+        },
+      },
+    ],
+  );
 }
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
@@ -51,7 +65,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     if (I18nManager.isRTL !== rtl) {
       I18nManager.allowRTL(rtl);
       I18nManager.forceRTL(rtl);
-      reloadApp();
+      reloadForDirectionChange(rtl);
     }
   };
 

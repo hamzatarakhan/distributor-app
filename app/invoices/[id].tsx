@@ -8,6 +8,7 @@ import {
 } from '@/src/components';
 import { useInvoice } from '@/src/hooks/data';
 import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function InvoiceDetail() {
@@ -15,6 +16,7 @@ export default function InvoiceDetail() {
   const invoiceId = Number(id);
   const { spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   const { data, isLoading, error, refetch, isRefetching } = useInvoice(invoiceId);
   const [pdfBusy, setPdfBusy] = useState(false);
 
@@ -68,7 +70,7 @@ export default function InvoiceDetail() {
                   <Text variant="caption" style={{ flex: 1 }}>{l.description}</Text>
                   <Text variant="caption" tone="muted">{l.qty} × {l.unitPrice}</Text>
                 </View>
-                <Text variant="captionSemi" style={{ textAlign: 'right' }}>
+                <Text variant="captionSemi" style={{ textAlign: isRTL ? 'left' : 'right' }}>
                   <Money value={l.subtotal} currency={data.currency} variant="captionSemi" />
                 </Text>
               </View>
