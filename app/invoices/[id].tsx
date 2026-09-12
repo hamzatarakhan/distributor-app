@@ -1,18 +1,20 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { InvoiceApi } from '@/src/api/resources';
 import {
   Badge, Button, Card, DetailRow, Divider, Money, Screen, Text,
 } from '@/src/components';
 import { useInvoice } from '@/src/hooks/data';
-import { invoiceStatus, isOverdue } from '@/src/lib/status';
+import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function InvoiceDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const invoiceId = Number(id);
   const { spacing } = useTheme();
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch, isRefetching } = useInvoice(invoiceId);
   const [pdfBusy, setPdfBusy] = useState(false);
 
@@ -39,14 +41,14 @@ export default function InvoiceDetail() {
         <>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text variant="h1">{data.number}</Text>
-            <Badge {...invoiceStatus[data.status]} />
+            <Badge label={t(invoiceStatusKey[data.status])} tone={invoiceStatusTone[data.status]} />
           </View>
           <Text tone="muted">{data.customerName}</Text>
 
           <Card>
-            <DetailRow label="Invoice date" value={data.invoiceDate} />
+            <DetailRow label={t('invoiceDetail.invoiceDate')} value={data.invoiceDate} />
             <DetailRow
-              label="Due date"
+              label={t('invoiceDetail.dueDate')}
               valueNode={
                 <Text
                   variant="captionSemi"
@@ -57,7 +59,7 @@ export default function InvoiceDetail() {
             />
           </Card>
 
-          <Text variant="h2" style={{ marginTop: spacing.sm }}>Lines</Text>
+          <Text variant="h2" style={{ marginTop: spacing.sm }}>{t('invoiceDetail.lines')}</Text>
           <Card>
             {(data.lines ?? []).map((l, i) => (
               <View key={l.id}>
@@ -74,17 +76,17 @@ export default function InvoiceDetail() {
           </Card>
 
           <Card>
-            <DetailRow label="Untaxed" valueNode={<Money value={data.amountUntaxed} currency={data.currency} variant="captionSemi" />} />
-            <DetailRow label="Tax" valueNode={<Money value={data.amountTax} currency={data.currency} variant="captionSemi" />} />
+            <DetailRow label={t('invoiceDetail.untaxed')} valueNode={<Money value={data.amountUntaxed} currency={data.currency} variant="captionSemi" />} />
+            <DetailRow label={t('invoiceDetail.tax')} valueNode={<Money value={data.amountTax} currency={data.currency} variant="captionSemi" />} />
             <Divider />
-            <DetailRow label="Total" valueNode={<Money value={data.amountTotal} currency={data.currency} variant="title" />} />
-            <DetailRow label="Amount due" valueNode={
+            <DetailRow label={t('invoiceDetail.total')} valueNode={<Money value={data.amountTotal} currency={data.currency} variant="title" />} />
+            <DetailRow label={t('invoiceDetail.amountDue')} valueNode={
               <Money value={data.amountDue} currency={data.currency} variant="title"
                 tone={data.amountDue > 0 ? 'danger' : 'success'} />
             } />
           </Card>
 
-          <Button variant="secondary" icon="document-outline" title="View / download PDF" onPress={openPdf} loading={pdfBusy} />
+          <Button variant="secondary" icon="document-outline" title={t('invoiceDetail.viewPdf')} onPress={openPdf} loading={pdfBusy} />
         </>
       ) : null}
     </Screen>

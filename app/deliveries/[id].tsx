@@ -1,14 +1,16 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Linking, Platform, Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Badge, Card, DetailRow, Icon, Screen, StickyActionBar, Text } from '@/src/components';
 import { useDelivery } from '@/src/hooks/data';
-import { pickingStatus } from '@/src/lib/status';
+import { pickingStatusKey, pickingStatusTone } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function DeliveryDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const deliveryId = Number(id);
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch, isRefetching } = useDelivery(deliveryId);
 
   const openMaps = () => {
@@ -30,7 +32,7 @@ export default function DeliveryDetail() {
       footer={
         data ? (
           <StickyActionBar
-            label={done ? 'Delivered ✓' : 'Start delivery confirmation'}
+            label={done ? t('deliveryDetail.delivered') : t('deliveryDetail.startConfirmation')}
             disabled={done}
             onPress={() => router.push(`/deliveries/confirm/${deliveryId}`)}
           />
@@ -40,7 +42,7 @@ export default function DeliveryDetail() {
         <>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text variant="h1" style={{ flexShrink: 1 }}>{data.partnerName}</Text>
-            <Badge {...pickingStatus[data.status]} />
+            <Badge label={t(pickingStatusKey[data.status])} tone={pickingStatusTone[data.status]} />
           </View>
 
           <Pressable onPress={openMaps}>
@@ -55,11 +57,11 @@ export default function DeliveryDetail() {
           </Pressable>
 
           <Card>
-            <DetailRow label="Reference" value={data.reference} />
-            <DetailRow label="Sale order" value={data.saleOrderRef ?? '—'} />
-            <DetailRow label="Scheduled" value={data.scheduledDate ?? '—'} />
+            <DetailRow label={t('deliveryDetail.reference')} value={data.reference} />
+            <DetailRow label={t('deliveryDetail.saleOrder')} value={data.saleOrderRef ?? '—'} />
+            <DetailRow label={t('deliveryDetail.scheduled')} value={data.scheduledDate ?? '—'} />
             <DetailRow
-              label="Phone"
+              label={t('deliveryDetail.phone')}
               valueNode={
                 data.phone ? (
                   <Pressable onPress={call}>
@@ -72,7 +74,7 @@ export default function DeliveryDetail() {
             />
           </Card>
 
-          <Text variant="h2" style={{ marginTop: spacing.sm }}>Items</Text>
+          <Text variant="h2" style={{ marginTop: spacing.sm }}>{t('deliveryDetail.items')}</Text>
           {(data.lines ?? []).map((l) => (
             <Card key={l.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="title" style={{ flexShrink: 1 }}>{l.product}</Text>

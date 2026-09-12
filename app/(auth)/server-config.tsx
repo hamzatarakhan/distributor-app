@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Button, Card, Text } from '@/src/components';
 import { useAuth } from '@/src/auth/AuthContext';
 import { api } from '@/src/api';
@@ -8,6 +9,7 @@ import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function ServerConfig() {
   const { colors, spacing, radii } = useTheme();
+  const { t } = useTranslation();
   const { server, database, setServer } = useAuth();
   const [url, setUrl] = useState(server);
   const [db, setDb] = useState(database ?? '');
@@ -53,21 +55,20 @@ export default function ServerConfig() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, padding: spacing.lg, gap: spacing.lg }}>
-      {field('Odoo base URL', url, setUrl, 'https://erp.company.com')}
-      {field('Database (optional)', db, setDb, 'company-prod')}
+      {field(t('auth.serverConfig.urlLabel'), url, setUrl, 'https://erp.company.com')}
+      {field(t('auth.serverConfig.dbLabel'), db, setDb, 'company-prod')}
 
-      <Button variant="secondary" title="Test connection" onPress={test} loading={testState === 'testing'} />
-      {testState === 'ok' ? <Text tone="success" variant="caption">Reachable ✓</Text> : null}
-      {testState === 'fail' ? <Text tone="danger" variant="caption">Could not reach that server.</Text> : null}
+      <Button variant="secondary" title={t('auth.serverConfig.testConnection')} onPress={test} loading={testState === 'testing'} />
+      {testState === 'ok' ? <Text tone="success" variant="caption">{t('auth.serverConfig.reachable')}</Text> : null}
+      {testState === 'fail' ? <Text tone="danger" variant="caption">{t('auth.serverConfig.unreachable')}</Text> : null}
 
       <Card>
         <Text variant="caption" tone="muted">
-          Current transport: <Text variant="captionSemi">{api.transportName()}</Text>. While it is
-          &ldquo;mock&rdquo; the app runs on sample data and any URL is accepted.
+          {t('auth.serverConfig.transportNote', { transport: api.transportName() })}
         </Text>
       </Card>
 
-      <Button title="Save" onPress={save} disabled={!url} fullWidth />
+      <Button title={t('auth.serverConfig.save')} onPress={save} disabled={!url} fullWidth />
     </View>
   );
 }

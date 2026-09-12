@@ -1,21 +1,22 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Badge, Card, FilterChips, ListRow, Money, Screen, SearchBar, Text } from '@/src/components';
 import { useInvoices } from '@/src/hooks/data';
 import { useDebounced } from '@/src/lib/useDebounced';
-import { invoiceStatus, isOverdue } from '@/src/lib/status';
+import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
-
-const FILTERS = [
-  { value: 'open', label: 'Open' },
-  { value: 'overdue', label: 'Overdue' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'all', label: 'All' },
-] as const;
 
 export default function InvoicesScreen() {
   const { spacing } = useTheme();
+  const { t } = useTranslation();
+  const FILTERS = [
+    { value: 'open', label: t('invoices.filterOpen') },
+    { value: 'overdue', label: t('invoices.filterOverdue') },
+    { value: 'paid', label: t('invoices.filterPaid') },
+    { value: 'all', label: t('invoices.filterAll') },
+  ] as const;
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['value']>('open');
   const [search, setSearch] = useState('');
   const q = useDebounced(search);
@@ -32,12 +33,12 @@ export default function InvoicesScreen() {
       error={error}
       onRetry={refetch}
       empty={!isLoading && items.length === 0}
-      emptyText="No invoices in this view.">
-      <SearchBar value={search} onChangeText={setSearch} placeholder="Number or customer" />
+      emptyText={t('invoices.emptyText')}>
+      <SearchBar value={search} onChangeText={setSearch} placeholder={t('invoices.searchPlaceholder')} />
       <FilterChips value={filter} onChange={setFilter} options={FILTERS as any} />
       {outstanding > 0 ? (
         <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text variant="caption" tone="muted">{items.length} invoices · outstanding</Text>
+          <Text variant="caption" tone="muted">{t('invoices.outstanding', { count: items.length })}</Text>
           <Money value={outstanding} currency={currency} variant="title" />
         </Card>
       ) : null}
@@ -53,9 +54,9 @@ export default function InvoicesScreen() {
                 <View style={{ alignItems: 'flex-end', gap: 4 }}>
                   <Money value={inv.amountTotal} currency={inv.currency} />
                   <Text variant="caption" tone={overdue ? 'danger' : 'faint'}>
-                    {inv.dueDate ? `due ${inv.dueDate}` : ''}
+                    {inv.dueDate ? t('invoices.due', { date: inv.dueDate }) : ''}
                   </Text>
-                  <Badge {...invoiceStatus[inv.status]} />
+                  <Badge label={t(invoiceStatusKey[inv.status])} tone={invoiceStatusTone[inv.status]} />
                 </View>
               }
               onPress={() => router.push(`/invoices/${inv.id}`)}

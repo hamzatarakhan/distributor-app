@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import type { ColorValue } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from '@/src/components';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
@@ -11,6 +12,7 @@ function tabIcon(name: IconName) {
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -21,11 +23,11 @@ export default function TabLayout() {
         headerTintColor: colors.text,
         headerShadowVisible: false,
       }}>
-      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: tabIcon('home') }} />
-      <Tabs.Screen name="stock" options={{ title: 'Stock', tabBarIcon: tabIcon('cube') }} />
-      <Tabs.Screen name="deliveries" options={{ title: 'Deliveries', tabBarIcon: tabIcon('car') }} />
-      <Tabs.Screen name="invoices" options={{ title: 'Invoices', tabBarIcon: tabIcon('document-text') }} />
-      <Tabs.Screen name="more" options={{ title: 'More', tabBarIcon: tabIcon('ellipsis-horizontal') }} />
+      <Tabs.Screen name="index" options={{ title: t('tabs.home'), tabBarIcon: tabIcon('home') }} />
+      <Tabs.Screen name="stock" options={{ title: t('tabs.stock'), tabBarIcon: tabIcon('cube') }} />
+      <Tabs.Screen name="deliveries" options={{ title: t('tabs.deliveries'), tabBarIcon: tabIcon('car') }} />
+      <Tabs.Screen name="invoices" options={{ title: t('tabs.invoices'), tabBarIcon: tabIcon('document-text') }} />
+      <Tabs.Screen name="more" options={{ title: t('tabs.more'), tabBarIcon: tabIcon('ellipsis-horizontal') }} />
     </Tabs>
   );
 }

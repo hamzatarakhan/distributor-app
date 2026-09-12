@@ -1,19 +1,21 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   Badge, Card, DetailRow, QtyStepper, ResultSheet, Screen, StickyActionBar, Text,
   type ResultState,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useConfirmReceipt, useReceipt } from '@/src/hooks/data';
-import { pickingStatus } from '@/src/lib/status';
+import { pickingStatusKey, pickingStatusTone } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function ReceiptDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const receiptId = Number(id);
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch, isRefetching } = useReceipt(receiptId);
   const confirm = useConfirmReceipt(receiptId);
   const [qty, setQty] = useState<Record<number, number>>({});
@@ -31,13 +33,13 @@ export default function ReceiptDetail() {
         onSuccess: (res) =>
           setResult({
             kind: 'success',
-            title: 'Receipt confirmed',
-            description: 'Stock has been updated.',
-            referenceLabel: 'Receipt',
+            title: t('receiptDetail.confirmedTitle'),
+            description: t('receiptDetail.confirmedDescription'),
+            referenceLabel: t('receiptDetail.receiptLabel'),
             reference: res.reference,
           }),
         onError: (e) =>
-          setResult({ kind: 'error', title: 'Could not confirm', description: errorMessage(e) }),
+          setResult({ kind: 'error', title: t('receiptDetail.couldNotConfirm'), description: errorMessage(e) }),
       },
     );
   };
@@ -53,7 +55,7 @@ export default function ReceiptDetail() {
         footer={
           canConfirm ? (
             <StickyActionBar
-              label="Confirm receipt"
+              label={t('receiptDetail.confirmReceipt')}
               loading={confirm.isPending}
               onPress={() => submit()}
             />
@@ -63,20 +65,20 @@ export default function ReceiptDetail() {
           <>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="h1">{data.reference}</Text>
-              <Badge {...pickingStatus[data.status]} />
+              <Badge label={t(pickingStatusKey[data.status])} tone={pickingStatusTone[data.status]} />
             </View>
             <Card>
-              <DetailRow label="Supplier" value={data.partnerName ?? '—'} />
-              <DetailRow label="Source" value={data.sourceDocument ?? '—'} />
-              <DetailRow label="Scheduled" value={data.scheduledDate ?? '—'} />
+              <DetailRow label={t('receiptDetail.supplier')} value={data.partnerName ?? '—'} />
+              <DetailRow label={t('receiptDetail.source')} value={data.sourceDocument ?? '—'} />
+              <DetailRow label={t('receiptDetail.scheduled')} value={data.scheduledDate ?? '—'} />
             </Card>
 
-            <Text variant="h2" style={{ marginTop: spacing.sm }}>Items</Text>
+            <Text variant="h2" style={{ marginTop: spacing.sm }}>{t('receiptDetail.items')}</Text>
             {lines.map((l) => (
               <Card key={l.id}>
                 <Text variant="title">{l.product}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="caption" tone="muted">Demand {l.demandQty} {l.uom}</Text>
+                  <Text variant="caption" tone="muted">{t('receiptDetail.demand', { qty: l.demandQty, uom: l.uom })}</Text>
                   {canConfirm ? (
                     <QtyStepper
                       value={doneQty(l.id, l.doneQty)}
@@ -91,7 +93,7 @@ export default function ReceiptDetail() {
             ))}
             {!canConfirm ? (
               <Text variant="caption" tone="faint">
-                Only receipts in “Ready” state can be confirmed here.
+                {t('receiptDetail.onlyReadyCanBeConfirmed')}
               </Text>
             ) : null}
           </>
@@ -100,7 +102,7 @@ export default function ReceiptDetail() {
 
       <ResultSheet
         state={result}
-        primaryLabel={result?.kind === 'success' ? 'Back to receipts' : 'Retry'}
+        primaryLabel={result?.kind === 'success' ? t('receiptDetail.backToReceipts') : t('common.retry')}
         onPrimary={() => {
           const ok = result?.kind === 'success';
           setResult(null);

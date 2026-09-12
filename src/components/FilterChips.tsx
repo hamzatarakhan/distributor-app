@@ -17,7 +17,7 @@ export function FilterChips<T extends string>({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.lg }}>
+      contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.lg, alignItems: 'center' }}>
       {options.map((o) => {
         const active = o.value === value;
         return (

@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { Button } from './Button';
 import { Icon } from './Icon';
@@ -26,6 +27,7 @@ export function ResultSheet({
   primaryLabel?: string;
 }) {
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   if (!state) return null;
   const ok = state.kind === 'success';
   const accent = ok ? colors.success : colors.danger;
@@ -51,19 +53,19 @@ export function ResultSheet({
         ) : null}
         {state.reference ? (
           <Text tone="faint" variant="caption">
-            {(state.referenceLabel ?? 'Reference') + ': '}
+            {(state.referenceLabel ?? t('common.reference')) + ': '}
             <Text variant="captionSemi" tone="muted">{state.reference}</Text>
           </Text>
         ) : null}
       </View>
       <Button
         fullWidth
-        title={primaryLabel ?? (ok ? 'Done' : 'Retry')}
+        title={primaryLabel ?? (ok ? t('common.done') : t('common.retry'))}
         variant={ok ? 'primary' : 'danger'}
         onPress={onPrimary}
       />
       {!ok && onCancel ? (
-        <Button fullWidth title="Cancel" variant="ghost" onPress={onCancel} />
+        <Button fullWidth title={t('common.cancel')} variant="ghost" onPress={onCancel} />
       ) : null}
     </Sheet>
   );

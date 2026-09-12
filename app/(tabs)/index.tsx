@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   Badge, Card, ListRow, Money, Screen, SectionHeader, StatCard, StatRow, Text,
 } from '@/src/components';
 import { useDeliveries, useInventory, useInvoices, useProfile } from '@/src/hooks/data';
-import { invoiceStatus, isOverdue, pickingStatus } from '@/src/lib/status';
+import { invoiceStatusKey, invoiceStatusTone, isOverdue, pickingStatusKey, pickingStatusTone } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function Dashboard() {
   const { spacing } = useTheme();
+  const { t } = useTranslation();
   const profile = useProfile();
   const deliveries = useDeliveries({ status: 'all' });
   const inventory = useInventory({});
@@ -44,45 +46,45 @@ export default function Dashboard() {
       loading={loading}
       error={deliveries.error ?? inventory.error ?? invoices.error}
       onRetry={refetchAll}>
-      <Text variant="h1">Hi{profile.data ? `, ${profile.data.name.split(' ')[0]}` : ''}</Text>
+      <Text variant="h1">{t('home.greeting', { name: profile.data ? `, ${profile.data.name.split(' ')[0]}` : '' })}</Text>
       {profile.data?.warehouses?.[0] ? (
         <Text tone="muted" variant="caption">{profile.data.warehouses[0]}</Text>
       ) : null}
 
       <StatRow>
-        <StatCard label="Deliveries today" value={String(todays.length)} />
-        <StatCard label="Ready to ship" value={String(ready.length)} />
-        <StatCard label="Open invoices" value={String(openInvoices.length)} />
+        <StatCard label={t('home.statDeliveriesToday')} value={String(todays.length)} />
+        <StatCard label={t('home.statReadyToShip')} value={String(ready.length)} />
+        <StatCard label={t('home.statOpenInvoices')} value={String(openInvoices.length)} />
         <StatCard
-          label="Overdue"
+          label={t('home.statOverdue')}
           value={overdueTotal ? `${overdueTotal.toFixed(0)} ${currency}` : '0'}
           tone={overdueTotal ? 'danger' : 'text'}
         />
       </StatRow>
 
       <SectionHeader
-        title="Today's deliveries"
-        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/deliveries')}>See all</Text>}
+        title={t('home.todaysDeliveries')}
+        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/deliveries')}>{t('home.seeAll')}</Text>}
       />
       {todays.length === 0 ? (
-        <Card><Text tone="muted" variant="caption">Nothing scheduled for today.</Text></Card>
+        <Card><Text tone="muted" variant="caption">{t('home.nothingScheduledToday')}</Text></Card>
       ) : (
         <View style={{ gap: spacing.md }}>
           {todays.slice(0, 5).map((d) => (
             <ListRow
               key={d.id}
               title={d.partnerName ?? d.reference}
-              subtitle={`${d.reference} · ${d.itemCount} items`}
-              right={<Badge {...pickingStatus[d.status]} />}
+              subtitle={`${d.reference} · ${d.itemCount} ${t('common.items')}`}
+              right={<Badge label={t(pickingStatusKey[d.status])} tone={pickingStatusTone[d.status]} />}
               onPress={() => router.push(`/deliveries/${d.id}`)}
             />
           ))}
         </View>
       )}
 
-      <SectionHeader title="Low / negative stock" />
+      <SectionHeader title={t('home.lowStock')} />
       {lowStock.length === 0 ? (
-        <Card><Text tone="muted" variant="caption">All products above reorder point.</Text></Card>
+        <Card><Text tone="muted" variant="caption">{t('home.allAboveReorder')}</Text></Card>
       ) : (
         <View style={{ gap: spacing.md }}>
           {lowStock.slice(0, 5).map((i) => (
@@ -98,22 +100,22 @@ export default function Dashboard() {
       )}
 
       <SectionHeader
-        title="Overdue invoices"
-        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/invoices')}>See all</Text>}
+        title={t('home.overdueInvoices')}
+        action={<Text tone="primary" variant="caption" onPress={() => router.push('/(tabs)/invoices')}>{t('home.seeAll')}</Text>}
       />
       {overdue.length === 0 ? (
-        <Card><Text tone="muted" variant="caption">No overdue invoices.</Text></Card>
+        <Card><Text tone="muted" variant="caption">{t('home.noOverdueInvoices')}</Text></Card>
       ) : (
         <View style={{ gap: spacing.md }}>
           {overdue.slice(0, 5).map((inv) => (
             <ListRow
               key={inv.id}
               title={inv.customerName}
-              subtitle={`${inv.number} · due ${inv.dueDate}`}
+              subtitle={`${inv.number} · ${t('invoices.due', { date: inv.dueDate })}`}
               right={
                 <View style={{ alignItems: 'flex-end', gap: 4 }}>
                   <Money value={inv.amountDue} currency={inv.currency} />
-                  <Badge {...invoiceStatus[inv.status]} />
+                  <Badge label={t(invoiceStatusKey[inv.status])} tone={invoiceStatusTone[inv.status]} />
                 </View>
               }
               onPress={() => router.push(`/invoices/${inv.id}`)}

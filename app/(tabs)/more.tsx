@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
 import { Card, ConfirmSheet, Icon, ListRow, Screen, Text } from '@/src/components';
 import { useAuth } from '@/src/auth/AuthContext';
 import { useProfile } from '@/src/hooks/data';
@@ -9,6 +10,7 @@ import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function More() {
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const { signOut, session } = useAuth();
   const profile = useProfile();
   const [confirm, setConfirm] = useState(false);
@@ -16,7 +18,7 @@ export default function More() {
   return (
     <Screen>
       <Card>
-        <Text variant="title">{profile.data?.name ?? session?.name ?? 'Account'}</Text>
+        <Text variant="title">{profile.data?.name ?? session?.name ?? t('more.account')}</Text>
         <Text variant="caption" tone="muted">{profile.data?.email ?? session?.login}</Text>
         {profile.data?.company ? (
           <Text variant="caption" tone="faint">{profile.data.company}</Text>
@@ -25,34 +27,39 @@ export default function More() {
 
       <View style={{ gap: spacing.md }}>
         <ListRow
-          title="Profile"
+          title={t('more.profile')}
           left={<Icon name="person-outline" color={colors.textMuted} />}
           onPress={() => router.push('/settings/profile')}
         />
         <ListRow
-          title="Appearance"
+          title={t('more.appearance')}
           left={<Icon name="contrast-outline" color={colors.textMuted} />}
           onPress={() => router.push('/settings/theme')}
         />
         <ListRow
-          title="Server / connection"
+          title={t('more.language')}
+          left={<Icon name="language-outline" color={colors.textMuted} />}
+          onPress={() => router.push('/settings/language')}
+        />
+        <ListRow
+          title={t('more.serverConnection')}
           left={<Icon name="server-outline" color={colors.textMuted} />}
           onPress={() => router.push('/(auth)/server-config')}
         />
         <ListRow
-          title="About"
+          title={t('more.about')}
           left={<Icon name="information-circle-outline" color={colors.textMuted} />}
           onPress={() => router.push('/settings/about')}
         />
         {__DEV__ ? (
           <ListRow
-            title="Kitchen sink (dev)"
+            title={t('more.kitchenSinkDev')}
             left={<Icon name="flask-outline" color={colors.textMuted} />}
             onPress={() => router.push('/kitchen-sink')}
           />
         ) : null}
         <ListRow
-          title="Sign out"
+          title={t('more.signOut')}
           chevron={false}
           left={<Icon name="log-out-outline" color={colors.danger} />}
           onPress={() => setConfirm(true)}
@@ -65,9 +72,9 @@ export default function More() {
 
       <ConfirmSheet
         visible={confirm}
-        title="Sign out?"
-        description="You'll need to sign in again to use the app."
-        confirmLabel="Sign out"
+        title={t('more.signOutConfirmTitle')}
+        description={t('more.signOutConfirmDescription')}
+        confirmLabel={t('more.signOut')}
         destructive
         onConfirm={() => {
           setConfirm(false);

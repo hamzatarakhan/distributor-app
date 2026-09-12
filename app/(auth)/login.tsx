@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { Button, Icon, Text } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useAuth } from '@/src/auth/AuthContext';
@@ -36,6 +37,7 @@ function LabeledInput(props: React.ComponentProps<typeof TextInput> & { label: s
 
 export default function Login() {
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { signIn, server } = useAuth();
   const [login, setLogin] = useState('');
@@ -77,12 +79,12 @@ export default function Login() {
             }}>
             <Icon name="cube" size={32} color={colors.primary} />
           </View>
-          <Text variant="h1">Distributor</Text>
-          <Text tone="muted" variant="caption">Sign in to your Odoo account</Text>
+          <Text variant="h1">{t('auth.login.title')}</Text>
+          <Text tone="muted" variant="caption">{t('auth.login.subtitle')}</Text>
         </View>
 
         <LabeledInput
-          label="Username or email"
+          label={t('auth.login.usernameLabel')}
           value={login}
           onChangeText={setLogin}
           autoCapitalize="none"
@@ -91,7 +93,7 @@ export default function Login() {
           placeholder="you@company.com"
         />
         <LabeledInput
-          label="Password"
+          label={t('auth.login.passwordLabel')}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!show}
@@ -105,11 +107,11 @@ export default function Login() {
 
         {error ? <Text tone="danger" variant="caption">{error}</Text> : null}
 
-        <Button title="Sign in" onPress={submit} loading={busy} disabled={!login || !password} fullWidth />
+        <Button title={t('auth.login.signIn')} onPress={submit} loading={busy} disabled={!login || !password} fullWidth />
 
         <Pressable onPress={() => router.push('/(auth)/server-config')} style={{ alignSelf: 'center' }}>
           <Text tone="primary" variant="caption">
-            {server ? `Server: ${server}` : 'Change server'}
+            {server ? t('auth.login.serverPrefix', { server }) : t('auth.login.changeServer')}
           </Text>
         </Pressable>
       </View>

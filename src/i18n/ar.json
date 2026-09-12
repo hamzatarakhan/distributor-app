@@ -1,0 +1,207 @@
+{
+  "common": {
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "retry": "إعادة المحاولة",
+    "save": "حفظ",
+    "done": "تم",
+    "reference": "المرجع",
+    "somethingWrong": "حدث خطأ ما.",
+    "nothingHereYet": "لا يوجد شيء هنا بعد.",
+    "couldNotLoad": "تعذر التحميل",
+    "search": "بحث",
+    "items": "عناصر"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "stock": "المخزون",
+    "deliveries": "التوصيل",
+    "invoices": "الفواتير",
+    "more": "المزيد"
+  },
+  "home": {
+    "greeting": "مرحباً{{name}}",
+    "statDeliveriesToday": "توصيلات اليوم",
+    "statReadyToShip": "جاهز للشحن",
+    "statOpenInvoices": "فواتير مفتوحة",
+    "statOverdue": "متأخرة",
+    "todaysDeliveries": "توصيلات اليوم",
+    "seeAll": "عرض الكل",
+    "nothingScheduledToday": "لا يوجد توصيل مجدول اليوم.",
+    "lowStock": "مخزون منخفض / سالب",
+    "allAboveReorder": "جميع المنتجات فوق حد إعادة الطلب.",
+    "overdueInvoices": "فواتير متأخرة",
+    "noOverdueInvoices": "لا توجد فواتير متأخرة."
+  },
+  "invoices": {
+    "searchPlaceholder": "رقم الفاتورة أو العميل",
+    "filterOpen": "مفتوحة",
+    "filterOverdue": "متأخرة",
+    "filterPaid": "مدفوعة",
+    "filterAll": "الكل",
+    "outstanding": "{{count}} فاتورة · المستحق",
+    "emptyText": "لا توجد فواتير في هذا العرض.",
+    "due": "الاستحقاق {{date}}"
+  },
+  "invoiceDetail": {
+    "title": "الفاتورة",
+    "invoiceDate": "تاريخ الفاتورة",
+    "dueDate": "تاريخ الاستحقاق",
+    "lines": "البنود",
+    "untaxed": "قبل الضريبة",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "amountDue": "المبلغ المستحق",
+    "viewPdf": "عرض / تحميل PDF"
+  },
+  "deliveries": {
+    "searchPlaceholder": "العميل أو المرجع",
+    "filterReady": "جاهزة",
+    "filterWaiting": "بالانتظار",
+    "filterDone": "منجزة",
+    "filterAll": "الكل",
+    "emptyText": "لا توجد توصيلات في هذا العرض."
+  },
+  "deliveryDetail": {
+    "title": "التوصيل",
+    "reference": "المرجع",
+    "saleOrder": "أمر البيع",
+    "scheduled": "موعد التوصيل",
+    "phone": "الهاتف",
+    "items": "العناصر",
+    "startConfirmation": "بدء تأكيد التوصيل",
+    "delivered": "تم التوصيل ✓"
+  },
+  "deliveryConfirm": {
+    "deliverAll": "توصيل كامل الكميات المطلوبة",
+    "ordered": "المطلوب {{qty}} {{uom}}",
+    "noteLabel": "ملاحظة (اختياري)",
+    "notePlaceholder": "أي شيء يجب أن يعرفه المكتب",
+    "confirmDelivery": "تأكيد التوصيل",
+    "devSimulateFailure": "للتطوير: محاكاة فشل",
+    "confirmedTitle": "تم تأكيد التوصيل",
+    "confirmedDescription": "تم وضع علامة \"تم التوصيل\" على طلب العميل.",
+    "pickingLabel": "عملية الشحن",
+    "couldNotConfirm": "تعذر التأكيد",
+    "backToDeliveries": "العودة إلى التوصيلات"
+  },
+  "stock": {
+    "searchPlaceholder": "الاسم أو المرجع أو الباركود",
+    "filterAll": "الكل",
+    "filterLowStockOnly": "المخزون المنخفض فقط",
+    "emptyText": "لا توجد منتجات مطابقة.",
+    "receiptsTitle": "الإيصالات الواردة"
+  },
+  "productDetail": {
+    "onHand": "المتوفر",
+    "forecasted": "المتوقع",
+    "reserved": "المحجوز",
+    "incoming": "الوارد",
+    "outgoing": "الصادر",
+    "reorderPoint": "حد إعادة الطلب",
+    "byLocation": "حسب الموقع",
+    "recentMoves": "آخر الحركات",
+    "noRecentMoves": "لا توجد حركات حديثة."
+  },
+  "receipts": {
+    "filterAll": "الكل",
+    "filterDraft": "مسودة",
+    "filterWaiting": "بالانتظار",
+    "filterReady": "جاهزة",
+    "filterDone": "منجزة",
+    "emptyText": "لا توجد إيصالات واردة."
+  },
+  "receiptDetail": {
+    "supplier": "المورّد",
+    "source": "المصدر",
+    "scheduled": "الموعد",
+    "items": "العناصر",
+    "demand": "المطلوب {{qty}} {{uom}}",
+    "onlyReadyCanBeConfirmed": "يمكن تأكيد الإيصالات في حالة \"جاهزة\" فقط من هنا.",
+    "confirmReceipt": "تأكيد الإيصال",
+    "confirmedTitle": "تم تأكيد الإيصال",
+    "confirmedDescription": "تم تحديث المخزون.",
+    "receiptLabel": "الإيصال",
+    "couldNotConfirm": "تعذر التأكيد",
+    "backToReceipts": "العودة إلى الإيصالات"
+  },
+  "more": {
+    "account": "الحساب",
+    "profile": "الملف الشخصي",
+    "appearance": "المظهر",
+    "serverConnection": "الخادم / الاتصال",
+    "about": "حول التطبيق",
+    "language": "اللغة",
+    "kitchenSinkDev": "عناصر الواجهة (للتطوير)",
+    "signOut": "تسجيل الخروج",
+    "signOutConfirmTitle": "تسجيل الخروج؟",
+    "signOutConfirmDescription": "ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام التطبيق."
+  },
+  "theme": {
+    "hint": "يُطبَّق فوراً ويُحفظ على هذا الجهاز.",
+    "system": "النظام",
+    "systemHint": "مطابقة إعداد الجهاز",
+    "light": "فاتح",
+    "lightHint": "فاتح دائماً",
+    "dark": "داكن",
+    "darkHint": "داكن دائماً"
+  },
+  "language": {
+    "hint": "يُطبَّق فوراً ويُحفظ على هذا الجهاز.",
+    "english": "English",
+    "englishHint": "عرض التطبيق باللغة الإنجليزية",
+    "arabic": "العربية",
+    "arabicHint": "عرض التطبيق باللغة العربية"
+  },
+  "profile": {
+    "name": "الاسم",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "company": "الشركة",
+    "warehouse": "المستودع"
+  },
+  "about": {
+    "version": "الإصدار",
+    "runtime": "بيئة التشغيل",
+    "dataSource": "مصدر البيانات",
+    "server": "الخادم",
+    "footer": "تطبيق الموزّع لإدارة المخزون والتوصيل والفوترة على أودو."
+  },
+  "auth": {
+    "login": {
+      "title": "الموزّع",
+      "subtitle": "سجّل الدخول إلى حساب أودو الخاص بك",
+      "usernameLabel": "اسم المستخدم أو البريد الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "signIn": "تسجيل الدخول",
+      "changeServer": "تغيير الخادم",
+      "serverPrefix": "الخادم: {{server}}"
+    },
+    "serverConfig": {
+      "urlLabel": "رابط خادم أودو",
+      "dbLabel": "قاعدة البيانات (اختياري)",
+      "testConnection": "اختبار الاتصال",
+      "reachable": "تم الوصول ✓",
+      "unreachable": "تعذر الوصول إلى هذا الخادم.",
+      "transportNote": "طريقة الاتصال الحالية: {{transport}}. طالما أنها \"mock\" فإن التطبيق يعمل على بيانات تجريبية ويقبل أي رابط.",
+      "save": "حفظ"
+    }
+  },
+  "status": {
+    "picking": {
+      "draft": "مسودة",
+      "waiting": "بالانتظار",
+      "ready": "جاهزة",
+      "done": "منجزة",
+      "cancel": "ملغاة"
+    },
+    "invoice": {
+      "draft": "مسودة",
+      "not_paid": "غير مدفوعة",
+      "partial": "مدفوعة جزئياً",
+      "paid": "مدفوعة",
+      "reversed": "معكوسة"
+    }
+  }
+}

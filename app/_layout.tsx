@@ -9,12 +9,16 @@ import 'react-native-reanimated';
 import { AuthProvider, useAuth } from '@/src/auth/AuthContext';
 import { queryClient } from '@/src/hooks/queryClient';
 import { ThemeProvider, useTheme } from '@/src/theme/ThemeProvider';
+import { LocaleProvider } from '@/src/i18n/LocaleProvider';
+import { useTranslation } from 'react-i18next';
+import '@/src/i18n';
 
 export const unstable_settings = { anchor: '(tabs)' };
 
 function RootNavigator() {
   const { session, ready } = useAuth();
   const { colors, scheme } = useTheme();
+  const { t } = useTranslation();
 
   if (!ready) {
     return (
@@ -35,15 +39,16 @@ function RootNavigator() {
         }}>
         <Stack.Protected guard={!!session}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="stock/[productId]" options={{ title: 'Product' }} />
-          <Stack.Screen name="stock/receipts" options={{ title: 'Incoming receipts' }} />
-          <Stack.Screen name="stock/receipt/[id]" options={{ title: 'Receipt' }} />
-          <Stack.Screen name="deliveries/[id]" options={{ title: 'Delivery' }} />
-          <Stack.Screen name="deliveries/confirm/[id]" options={{ title: 'Confirm delivery' }} />
-          <Stack.Screen name="invoices/[id]" options={{ title: 'Invoice' }} />
-          <Stack.Screen name="settings/theme" options={{ title: 'Appearance' }} />
-          <Stack.Screen name="settings/profile" options={{ title: 'Profile' }} />
-          <Stack.Screen name="settings/about" options={{ title: 'About' }} />
+          <Stack.Screen name="stock/[productId]" options={{ title: t('tabs.stock') }} />
+          <Stack.Screen name="stock/receipts" options={{ title: t('stock.receiptsTitle') }} />
+          <Stack.Screen name="stock/receipt/[id]" options={{ title: t('receiptDetail.receiptLabel') }} />
+          <Stack.Screen name="deliveries/[id]" options={{ title: t('deliveryDetail.title') }} />
+          <Stack.Screen name="deliveries/confirm/[id]" options={{ title: t('deliveryConfirm.confirmDelivery') }} />
+          <Stack.Screen name="invoices/[id]" options={{ title: t('invoiceDetail.title') }} />
+          <Stack.Screen name="settings/theme" options={{ title: t('more.appearance') }} />
+          <Stack.Screen name="settings/profile" options={{ title: t('more.profile') }} />
+          <Stack.Screen name="settings/language" options={{ title: t('more.language') }} />
+          <Stack.Screen name="settings/about" options={{ title: t('more.about') }} />
           <Stack.Screen name="kitchen-sink" options={{ title: 'Kitchen sink' }} />
         </Stack.Protected>
         <Stack.Protected guard={!session}>
@@ -60,11 +65,13 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <AuthProvider>
-              <RootNavigator />
-            </AuthProvider>
-          </ThemeProvider>
+          <LocaleProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <RootNavigator />
+              </AuthProvider>
+            </ThemeProvider>
+          </LocaleProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

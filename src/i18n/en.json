@@ -1,0 +1,207 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "save": "Save",
+    "done": "Done",
+    "reference": "Reference",
+    "somethingWrong": "Something went wrong.",
+    "nothingHereYet": "Nothing here yet.",
+    "couldNotLoad": "Couldn’t load",
+    "search": "Search",
+    "items": "items"
+  },
+  "tabs": {
+    "home": "Home",
+    "stock": "Stock",
+    "deliveries": "Deliveries",
+    "invoices": "Invoices",
+    "more": "More"
+  },
+  "home": {
+    "greeting": "Hi{{name}}",
+    "statDeliveriesToday": "Deliveries today",
+    "statReadyToShip": "Ready to ship",
+    "statOpenInvoices": "Open invoices",
+    "statOverdue": "Overdue",
+    "todaysDeliveries": "Today’s deliveries",
+    "seeAll": "See all",
+    "nothingScheduledToday": "Nothing scheduled for today.",
+    "lowStock": "Low / negative stock",
+    "allAboveReorder": "All products above reorder point.",
+    "overdueInvoices": "Overdue invoices",
+    "noOverdueInvoices": "No overdue invoices."
+  },
+  "invoices": {
+    "searchPlaceholder": "Number or customer",
+    "filterOpen": "Open",
+    "filterOverdue": "Overdue",
+    "filterPaid": "Paid",
+    "filterAll": "All",
+    "outstanding": "{{count}} invoices · outstanding",
+    "emptyText": "No invoices in this view.",
+    "due": "due {{date}}"
+  },
+  "invoiceDetail": {
+    "title": "Invoice",
+    "invoiceDate": "Invoice date",
+    "dueDate": "Due date",
+    "lines": "Lines",
+    "untaxed": "Untaxed",
+    "tax": "Tax",
+    "total": "Total",
+    "amountDue": "Amount due",
+    "viewPdf": "View / download PDF"
+  },
+  "deliveries": {
+    "searchPlaceholder": "Customer or reference",
+    "filterReady": "Ready",
+    "filterWaiting": "Waiting",
+    "filterDone": "Done",
+    "filterAll": "All",
+    "emptyText": "No deliveries in this view."
+  },
+  "deliveryDetail": {
+    "title": "Delivery",
+    "reference": "Reference",
+    "saleOrder": "Sale order",
+    "scheduled": "Scheduled",
+    "phone": "Phone",
+    "items": "Items",
+    "startConfirmation": "Start delivery confirmation",
+    "delivered": "Delivered ✓"
+  },
+  "deliveryConfirm": {
+    "deliverAll": "Deliver all ordered quantities",
+    "ordered": "Ordered {{qty}} {{uom}}",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "Anything the office should know",
+    "confirmDelivery": "Confirm delivery",
+    "devSimulateFailure": "Dev: simulate a failure",
+    "confirmedTitle": "Delivery confirmed",
+    "confirmedDescription": "The customer’s order is marked delivered.",
+    "pickingLabel": "Picking",
+    "couldNotConfirm": "Could not confirm",
+    "backToDeliveries": "Back to deliveries"
+  },
+  "stock": {
+    "searchPlaceholder": "Name, reference, barcode",
+    "filterAll": "All",
+    "filterLowStockOnly": "Low stock only",
+    "emptyText": "No products match.",
+    "receiptsTitle": "Incoming receipts"
+  },
+  "productDetail": {
+    "onHand": "On hand",
+    "forecasted": "Forecasted",
+    "reserved": "Reserved",
+    "incoming": "Incoming",
+    "outgoing": "Outgoing",
+    "reorderPoint": "Reorder point",
+    "byLocation": "By location",
+    "recentMoves": "Recent moves",
+    "noRecentMoves": "No recent moves."
+  },
+  "receipts": {
+    "filterAll": "All",
+    "filterDraft": "Draft",
+    "filterWaiting": "Waiting",
+    "filterReady": "Ready",
+    "filterDone": "Done",
+    "emptyText": "No incoming receipts."
+  },
+  "receiptDetail": {
+    "supplier": "Supplier",
+    "source": "Source",
+    "scheduled": "Scheduled",
+    "items": "Items",
+    "demand": "Demand {{qty}} {{uom}}",
+    "onlyReadyCanBeConfirmed": "Only receipts in “Ready” state can be confirmed here.",
+    "confirmReceipt": "Confirm receipt",
+    "confirmedTitle": "Receipt confirmed",
+    "confirmedDescription": "Stock has been updated.",
+    "receiptLabel": "Receipt",
+    "couldNotConfirm": "Could not confirm",
+    "backToReceipts": "Back to receipts"
+  },
+  "more": {
+    "account": "Account",
+    "profile": "Profile",
+    "appearance": "Appearance",
+    "serverConnection": "Server / connection",
+    "about": "About",
+    "language": "Language",
+    "kitchenSinkDev": "Kitchen sink (dev)",
+    "signOut": "Sign out",
+    "signOutConfirmTitle": "Sign out?",
+    "signOutConfirmDescription": "You’ll need to sign in again to use the app."
+  },
+  "theme": {
+    "hint": "Applies immediately and is remembered on this device.",
+    "system": "System",
+    "systemHint": "Match the device setting",
+    "light": "Light",
+    "lightHint": "Always light",
+    "dark": "Dark",
+    "darkHint": "Always dark"
+  },
+  "language": {
+    "hint": "Applies immediately and is remembered on this device.",
+    "english": "English",
+    "englishHint": "Display the app in English",
+    "arabic": "العربية",
+    "arabicHint": "Display the app in Arabic"
+  },
+  "profile": {
+    "name": "Name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "warehouse": "Warehouse"
+  },
+  "about": {
+    "version": "Version",
+    "runtime": "Runtime",
+    "dataSource": "Data source",
+    "server": "Server",
+    "footer": "Distributor app for stock, delivery and invoicing on Odoo."
+  },
+  "auth": {
+    "login": {
+      "title": "Distributor",
+      "subtitle": "Sign in to your Odoo account",
+      "usernameLabel": "Username or email",
+      "passwordLabel": "Password",
+      "signIn": "Sign in",
+      "changeServer": "Change server",
+      "serverPrefix": "Server: {{server}}"
+    },
+    "serverConfig": {
+      "urlLabel": "Odoo base URL",
+      "dbLabel": "Database (optional)",
+      "testConnection": "Test connection",
+      "reachable": "Reachable ✓",
+      "unreachable": "Could not reach that server.",
+      "transportNote": "Current transport: {{transport}}. While it is “mock” the app runs on sample data and any URL is accepted.",
+      "save": "Save"
+    }
+  },
+  "status": {
+    "picking": {
+      "draft": "Draft",
+      "waiting": "Waiting",
+      "ready": "Ready",
+      "done": "Done",
+      "cancel": "Cancelled"
+    },
+    "invoice": {
+      "draft": "Draft",
+      "not_paid": "Not paid",
+      "partial": "Partial",
+      "paid": "Paid",
+      "reversed": "Reversed"
+    }
+  }
+}

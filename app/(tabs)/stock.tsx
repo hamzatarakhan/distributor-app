@@ -1,6 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { FilterChips, Icon, ListRow, Screen, SearchBar, Text } from '@/src/components';
 import { useInventory } from '@/src/hooks/data';
 import { useTheme } from '@/src/theme/ThemeProvider';
@@ -8,6 +9,7 @@ import { useDebounced } from '@/src/lib/useDebounced';
 
 export default function StockScreen() {
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [lowOnly, setLowOnly] = useState<'all' | 'low'>('all');
   const q = useDebounced(search, 300);
@@ -35,14 +37,14 @@ export default function StockScreen() {
         error={error}
         onRetry={refetch}
         empty={!isLoading && items.length === 0}
-        emptyText="No products match.">
-        <SearchBar value={search} onChangeText={setSearch} placeholder="Name, reference, barcode" />
+        emptyText={t('stock.emptyText')}>
+        <SearchBar value={search} onChangeText={setSearch} placeholder={t('stock.searchPlaceholder')} />
         <FilterChips
           value={lowOnly}
           onChange={setLowOnly}
           options={[
-            { value: 'all', label: 'All' },
-            { value: 'low', label: 'Low stock only' },
+            { value: 'all', label: t('stock.filterAll') },
+            { value: 'low', label: t('stock.filterLowStockOnly') },
           ]}
         />
         <View style={{ gap: spacing.md }}>

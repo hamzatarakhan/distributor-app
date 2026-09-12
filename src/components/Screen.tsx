@@ -6,6 +6,7 @@ import {
   type ScrollViewProps,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { EmptyState } from './EmptyState';
 import { ErrorBanner } from './ErrorBanner';
@@ -35,19 +36,20 @@ export function Screen({
   error,
   onRetry,
   empty,
-  emptyText = 'Nothing here yet.',
+  emptyText,
   padded = true,
   footer,
   contentContainerStyle,
 }: Props) {
   const { colors, spacing } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const pad = padded ? spacing.lg : 0;
 
   let body: ReactNode = children;
   if (loading) body = <LoadingRows />;
   else if (error) body = <ErrorBanner error={error} onRetry={onRetry} />;
-  else if (empty) body = <EmptyState text={emptyText} />;
+  else if (empty) body = <EmptyState text={emptyText ?? t('common.nothingHereYet')} />;
 
   const inner = (
     <View style={{ flex: 1, padding: pad, gap: spacing.md }}>{body}</View>

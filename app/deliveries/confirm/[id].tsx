@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   Button, Card, QtyStepper, ResultSheet, Screen, StickyActionBar, Text, type ResultState,
 } from '@/src/components';
@@ -12,6 +13,7 @@ export default function ConfirmDelivery() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const deliveryId = Number(id);
   const { colors, spacing, radii } = useTheme();
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useDelivery(deliveryId);
   const confirm = useConfirmDelivery(deliveryId);
   const [qty, setQty] = useState<Record<number, number>>({});
@@ -28,13 +30,13 @@ export default function ConfirmDelivery() {
         onSuccess: (res) =>
           setResult({
             kind: 'success',
-            title: 'Delivery confirmed',
-            description: 'The customer’s order is marked delivered.',
-            referenceLabel: 'Picking',
+            title: t('deliveryConfirm.confirmedTitle'),
+            description: t('deliveryConfirm.confirmedDescription'),
+            referenceLabel: t('deliveryConfirm.pickingLabel'),
             reference: res.reference,
           }),
         onError: (e) =>
-          setResult({ kind: 'error', title: 'Could not confirm', description: errorMessage(e) }),
+          setResult({ kind: 'error', title: t('deliveryConfirm.couldNotConfirm'), description: errorMessage(e) }),
       },
     );
   };
@@ -47,7 +49,7 @@ export default function ConfirmDelivery() {
         onRetry={refetch}
         footer={
           <StickyActionBar
-            label="Confirm delivery"
+            label={t('deliveryConfirm.confirmDelivery')}
             loading={confirm.isPending}
             onPress={() => submit()}
           />
@@ -60,14 +62,14 @@ export default function ConfirmDelivery() {
                 setQty(Object.fromEntries(lines.map((l) => [l.id, l.demandQty])))
               }
               style={{ alignSelf: 'flex-start' }}>
-              <Text tone="primary" variant="caption">Deliver all ordered quantities</Text>
+              <Text tone="primary" variant="caption">{t('deliveryConfirm.deliverAll')}</Text>
             </Pressable>
 
             {lines.map((l) => (
               <Card key={l.id}>
                 <Text variant="title">{l.product}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="caption" tone="muted">Ordered {l.demandQty} {l.uom}</Text>
+                  <Text variant="caption" tone="muted">{t('deliveryConfirm.ordered', { qty: l.demandQty, uom: l.uom })}</Text>
                   <QtyStepper
                     value={q(l.id, l.demandQty)}
                     onChange={(n) => setQty((s) => ({ ...s, [l.id]: n }))}
@@ -77,11 +79,11 @@ export default function ConfirmDelivery() {
               </Card>
             ))}
 
-            <Text variant="captionSemi" tone="muted" style={{ marginTop: spacing.sm }}>Note (optional)</Text>
+            <Text variant="captionSemi" tone="muted" style={{ marginTop: spacing.sm }}>{t('deliveryConfirm.noteLabel')}</Text>
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder="Anything the office should know"
+              placeholder={t('deliveryConfirm.notePlaceholder')}
               placeholderTextColor={colors.textFaint}
               multiline
               style={{
@@ -97,7 +99,7 @@ export default function ConfirmDelivery() {
             />
 
             {__DEV__ ? (
-              <Button variant="ghost" title="Dev: simulate a failure" onPress={() => submit(true)} />
+              <Button variant="ghost" title={t('deliveryConfirm.devSimulateFailure')} onPress={() => submit(true)} />
             ) : null}
           </>
         ) : null}
@@ -105,7 +107,7 @@ export default function ConfirmDelivery() {
 
       <ResultSheet
         state={result}
-        primaryLabel={result?.kind === 'success' ? 'Back to deliveries' : 'Retry'}
+        primaryLabel={result?.kind === 'success' ? t('deliveryConfirm.backToDeliveries') : t('common.retry')}
         onPrimary={() => {
           const ok = result?.kind === 'success';
           setResult(null);

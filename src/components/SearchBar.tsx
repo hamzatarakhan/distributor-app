@@ -1,17 +1,19 @@
 import { TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { Icon } from './Icon';
 
 export function SearchBar({
   value,
   onChangeText,
-  placeholder = 'Search',
+  placeholder,
 }: {
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
 }) {
   const { colors, radii, spacing } = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -28,7 +30,7 @@ export function SearchBar({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('common.search')}
         placeholderTextColor={colors.textFaint}
         style={{ flex: 1, color: colors.text, paddingVertical: 10, fontSize: 15 }}
         clearButtonMode="while-editing"

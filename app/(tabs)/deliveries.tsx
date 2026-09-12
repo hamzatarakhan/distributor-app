@@ -1,21 +1,22 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Badge, FilterChips, ListRow, Screen, SearchBar, Text } from '@/src/components';
 import { useDeliveries } from '@/src/hooks/data';
 import { useDebounced } from '@/src/lib/useDebounced';
-import { pickingStatus } from '@/src/lib/status';
+import { pickingStatusKey, pickingStatusTone } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
-
-const FILTERS = [
-  { value: 'ready', label: 'Ready' },
-  { value: 'waiting', label: 'Waiting' },
-  { value: 'done', label: 'Done' },
-  { value: 'all', label: 'All' },
-] as const;
 
 export default function DeliveriesScreen() {
   const { spacing } = useTheme();
+  const { t } = useTranslation();
+  const FILTERS = [
+    { value: 'ready', label: t('deliveries.filterReady') },
+    { value: 'waiting', label: t('deliveries.filterWaiting') },
+    { value: 'done', label: t('deliveries.filterDone') },
+    { value: 'all', label: t('deliveries.filterAll') },
+  ] as const;
   const [status, setStatus] = useState<(typeof FILTERS)[number]['value']>('ready');
   const [search, setSearch] = useState('');
   const q = useDebounced(search);
@@ -30,8 +31,8 @@ export default function DeliveriesScreen() {
       error={error}
       onRetry={refetch}
       empty={!isLoading && items.length === 0}
-      emptyText="No deliveries in this view.">
-      <SearchBar value={search} onChangeText={setSearch} placeholder="Customer or reference" />
+      emptyText={t('deliveries.emptyText')}>
+      <SearchBar value={search} onChangeText={setSearch} placeholder={t('deliveries.searchPlaceholder')} />
       <FilterChips value={status} onChange={setStatus} options={FILTERS as any} />
       <View style={{ gap: spacing.md }}>
         {items.map((d) => (
@@ -41,8 +42,8 @@ export default function DeliveriesScreen() {
             subtitle={`${d.reference} · ${d.deliveryCity ?? ''} · ${d.scheduledDate ?? ''}`}
             right={
               <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                <Badge {...pickingStatus[d.status]} />
-                <Text variant="caption" tone="faint">{d.itemCount} items</Text>
+                <Badge label={t(pickingStatusKey[d.status])} tone={pickingStatusTone[d.status]} />
+                <Text variant="caption" tone="faint">{d.itemCount} {t('common.items')}</Text>
               </View>
             }
             onPress={() => router.push(`/deliveries/${d.id}`)}
