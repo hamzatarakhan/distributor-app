@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Linking, Platform, Pressable, View } from 'react-native';
+import { ActionSheetIOS, Linking, Platform, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Badge, Card, DetailRow, Icon, Screen, StickyActionBar, Text } from '@/src/components';
 import { useDelivery } from '@/src/hooks/data';
@@ -13,10 +13,31 @@ export default function DeliveryDetail() {
   const { t } = useTranslation();
   const { data, isLoading, error, refetch, isRefetching } = useDelivery(deliveryId);
 
+  // Android's `geo:` scheme already prompts the OS app-chooser when more than one maps app is
+  // installed. iOS' `maps://` always opens Apple Maps directly, so on iOS we ask first.
+  const openInAppleMaps = (q: string) => Linking.openURL(`maps://?q=${q}`);
+  const openInGoogleMaps = async (q: string) => {
+    const appUrl = `comgooglemaps://?q=${q}`;
+    if (await Linking.canOpenURL(appUrl)) Linking.openURL(appUrl);
+    else Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${q}`);
+  };
   const openMaps = () => {
     if (!data?.deliveryAddress) return;
     const q = encodeURIComponent(`${data.deliveryAddress}, ${data.deliveryCity ?? ''}`);
-    Linking.openURL(Platform.select({ ios: `maps://?q=${q}`, default: `geo:0,0?q=${q}` })!);
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [t('deliveryDetail.appleMaps'), t('deliveryDetail.googleMaps'), t('common.cancel')],
+          cancelButtonIndex: 2,
+        },
+        (index) => {
+          if (index === 0) openInAppleMaps(q);
+          else if (index === 1) openInGoogleMaps(q);
+        },
+      );
+    } else {
+      Linking.openURL(`geo:0,0?q=${q}`);
+    }
   };
   const call = () => data?.phone && Linking.openURL(`tel:${data.phone.replace(/\s/g, '')}`);
 

@@ -1,4 +1,5 @@
 import * as fx from './fixtures';
+import i18n from '@/src/i18n';
 import type { Transport, Op } from './transport';
 import type { Credentials, Session } from './types';
 
@@ -15,7 +16,7 @@ export const mockTransport: Transport = {
 
   async login(creds: Credentials): Promise<Session> {
     await delay();
-    if (!creds.login || !creds.password) throw new Error('Enter your username and password.');
+    if (!creds.login || !creds.password) throw new Error(i18n.t('common.enterCredentials'));
     return {
       token: 'mock-session',
       uid: 7,
@@ -34,7 +35,7 @@ export const mockTransport: Transport = {
 
   async request<T>(op: Op, params: Record<string, any> = {}): Promise<T> {
     await delay();
-    if (params.__fail) throw new Error('Simulated failure (remove __fail to succeed).');
+    if (params.__fail) throw new Error(i18n.t('common.simulatedFailure'));
 
     switch (op) {
       case 'profile.get':
@@ -47,7 +48,7 @@ export const mockTransport: Transport = {
       }
       case 'stock.product': {
         const p = fx.inventory.find((i) => i.productId === Number(params.productId));
-        if (!p) throw new Error('Product not found');
+        if (!p) throw new Error(i18n.t('common.productNotFound'));
         return { ...p, moves: fx.movesByProduct[p.productId] ?? [] } as T;
       }
       case 'stock.receipts': {
@@ -57,7 +58,7 @@ export const mockTransport: Transport = {
       }
       case 'stock.receipt': {
         const r = fx.receipts.find((x) => x.id === Number(params.id));
-        if (!r) throw new Error('Receipt not found');
+        if (!r) throw new Error(i18n.t('common.receiptNotFound'));
         return r as T;
       }
       case 'stock.receipt.confirm':
@@ -70,7 +71,7 @@ export const mockTransport: Transport = {
       }
       case 'delivery.get': {
         const d = fx.deliveries.find((x) => x.id === Number(params.id));
-        if (!d) throw new Error('Delivery not found');
+        if (!d) throw new Error(i18n.t('common.deliveryNotFound'));
         return d as T;
       }
       case 'delivery.confirm': {
@@ -88,7 +89,7 @@ export const mockTransport: Transport = {
       }
       case 'invoice.get': {
         const inv = fx.invoices.find((x) => x.id === Number(params.id));
-        if (!inv) throw new Error('Invoice not found');
+        if (!inv) throw new Error(i18n.t('common.invoiceNotFound'));
         return inv as T;
       }
       case 'invoice.pdf':

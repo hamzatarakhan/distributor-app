@@ -8,6 +8,12 @@
     "reference": "المرجع",
     "somethingWrong": "حدث خطأ ما.",
     "nothingHereYet": "لا يوجد شيء هنا بعد.",
+    "enterCredentials": "أدخل اسم المستخدم وكلمة المرور.",
+    "simulatedFailure": "فشل تجريبي (احذف __fail للنجاح).",
+    "productNotFound": "المنتج غير موجود",
+    "receiptNotFound": "الإيصال غير موجود",
+    "deliveryNotFound": "التوصيل غير موجود",
+    "invoiceNotFound": "الفاتورة غير موجودة",
     "couldNotLoad": "تعذر التحميل",
     "search": "بحث",
     "items": "عناصر"
@@ -64,6 +70,8 @@
   },
   "deliveryDetail": {
     "title": "التوصيل",
+    "appleMaps": "فتح في خرائط آبل",
+    "googleMaps": "فتح في خرائط جوجل",
     "reference": "المرجع",
     "saleOrder": "أمر البيع",
     "scheduled": "موعد التوصيل",

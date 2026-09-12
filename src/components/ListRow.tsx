@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Icon } from './Icon';
 import { Text } from './Text';
 
@@ -23,6 +24,7 @@ export function ListRow({
   chevron?: boolean;
 }) {
   const { colors, spacing, radii } = useTheme();
+  const { isRTL } = useLocale();
   return (
     <Pressable
       onPress={onPress}
@@ -51,7 +53,7 @@ export function ListRow({
       </View>
       {right}
       {chevron && onPress ? (
-        <Icon name="chevron-forward" size={18} color={colors.textFaint} />
+        <Icon name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={colors.textFaint} />
       ) : null}
     </Pressable>
   );

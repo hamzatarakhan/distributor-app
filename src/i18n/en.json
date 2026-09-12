@@ -8,6 +8,12 @@
     "reference": "Reference",
     "somethingWrong": "Something went wrong.",
     "nothingHereYet": "Nothing here yet.",
+    "enterCredentials": "Enter your username and password.",
+    "simulatedFailure": "Simulated failure (remove __fail to succeed).",
+    "productNotFound": "Product not found",
+    "receiptNotFound": "Receipt not found",
+    "deliveryNotFound": "Delivery not found",
+    "invoiceNotFound": "Invoice not found",
     "couldNotLoad": "Couldn’t load",
     "search": "Search",
     "items": "items"
@@ -64,6 +70,8 @@
   },
   "deliveryDetail": {
     "title": "Delivery",
+    "appleMaps": "Open in Apple Maps",
+    "googleMaps": "Open in Google Maps",
     "reference": "Reference",
     "saleOrder": "Sale order",
     "scheduled": "Scheduled",
