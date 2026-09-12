@@ -29,6 +29,13 @@ export function FilterChips<T extends string>({
         gap: spacing.sm,
         alignItems: 'center',
         flexDirection: isRTL ? 'row-reverse' : 'row',
+        // A horizontal ScrollView anchors short content to its own physical left edge
+        // regardless of flexDirection — row-reverse only reorders chips within that anchored
+        // block, it doesn't move the block itself. flexGrow:1 + justifyContent lets the block
+        // fill the viewport and push its content to the true reading-start edge (right in RTL)
+        // when there's slack, while still scrolling normally once chips overflow it.
+        flexGrow: 1,
+        justifyContent: isRTL ? 'flex-end' : 'flex-start',
         ...(isRTL ? { paddingLeft: spacing.lg } : { paddingRight: spacing.lg }),
       }}>
       {options.map((o) => {
