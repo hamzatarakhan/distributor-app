@@ -12,10 +12,10 @@ export default function DeliveriesScreen() {
   const { spacing } = useTheme();
   const { t } = useTranslation();
   const FILTERS = [
+    { value: 'all', label: t('deliveries.filterAll') },
     { value: 'ready', label: t('deliveries.filterReady') },
     { value: 'waiting', label: t('deliveries.filterWaiting') },
     { value: 'done', label: t('deliveries.filterDone') },
-    { value: 'all', label: t('deliveries.filterAll') },
   ] as const;
   const [status, setStatus] = useState<(typeof FILTERS)[number]['value']>('ready');
   const [search, setSearch] = useState('');

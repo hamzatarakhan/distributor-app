@@ -14,10 +14,10 @@ export default function InvoicesScreen() {
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const FILTERS = [
+    { value: 'all', label: t('invoices.filterAll') },
     { value: 'open', label: t('invoices.filterOpen') },
     { value: 'overdue', label: t('invoices.filterOverdue') },
     { value: 'paid', label: t('invoices.filterPaid') },
-    { value: 'all', label: t('invoices.filterAll') },
   ] as const;
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['value']>('open');
   const [search, setSearch] = useState('');

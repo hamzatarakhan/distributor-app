@@ -13,6 +13,11 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
     neutral: { bg: colors.cardAlt, fg: colors.textMuted },
   };
   const c = map[tone];
+  // No alignSelf here on purpose: a hardcoded 'flex-start' pins the pill to the physical left
+  // no matter which side its container ends up on after RTL mirroring, and fights a sibling
+  // that's meant to line up with it (e.g. Money above it in a `alignItems:'flex-end'` column).
+  // Every real caller already sits in a row (alignItems:'center') or such a column — let the
+  // pill inherit that instead of overriding it.
   return (
     <View
       style={{
@@ -20,7 +25,6 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
         borderRadius: radii.sm,
         paddingHorizontal: 8,
         paddingVertical: 3,
-        alignSelf: 'flex-start',
       }}>
       <Text variant="captionSemi" style={{ color: c.fg }}>{label}</Text>
     </View>

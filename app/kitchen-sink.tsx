@@ -34,7 +34,7 @@ export default function KitchenSink() {
       <Button title="Loading" loading onPress={() => {}} />
 
       <SectionHeader title="Badges" />
-      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: spacing.sm, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <Badge label="Success" tone="success" />
         <Badge label="Warning" tone="warning" />
         <Badge label="Info" tone="info" />
