@@ -40,10 +40,10 @@ function RootNavigator() {
         <Stack.Protected guard={!!session}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="stock/[productId]" options={{ title: t('tabs.stock') }} />
-          <Stack.Screen name="stock/receipts" options={{ title: t('stock.receiptsTitle') }} />
-          <Stack.Screen name="stock/receipt/[id]" options={{ title: t('receiptDetail.receiptLabel') }} />
-          <Stack.Screen name="deliveries/[id]" options={{ title: t('deliveryDetail.title') }} />
-          <Stack.Screen name="deliveries/confirm/[id]" options={{ title: t('deliveryConfirm.confirmDelivery') }} />
+          <Stack.Screen name="visits/[id]" options={{ title: t('visitDetail.title') }} />
+          <Stack.Screen name="orders/new" options={{ title: t('newOrder.title') }} />
+          <Stack.Screen name="orders/[id]" options={{ title: t('orderDetail.title') }} />
+          <Stack.Screen name="orders/[id]/return" options={{ title: t('createReturn.title') }} />
           <Stack.Screen name="invoices/[id]" options={{ title: t('invoiceDetail.title') }} />
           <Stack.Screen name="settings/theme" options={{ title: t('more.appearance') }} />
           <Stack.Screen name="settings/profile" options={{ title: t('more.profile') }} />

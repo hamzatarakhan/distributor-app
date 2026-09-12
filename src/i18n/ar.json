@@ -11,33 +11,79 @@
     "enterCredentials": "أدخل اسم المستخدم وكلمة المرور.",
     "simulatedFailure": "فشل تجريبي (احذف __fail للنجاح).",
     "productNotFound": "المنتج غير موجود",
-    "receiptNotFound": "الإيصال غير موجود",
-    "deliveryNotFound": "التوصيل غير موجود",
+    "visitNotFound": "الزيارة غير موجودة",
+    "orderNotFound": "الأوردر غير موجود",
     "invoiceNotFound": "الفاتورة غير موجودة",
     "couldNotLoad": "تعذر التحميل",
     "search": "بحث",
     "items": "عناصر"
   },
   "tabs": {
-    "home": "الرئيسية",
-    "stock": "المخزون",
-    "deliveries": "التوصيل",
+    "visits": "الزيارات",
+    "stock": "مخزون السيارة",
+    "orders": "الأوردرات",
     "invoices": "الفواتير",
     "more": "المزيد"
   },
   "home": {
-    "greeting": "مرحباً{{name}}",
-    "statDeliveriesToday": "توصيلات اليوم",
-    "statReadyToShip": "جاهز للشحن",
-    "statOpenInvoices": "فواتير مفتوحة",
-    "statOverdue": "متأخرة",
-    "todaysDeliveries": "توصيلات اليوم",
-    "seeAll": "عرض الكل",
-    "nothingScheduledToday": "لا يوجد توصيل مجدول اليوم.",
-    "lowStock": "مخزون منخفض / سالب",
-    "allAboveReorder": "جميع المنتجات فوق حد إعادة الطلب.",
-    "overdueInvoices": "فواتير متأخرة",
-    "noOverdueInvoices": "لا توجد فواتير متأخرة."
+    "greeting": "مرحباً{{name}}"
+  },
+  "visits": {
+    "subtitle": "زيارات اليوم",
+    "statRemaining": "متبقية",
+    "statDone": "منتهية",
+    "emptyText": "لا توجد زيارات مجدولة اليوم."
+  },
+  "visitDetail": {
+    "title": "الزيارة",
+    "scheduled": "الموعد",
+    "phone": "الهاتف",
+    "startOrder": "بدء أوردر جديد",
+    "noPurchase": "لم يشترِ",
+    "noPurchaseConfirmTitle": "تسجيل الزيارة بدون شراء؟",
+    "noPurchaseConfirmDescription": "سيتم إنهاء الزيارة بدون أوردر.",
+    "outcomeOrdered": "تم البيع ✓",
+    "outcomeNoSale": "لم يشترِ خلال هذه الزيارة.",
+    "viewOrder": "عرض الأوردر"
+  },
+  "newOrder": {
+    "title": "أوردر جديد",
+    "forCustomer": "أوردر لـ {{name}}",
+    "searchPlaceholder": "الاسم أو المرجع",
+    "vanStock": "{{qty}} {{uom}} بالسيارة",
+    "clearCart": "تفريغ السلة",
+    "confirm": "تأكيد الأوردر",
+    "confirmWithTotal": "تأكيد الأوردر · {{total}} {{currency}}"
+  },
+  "orders": {
+    "searchPlaceholder": "المرجع أو العميل",
+    "emptyText": "لا توجد أوردرات بعد."
+  },
+  "orderDetail": {
+    "title": "الأوردر",
+    "date": "التاريخ",
+    "lines": "البنود",
+    "total": "الإجمالي",
+    "confirmOrder": "تأكيد الأوردر",
+    "confirmedTitle": "تم تأكيد الأوردر",
+    "confirmedDescription": "تم الخصم من مخزون السيارة وإنشاء الفاتورة.",
+    "invoiceLabel": "الفاتورة",
+    "couldNotConfirm": "تعذر التأكيد",
+    "done": "تم",
+    "viewInvoice": "عرض الفاتورة",
+    "createReturn": "إنشاء مرتجع",
+    "alreadyReturned": "تم تسجيل مرتجع على هذا الأوردر مسبقاً."
+  },
+  "createReturn": {
+    "title": "المرتجع",
+    "hint": "حدّد الكمية المرتجعة لكل بند.",
+    "sold": "المباع {{qty}} {{uom}}",
+    "confirm": "تأكيد المرتجع",
+    "confirmedTitle": "تم تسجيل المرتجع",
+    "confirmedDescription": "تم تسجيل المرتجع على هذا الأوردر.",
+    "orderLabel": "الأوردر",
+    "couldNotConfirm": "تعذر التأكيد",
+    "backToOrder": "العودة إلى الأوردر"
   },
   "invoices": {
     "searchPlaceholder": "رقم الفاتورة أو العميل",
@@ -58,80 +104,16 @@
     "tax": "الضريبة",
     "total": "الإجمالي",
     "amountDue": "المبلغ المستحق",
-    "viewPdf": "عرض / تحميل PDF"
-  },
-  "deliveries": {
-    "searchPlaceholder": "العميل أو المرجع",
-    "filterReady": "جاهزة",
-    "filterWaiting": "بالانتظار",
-    "filterDone": "منجزة",
-    "filterAll": "الكل",
-    "emptyText": "لا توجد توصيلات في هذا العرض."
-  },
-  "deliveryDetail": {
-    "title": "التوصيل",
-    "appleMaps": "فتح في خرائط آبل",
-    "googleMaps": "فتح في خرائط جوجل",
-    "reference": "المرجع",
-    "saleOrder": "أمر البيع",
-    "scheduled": "موعد التوصيل",
-    "phone": "الهاتف",
-    "items": "العناصر",
-    "startConfirmation": "بدء تأكيد التوصيل",
-    "delivered": "تم التوصيل ✓"
-  },
-  "deliveryConfirm": {
-    "deliverAll": "توصيل كامل الكميات المطلوبة",
-    "ordered": "المطلوب {{qty}} {{uom}}",
-    "noteLabel": "ملاحظة (اختياري)",
-    "notePlaceholder": "أي شيء يجب أن يعرفه المكتب",
-    "confirmDelivery": "تأكيد التوصيل",
-    "devSimulateFailure": "للتطوير: محاكاة فشل",
-    "confirmedTitle": "تم تأكيد التوصيل",
-    "confirmedDescription": "تم وضع علامة \"تم التوصيل\" على طلب العميل.",
-    "pickingLabel": "عملية الشحن",
-    "couldNotConfirm": "تعذر التأكيد",
-    "backToDeliveries": "العودة إلى التوصيلات"
+    "viewPdf": "عرض / تحميل PDF",
+    "print": "طباعة / مشاركة"
   },
   "stock": {
-    "searchPlaceholder": "الاسم أو المرجع أو الباركود",
-    "filterAll": "الكل",
-    "filterLowStockOnly": "المخزون المنخفض فقط",
-    "emptyText": "لا توجد منتجات مطابقة.",
-    "receiptsTitle": "الإيصالات الواردة"
+    "searchPlaceholder": "الاسم أو المرجع",
+    "emptyText": "لا توجد منتجات مطابقة."
   },
   "productDetail": {
-    "onHand": "المتوفر",
-    "forecasted": "المتوقع",
-    "reserved": "المحجوز",
-    "incoming": "الوارد",
-    "outgoing": "الصادر",
-    "reorderPoint": "حد إعادة الطلب",
-    "byLocation": "حسب الموقع",
-    "recentMoves": "آخر الحركات",
-    "noRecentMoves": "لا توجد حركات حديثة."
-  },
-  "receipts": {
-    "filterAll": "الكل",
-    "filterDraft": "مسودة",
-    "filterWaiting": "بالانتظار",
-    "filterReady": "جاهزة",
-    "filterDone": "منجزة",
-    "emptyText": "لا توجد إيصالات واردة."
-  },
-  "receiptDetail": {
-    "supplier": "المورّد",
-    "source": "المصدر",
-    "scheduled": "الموعد",
-    "items": "العناصر",
-    "demand": "المطلوب {{qty}} {{uom}}",
-    "onlyReadyCanBeConfirmed": "يمكن تأكيد الإيصالات في حالة \"جاهزة\" فقط من هنا.",
-    "confirmReceipt": "تأكيد الإيصال",
-    "confirmedTitle": "تم تأكيد الإيصال",
-    "confirmedDescription": "تم تحديث المخزون.",
-    "receiptLabel": "الإيصال",
-    "couldNotConfirm": "تعذر التأكيد",
-    "backToReceipts": "العودة إلى الإيصالات"
+    "price": "السعر",
+    "vanStock": "مخزون السيارة"
   },
   "more": {
     "account": "الحساب",
@@ -167,18 +149,18 @@
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
     "company": "الشركة",
-    "warehouse": "المستودع"
+    "vehicle": "المركبة"
   },
   "about": {
     "version": "الإصدار",
     "runtime": "بيئة التشغيل",
     "dataSource": "مصدر البيانات",
     "server": "الخادم",
-    "footer": "تطبيق الموزّع لإدارة المخزون والتوصيل والفوترة على أودو."
+    "footer": "تطبيق مندوب المبيعات للزيارات والأوردرات ومخزون السيارة والفوترة على أودو."
   },
   "auth": {
     "login": {
-      "title": "الموزّع",
+      "title": "مندوب المبيعات",
       "subtitle": "سجّل الدخول إلى حساب أودو الخاص بك",
       "usernameLabel": "اسم المستخدم أو البريد الإلكتروني",
       "passwordLabel": "كلمة المرور",
@@ -197,12 +179,15 @@
     }
   },
   "status": {
-    "picking": {
+    "visit": {
+      "planned": "مجدولة",
+      "done": "منتهية",
+      "skipped": "متخطاة"
+    },
+    "order": {
       "draft": "مسودة",
-      "waiting": "بالانتظار",
-      "ready": "جاهزة",
-      "done": "منجزة",
-      "cancel": "ملغاة"
+      "confirmed": "مؤكد",
+      "invoiced": "مفوتر"
     },
     "invoice": {
       "draft": "مسودة",

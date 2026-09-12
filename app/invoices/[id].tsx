@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { InvoiceApi } from '@/src/api/resources';
 import {
@@ -19,16 +19,36 @@ export default function InvoiceDetail() {
   const { isRTL } = useLocale();
   const { data, isLoading, error, refetch, isRefetching } = useInvoice(invoiceId);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [printBusy, setPrintBusy] = useState(false);
+
+  const resolvePdfUrl = async () => data?.pdfUrl ?? (await InvoiceApi.pdf(invoiceId)).url;
 
   const openPdf = async () => {
     setPdfBusy(true);
     try {
-      const url = data?.pdfUrl ?? (await InvoiceApi.pdf(invoiceId)).url;
+      const url = await resolvePdfUrl();
       if (url) await Linking.openURL(url);
     } catch {
       // surface nothing loud — placeholder until the real report endpoint is wired
     } finally {
       setPdfBusy(false);
+    }
+  };
+
+  // "Print it from the app" is still open with the client — could mean a paired Bluetooth
+  // receipt printer (needs a dedicated SDK) or just printing the PDF from the phone. This uses
+  // only the OS share sheet (no extra dependency): iOS lists "Print" among its share targets for
+  // a PDF/URL, and Android forwards to whatever print service is installed. Swap this for a
+  // printer SDK call once the client confirms which one they mean.
+  const printOrShare = async () => {
+    setPrintBusy(true);
+    try {
+      const url = await resolvePdfUrl();
+      if (url) await Share.share({ url, message: url, title: data?.number });
+    } catch {
+      // same as openPdf — nothing loud, this is placeholder behavior
+    } finally {
+      setPrintBusy(false);
     }
   };
 
@@ -89,6 +109,7 @@ export default function InvoiceDetail() {
           </Card>
 
           <Button variant="secondary" icon="document-outline" title={t('invoiceDetail.viewPdf')} onPress={openPdf} loading={pdfBusy} />
+          <Button variant="secondary" icon="print-outline" title={t('invoiceDetail.print')} onPress={printOrShare} loading={printBusy} />
         </>
       ) : null}
     </Screen>

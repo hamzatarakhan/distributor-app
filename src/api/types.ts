@@ -15,59 +15,70 @@ export type Session = {
 
 export type Paged<T> = { items: T[]; total: number; hasMore: boolean };
 
-// ---- Stock ----
-export type InventoryItem = {
-  productId: number;
+// ---- Products ---- (sales catalog for building an order, and van-stock reference)
+export type Product = {
+  id: number;
   name: string;
   reference?: string;
   uom: string;
-  onHand: number;
-  forecasted: number;
-  reserved: number;
-  incoming: number;
-  outgoing: number;
-  reorderPoint?: number;
-  locationName?: string;
-  byLocation?: { location: string; qty: number }[];
-  imageUrl?: string;
+  price: number;
+  currency: string;
+  vanStock: number;
 };
 
-export type StockMove = {
+// ---- Visits ----
+export type VisitStatus = 'planned' | 'done' | 'skipped';
+export type VisitOutcome = 'no_sale' | 'ordered';
+
+export type Visit = {
   id: number;
-  date: string;
-  from: string;
-  to: string;
-  qty: number;
-  uom: string;
-  reference?: string;
+  customerId: number;
+  customerName: string;
+  address?: string;
+  city?: string;
+  phone?: string;
+  scheduledTime?: string;
+  status: VisitStatus;
+  outcome?: VisitOutcome;
+  orderId?: number;
+  note?: string;
 };
 
-export type PickingStatus = 'draft' | 'waiting' | 'ready' | 'done' | 'cancel';
+// ---- Orders ----
+export type OrderStatus = 'draft' | 'confirmed' | 'invoiced';
 
-export type PickingLine = {
-  id: number;
+export type OrderLine = {
   productId: number;
   product: string;
-  demandQty: number;
-  doneQty: number;
   uom: string;
+  qty: number;
+  unitPrice: number;
 };
 
-export type Picking = {
+export type Order = {
   id: number;
   reference: string;
-  kind: 'incoming' | 'outgoing';
-  partnerName?: string;
-  sourceDocument?: string;
-  scheduledDate?: string;
-  status: PickingStatus;
-  itemCount: number;
-  lines?: PickingLine[];
-  // delivery-specific
-  deliveryAddress?: string;
-  deliveryCity?: string;
-  phone?: string;
-  saleOrderRef?: string;
+  visitId?: number;
+  customerId: number;
+  customerName: string;
+  date: string;
+  status: OrderStatus;
+  lines: OrderLine[];
+  currency: string;
+  total: number;
+  invoiceId?: number;
+  hasReturn?: boolean;
+};
+
+// ---- Returns ----
+export type ReturnLine = { productId: number; product: string; uom: string; qty: number };
+
+export type ReturnRecord = {
+  id: number;
+  orderId: number;
+  orderReference: string;
+  date: string;
+  lines: ReturnLine[];
 };
 
 // ---- Invoices ----
@@ -84,6 +95,7 @@ export type InvoiceLine = {
 export type Invoice = {
   id: number;
   number: string;
+  orderId?: number;
   customerName: string;
   invoiceDate: string;
   dueDate?: string;

@@ -1,22 +1,28 @@
 import type { BadgeTone } from '@/src/theme/tokens';
-import type { InvoiceStatus, PickingStatus } from '@/src/api/types';
+import type { InvoiceStatus, OrderStatus, VisitStatus } from '@/src/api/types';
 
-// Label comes from i18n (`status.picking.*` / `status.invoice.*`) via `t()` at the call site —
-// this just maps status → badge tone and → translation key, so a Badge is built as
-// `<Badge label={t(pickingStatusKey[s])} tone={pickingStatusTone[s]} />`.
-export const pickingStatusTone: Record<PickingStatus, BadgeTone> = {
-  draft: 'neutral',
-  waiting: 'warning',
-  ready: 'info',
+// Label comes from i18n via `t()` at the call site — this just maps status → badge tone and →
+// translation key, so a Badge is built as `<Badge label={t(visitStatusKey[s])} tone={visitStatusTone[s]} />`.
+export const visitStatusTone: Record<VisitStatus, BadgeTone> = {
+  planned: 'info',
   done: 'success',
-  cancel: 'neutral',
+  skipped: 'neutral',
 };
-export const pickingStatusKey: Record<PickingStatus, string> = {
-  draft: 'status.picking.draft',
-  waiting: 'status.picking.waiting',
-  ready: 'status.picking.ready',
-  done: 'status.picking.done',
-  cancel: 'status.picking.cancel',
+export const visitStatusKey: Record<VisitStatus, string> = {
+  planned: 'status.visit.planned',
+  done: 'status.visit.done',
+  skipped: 'status.visit.skipped',
+};
+
+export const orderStatusTone: Record<OrderStatus, BadgeTone> = {
+  draft: 'neutral',
+  confirmed: 'info',
+  invoiced: 'success',
+};
+export const orderStatusKey: Record<OrderStatus, string> = {
+  draft: 'status.order.draft',
+  confirmed: 'status.order.confirmed',
+  invoiced: 'status.order.invoiced',
 };
 
 export const invoiceStatusTone: Record<InvoiceStatus, BadgeTone> = {

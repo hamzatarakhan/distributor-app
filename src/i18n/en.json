@@ -11,33 +11,79 @@
     "enterCredentials": "Enter your username and password.",
     "simulatedFailure": "Simulated failure (remove __fail to succeed).",
     "productNotFound": "Product not found",
-    "receiptNotFound": "Receipt not found",
-    "deliveryNotFound": "Delivery not found",
+    "visitNotFound": "Visit not found",
+    "orderNotFound": "Order not found",
     "invoiceNotFound": "Invoice not found",
     "couldNotLoad": "Couldn’t load",
     "search": "Search",
     "items": "items"
   },
   "tabs": {
-    "home": "Home",
-    "stock": "Stock",
-    "deliveries": "Deliveries",
+    "visits": "Visits",
+    "stock": "Van stock",
+    "orders": "Orders",
     "invoices": "Invoices",
     "more": "More"
   },
   "home": {
-    "greeting": "Hi{{name}}",
-    "statDeliveriesToday": "Deliveries today",
-    "statReadyToShip": "Ready to ship",
-    "statOpenInvoices": "Open invoices",
-    "statOverdue": "Overdue",
-    "todaysDeliveries": "Today’s deliveries",
-    "seeAll": "See all",
-    "nothingScheduledToday": "Nothing scheduled for today.",
-    "lowStock": "Low / negative stock",
-    "allAboveReorder": "All products above reorder point.",
-    "overdueInvoices": "Overdue invoices",
-    "noOverdueInvoices": "No overdue invoices."
+    "greeting": "Hi{{name}}"
+  },
+  "visits": {
+    "subtitle": "Today’s visits",
+    "statRemaining": "Remaining",
+    "statDone": "Done",
+    "emptyText": "No visits scheduled for today."
+  },
+  "visitDetail": {
+    "title": "Visit",
+    "scheduled": "Scheduled",
+    "phone": "Phone",
+    "startOrder": "Start new order",
+    "noPurchase": "No purchase",
+    "noPurchaseConfirmTitle": "Mark as no purchase?",
+    "noPurchaseConfirmDescription": "The visit will be marked done with no order.",
+    "outcomeOrdered": "Ordered ✓",
+    "outcomeNoSale": "No purchase this visit.",
+    "viewOrder": "View order"
+  },
+  "newOrder": {
+    "title": "New order",
+    "forCustomer": "Order for {{name}}",
+    "searchPlaceholder": "Name or reference",
+    "vanStock": "{{qty}} {{uom}} in van",
+    "clearCart": "Clear cart",
+    "confirm": "Confirm order",
+    "confirmWithTotal": "Confirm order · {{total}} {{currency}}"
+  },
+  "orders": {
+    "searchPlaceholder": "Reference or customer",
+    "emptyText": "No orders yet."
+  },
+  "orderDetail": {
+    "title": "Order",
+    "date": "Date",
+    "lines": "Lines",
+    "total": "Total",
+    "confirmOrder": "Confirm order",
+    "confirmedTitle": "Order confirmed",
+    "confirmedDescription": "Van stock was deducted and the invoice was created.",
+    "invoiceLabel": "Invoice",
+    "couldNotConfirm": "Could not confirm",
+    "done": "Done",
+    "viewInvoice": "View invoice",
+    "createReturn": "Create return",
+    "alreadyReturned": "A return was already filed for this order."
+  },
+  "createReturn": {
+    "title": "Return",
+    "hint": "Set the quantity being returned for each line.",
+    "sold": "Sold {{qty}} {{uom}}",
+    "confirm": "Confirm return",
+    "confirmedTitle": "Return recorded",
+    "confirmedDescription": "The return has been filed against this order.",
+    "orderLabel": "Order",
+    "couldNotConfirm": "Could not confirm",
+    "backToOrder": "Back to order"
   },
   "invoices": {
     "searchPlaceholder": "Number or customer",
@@ -58,80 +104,16 @@
     "tax": "Tax",
     "total": "Total",
     "amountDue": "Amount due",
-    "viewPdf": "View / download PDF"
-  },
-  "deliveries": {
-    "searchPlaceholder": "Customer or reference",
-    "filterReady": "Ready",
-    "filterWaiting": "Waiting",
-    "filterDone": "Done",
-    "filterAll": "All",
-    "emptyText": "No deliveries in this view."
-  },
-  "deliveryDetail": {
-    "title": "Delivery",
-    "appleMaps": "Open in Apple Maps",
-    "googleMaps": "Open in Google Maps",
-    "reference": "Reference",
-    "saleOrder": "Sale order",
-    "scheduled": "Scheduled",
-    "phone": "Phone",
-    "items": "Items",
-    "startConfirmation": "Start delivery confirmation",
-    "delivered": "Delivered ✓"
-  },
-  "deliveryConfirm": {
-    "deliverAll": "Deliver all ordered quantities",
-    "ordered": "Ordered {{qty}} {{uom}}",
-    "noteLabel": "Note (optional)",
-    "notePlaceholder": "Anything the office should know",
-    "confirmDelivery": "Confirm delivery",
-    "devSimulateFailure": "Dev: simulate a failure",
-    "confirmedTitle": "Delivery confirmed",
-    "confirmedDescription": "The customer’s order is marked delivered.",
-    "pickingLabel": "Picking",
-    "couldNotConfirm": "Could not confirm",
-    "backToDeliveries": "Back to deliveries"
+    "viewPdf": "View / download PDF",
+    "print": "Print / share"
   },
   "stock": {
-    "searchPlaceholder": "Name, reference, barcode",
-    "filterAll": "All",
-    "filterLowStockOnly": "Low stock only",
-    "emptyText": "No products match.",
-    "receiptsTitle": "Incoming receipts"
+    "searchPlaceholder": "Name or reference",
+    "emptyText": "No products match."
   },
   "productDetail": {
-    "onHand": "On hand",
-    "forecasted": "Forecasted",
-    "reserved": "Reserved",
-    "incoming": "Incoming",
-    "outgoing": "Outgoing",
-    "reorderPoint": "Reorder point",
-    "byLocation": "By location",
-    "recentMoves": "Recent moves",
-    "noRecentMoves": "No recent moves."
-  },
-  "receipts": {
-    "filterAll": "All",
-    "filterDraft": "Draft",
-    "filterWaiting": "Waiting",
-    "filterReady": "Ready",
-    "filterDone": "Done",
-    "emptyText": "No incoming receipts."
-  },
-  "receiptDetail": {
-    "supplier": "Supplier",
-    "source": "Source",
-    "scheduled": "Scheduled",
-    "items": "Items",
-    "demand": "Demand {{qty}} {{uom}}",
-    "onlyReadyCanBeConfirmed": "Only receipts in “Ready” state can be confirmed here.",
-    "confirmReceipt": "Confirm receipt",
-    "confirmedTitle": "Receipt confirmed",
-    "confirmedDescription": "Stock has been updated.",
-    "receiptLabel": "Receipt",
-    "couldNotConfirm": "Could not confirm",
-    "backToReceipts": "Back to receipts"
+    "price": "Price",
+    "vanStock": "Van stock"
   },
   "more": {
     "account": "Account",
@@ -167,18 +149,18 @@
     "email": "Email",
     "phone": "Phone",
     "company": "Company",
-    "warehouse": "Warehouse"
+    "vehicle": "Vehicle"
   },
   "about": {
     "version": "Version",
     "runtime": "Runtime",
     "dataSource": "Data source",
     "server": "Server",
-    "footer": "Distributor app for stock, delivery and invoicing on Odoo."
+    "footer": "Sales rep app for visits, orders, van stock and invoicing on Odoo."
   },
   "auth": {
     "login": {
-      "title": "Distributor",
+      "title": "Sales Rep",
       "subtitle": "Sign in to your Odoo account",
       "usernameLabel": "Username or email",
       "passwordLabel": "Password",
@@ -197,12 +179,15 @@
     }
   },
   "status": {
-    "picking": {
-      "draft": "Draft",
-      "waiting": "Waiting",
-      "ready": "Ready",
+    "visit": {
+      "planned": "Planned",
       "done": "Done",
-      "cancel": "Cancelled"
+      "skipped": "Skipped"
+    },
+    "order": {
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "invoiced": "Invoiced"
     },
     "invoice": {
       "draft": "Draft",

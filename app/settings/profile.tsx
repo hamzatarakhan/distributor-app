@@ -14,7 +14,7 @@ export default function ProfileScreen() {
           <DetailRow label={t('profile.email')} value={data.email ?? '—'} />
           <DetailRow label={t('profile.phone')} value={data.phone ?? '—'} />
           <DetailRow label={t('profile.company')} value={data.company ?? '—'} />
-          <DetailRow label={t('profile.warehouse')} value={data.warehouses?.join(', ') ?? '—'} />
+          <DetailRow label={t('profile.vehicle')} value={data.warehouses?.join(', ') ?? '—'} />
         </Card>
       ) : null}
     </Screen>

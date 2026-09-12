@@ -1,74 +1,28 @@
 import { useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Card, DetailRow, Divider, Screen, SectionHeader, Text } from '@/src/components';
-import { useProduct } from '@/src/hooks/data';
-import { useLocale } from '@/src/i18n/LocaleProvider';
-import { useTheme } from '@/src/theme/ThemeProvider';
+import { Card, DetailRow, Money, Screen, Text } from '@/src/components';
+import { useProducts } from '@/src/hooks/data';
 
 export default function ProductDetail() {
   const { productId } = useLocalSearchParams<{ productId: string }>();
   const id = Number(productId);
-  const { data, isLoading, error, refetch, isRefetching } = useProduct(id);
-  const { spacing } = useTheme();
   const { t } = useTranslation();
-  const { isRTL } = useLocale();
+  // Van stock is a short, already-fetched catalog — reuse the list query's cache instead of a
+  // second round trip for a single product.
+  const { data: page, isLoading, error, refetch } = useProducts({});
+  const data = page?.items.find((p) => p.id === id);
 
   return (
-    <Screen
-      onRefresh={refetch}
-      refreshing={isRefetching}
-      loading={isLoading}
-      error={error}
-      onRetry={refetch}>
+    <Screen loading={isLoading} error={error} onRetry={refetch} empty={!isLoading && !data}>
       {data ? (
         <>
           <Text variant="h1">{data.name}</Text>
           <Text tone="muted" variant="caption">{data.reference ?? '—'}</Text>
 
           <Card>
-            <DetailRow label={t('productDetail.onHand')} value={`${data.onHand} ${data.uom}`} />
-            <DetailRow label={t('productDetail.forecasted')} value={`${data.forecasted} ${data.uom}`} />
-            <DetailRow label={t('productDetail.reserved')} value={`${data.reserved} ${data.uom}`} />
-            <DetailRow label={t('productDetail.incoming')} value={`${data.incoming} ${data.uom}`} />
-            <DetailRow label={t('productDetail.outgoing')} value={`${data.outgoing} ${data.uom}`} />
-            {data.reorderPoint != null ? (
-              <DetailRow label={t('productDetail.reorderPoint')} value={`${data.reorderPoint} ${data.uom}`} />
-            ) : null}
+            <DetailRow label={t('productDetail.price')} valueNode={<Money value={data.price} currency={data.currency} variant="captionSemi" />} />
+            <DetailRow label={t('productDetail.vanStock')} value={`${data.vanStock} ${data.uom}`} />
           </Card>
-
-          {data.byLocation?.length ? (
-            <>
-              <SectionHeader title={t('productDetail.byLocation')} />
-              <Card>
-                {data.byLocation.map((l, i) => (
-                  <View key={l.location}>
-                    {i > 0 ? <Divider /> : null}
-                    <DetailRow label={l.location} value={`${l.qty} ${data.uom}`} />
-                  </View>
-                ))}
-              </Card>
-            </>
-          ) : null}
-
-          <SectionHeader title={t('productDetail.recentMoves')} />
-          {data.moves.length === 0 ? (
-            <Card><Text tone="muted" variant="caption">{t('productDetail.noRecentMoves')}</Text></Card>
-          ) : (
-            <View style={{ gap: spacing.sm }}>
-              {data.moves.map((m) => (
-                <Card key={m.id}>
-                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
-                    <Text variant="captionSemi">{m.from} → {m.to}</Text>
-                    <Text variant="captionSemi" tone={m.qty < 0 ? 'danger' : 'success'}>
-                      {m.qty > 0 ? '+' : ''}{m.qty} {m.uom}
-                    </Text>
-                  </View>
-                  <Text variant="caption" tone="faint">{m.date} · {m.reference ?? ''}</Text>
-                </Card>
-              ))}
-            </View>
-          )}
         </>
       ) : null}
     </Screen>

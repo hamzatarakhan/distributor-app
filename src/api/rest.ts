@@ -7,9 +7,10 @@ import type { Credentials, Session } from './types';
 type Endpoint = { method: 'GET' | 'POST'; path: string };
 
 const ENDPOINTS: Partial<Record<Op, Endpoint>> = {
-  // 'stock.inventory':      { method: 'GET',  path: '/api/v1/inventory' },
-  // 'delivery.list':        { method: 'GET',  path: '/api/v1/deliveries' },
-  // 'delivery.confirm':     { method: 'POST', path: '/api/v1/deliveries/:id/confirm' },
+  // 'visit.list':           { method: 'GET',  path: '/api/v1/visits' },
+  // 'visit.confirm':        { method: 'POST', path: '/api/v1/visits/:id/confirm' },
+  // 'order.create':         { method: 'POST', path: '/api/v1/orders' },
+  // 'order.confirm':        { method: 'POST', path: '/api/v1/orders/:id/confirm' },
   // 'invoice.list':         { method: 'GET',  path: '/api/v1/invoices' },
 };
 

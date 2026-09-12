@@ -1,47 +1,69 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { DeliveryApi, InvoiceApi, ProfileApi, StockApi } from '@/src/api/resources';
+import { InvoiceApi, OrderApi, ProductApi, ProfileApi, ReturnApi, VisitApi } from '@/src/api/resources';
+import type { OrderLine, ReturnLine, VisitOutcome } from '@/src/api/types';
 
-// ---- Stock ----
-export const useInventory = (params: { search?: string; lowOnly?: boolean } = {}) =>
-  useQuery({ queryKey: ['inventory', params], queryFn: () => StockApi.inventory(params) });
+// ---- Products ----
+export const useProducts = (params: { search?: string } = {}) =>
+  useQuery({ queryKey: ['products', params], queryFn: () => ProductApi.list(params) });
 
-export const useProduct = (productId: number) =>
-  useQuery({ queryKey: ['product', productId], queryFn: () => StockApi.product(productId), enabled: !!productId });
+// ---- Visits ----
+export const useVisits = (params: { search?: string; status?: string } = {}) =>
+  useQuery({ queryKey: ['visits', params], queryFn: () => VisitApi.list(params) });
 
-export const useReceipts = (status: string) =>
-  useQuery({ queryKey: ['receipts', status], queryFn: () => StockApi.receipts({ status }) });
+export const useVisit = (id: number) =>
+  useQuery({ queryKey: ['visit', id], queryFn: () => VisitApi.get(id), enabled: !!id });
 
-export const useReceipt = (id: number) =>
-  useQuery({ queryKey: ['receipt', id], queryFn: () => StockApi.receipt(id), enabled: !!id });
-
-// ---- Deliveries ----
-export const useDeliveries = (params: { search?: string; status?: string }) =>
-  useQuery({ queryKey: ['deliveries', params], queryFn: () => DeliveryApi.list(params) });
-
-export const useDelivery = (id: number) =>
-  useQuery({ queryKey: ['delivery', id], queryFn: () => DeliveryApi.get(id), enabled: !!id });
-
-export function useConfirmDelivery(id: number) {
+export function useConfirmVisit(id: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { lines: { id: number; doneQty: number }[]; note?: string; fail?: boolean }) =>
-      DeliveryApi.confirm(id, v.lines, v.note, v.fail),
+    mutationFn: (v: { outcome: VisitOutcome; note?: string; fail?: boolean }) =>
+      VisitApi.confirm(id, v.outcome, v.note, v.fail),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['deliveries'] });
-      qc.invalidateQueries({ queryKey: ['delivery', id] });
+      qc.invalidateQueries({ queryKey: ['visits'] });
+      qc.invalidateQueries({ queryKey: ['visit', id] });
     },
   });
 }
 
-export function useConfirmReceipt(id: number) {
+// ---- Orders ----
+export const useOrders = (params: { search?: string; hasReturn?: boolean } = {}) =>
+  useQuery({ queryKey: ['orders', params], queryFn: () => OrderApi.list(params) });
+
+export const useOrder = (id: number) =>
+  useQuery({ queryKey: ['order', id], queryFn: () => OrderApi.get(id), enabled: !!id });
+
+export function useCreateOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { lines: { id: number; doneQty: number }[]; fail?: boolean }) =>
-      StockApi.confirmReceipt(id, v.lines, v.fail),
+    mutationFn: (v: {
+      visitId?: number; customerId: number; customerName: string; lines: OrderLine[]; fail?: boolean;
+    }) => OrderApi.create(v, v.fail),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['receipts'] });
-      qc.invalidateQueries({ queryKey: ['receipt', id] });
-      qc.invalidateQueries({ queryKey: ['inventory'] });
+      qc.invalidateQueries({ queryKey: ['orders'] });
+      qc.invalidateQueries({ queryKey: ['visits'] });
+    },
+  });
+}
+
+export function useConfirmOrder(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { fail?: boolean } = {}) => OrderApi.confirm(id, v.fail),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['orders'] });
+      qc.invalidateQueries({ queryKey: ['order', id] });
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+export function useCreateReturn(orderId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { lines: ReturnLine[]; fail?: boolean }) => ReturnApi.create(orderId, v.lines, v.fail),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['orders'] });
+      qc.invalidateQueries({ queryKey: ['order', orderId] });
     },
   });
 }
