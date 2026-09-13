@@ -26,6 +26,8 @@ const light = {
   dangerTint: 'rgba(215,38,61,0.12)',
   info: '#2F80ED',
   infoTint: 'rgba(47,128,237,0.12)',
+  special: '#8B5CF6',
+  specialTint: 'rgba(139,92,246,0.12)',
   overlay: 'rgba(0,0,0,0.45)',
 };
 
@@ -49,6 +51,8 @@ const dark: typeof light = {
   dangerTint: 'rgba(255,107,125,0.15)',
   info: '#5AA2F5',
   infoTint: 'rgba(90,162,245,0.15)',
+  special: '#A78BFA',
+  specialTint: 'rgba(167,139,250,0.16)',
   overlay: 'rgba(0,0,0,0.6)',
 };
 

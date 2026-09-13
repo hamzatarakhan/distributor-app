@@ -25,19 +25,22 @@ export default function OrderDetail() {
   const confirmOrder = useConfirmOrder(orderId);
   const [result, setResult] = useState<ResultState | null>(null);
   const [signing, setSigning] = useState(false);
+  const [confirmedInvoiceId, setConfirmedInvoiceId] = useState<number | null>(null);
 
   const submit = (signature?: string[], fail?: boolean) => {
     confirmOrder.mutate(
       { signature, fail },
       {
-        onSuccess: (res) =>
+        onSuccess: (res) => {
+          setConfirmedInvoiceId(res.invoice.id);
           setResult({
             kind: 'success',
             title: t('orderDetail.confirmedTitle'),
             description: t('orderDetail.confirmedDescription'),
             referenceLabel: t('orderDetail.invoiceLabel'),
             reference: res.invoice.number,
-          }),
+          });
+        },
         onError: (e) =>
           setResult({ kind: 'error', title: t('orderDetail.couldNotConfirm'), description: errorMessage(e) }),
       },
@@ -123,7 +126,7 @@ export default function OrderDetail() {
         ) : null}
       </Screen>
 
-      <Sheet visible={signing} onClose={() => setSigning(false)}>
+      <Sheet visible={signing} onClose={() => setSigning(false)} dismissable={false}>
         <Text variant="h2">{t('signature.title')}</Text>
         <Text tone="muted" variant="caption">{t('signature.confirmHint')}</Text>
         <SignaturePad
@@ -136,11 +139,15 @@ export default function OrderDetail() {
 
       <ResultSheet
         state={result}
-        primaryLabel={result?.kind === 'success' ? t('orderDetail.done') : t('common.retry')}
+        primaryLabel={result?.kind === 'success' ? t('orderDetail.viewInvoice') : t('common.retry')}
         onPrimary={() => {
           const ok = result?.kind === 'success';
           setResult(null);
-          if (ok) refetch();
+          // The rep is still standing with the customer who just bought something — showing the
+          // invoice they can print/share right now matters more than jumping back to the visit
+          // list. Replaces this order screen with it (no dead "order detail" hop in the stack);
+          // the invoice screen itself offers a one-tap way back to visits when they're done.
+          if (ok && confirmedInvoiceId) router.replace(`/invoices/${confirmedInvoiceId}`);
           else submit();
         }}
         onCancel={result?.kind === 'error' ? () => setResult(null) : undefined}

@@ -1,19 +1,23 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/src/auth/AuthContext';
 import { queryClient } from '@/src/hooks/queryClient';
-import { Text } from '@/src/components';
+import { BrandSplash, Text, useMinDelay } from '@/src/components';
 import { ThemeProvider, useTheme } from '@/src/theme/ThemeProvider';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
 import { PhaseProvider, usePhase } from '@/src/settings/PhaseProvider';
 import { useIsOnline } from '@/src/lib/useOnline';
+import { Onboarding } from '@/src/onboarding/Onboarding';
+import { useOnboardingSeen } from '@/src/onboarding/useOnboardingSeen';
 import { useTranslation } from 'react-i18next';
 import '@/src/i18n';
 
@@ -31,6 +35,9 @@ function OfflineBanner() {
 }
 
 export const unstable_settings = { anchor: '(tabs)' };
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
+SplashScreen.setOptions({ duration: 400, fade: true });
 
 // Phase 2 visit reminders are local notifications — this just controls how they present while
 // the app is in the foreground. Guarded: a misbehaving notifications module on some environment
@@ -50,13 +57,19 @@ function RootNavigator() {
   const { session, ready } = useAuth();
   const { colors, scheme } = useTheme();
   const { t } = useTranslation();
+  const minSplashElapsed = useMinDelay(1200);
+  const { seen: onboardingSeen, markSeen } = useOnboardingSeen();
 
-  if (!ready) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready || !minSplashElapsed || onboardingSeen === null) {
+    return <BrandSplash appName={t('auth.login.title')} />;
+  }
+
+  if (!onboardingSeen) {
+    return <Onboarding onDone={markSeen} />;
   }
 
   return (
@@ -78,9 +91,7 @@ function RootNavigator() {
           <Stack.Screen name="orders/[id]" options={{ title: t('orderDetail.title') }} />
           <Stack.Screen name="orders/[id]/return" options={{ title: t('createReturn.title') }} />
           <Stack.Screen name="invoices/[id]" options={{ title: t('invoiceDetail.title') }} />
-          <Stack.Screen name="settings/theme" options={{ title: t('more.appearance') }} />
           <Stack.Screen name="settings/profile" options={{ title: t('more.profile') }} />
-          <Stack.Screen name="settings/language" options={{ title: t('more.language') }} />
           <Stack.Screen name="settings/about" options={{ title: t('more.about') }} />
           <Stack.Screen name="settings/phase" options={{ title: t('more.appPhase') }} />
           <Stack.Screen name="invoices/[id]/payment" options={{ title: t('recordPayment.title') }} />

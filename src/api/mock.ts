@@ -54,7 +54,9 @@ export const mockTransport: Transport = {
         return fx.profile as T;
 
       case 'product.list': {
-        const items = match(fx.products, params.search);
+        let items = match(fx.products, params.search);
+        if (params.stockFilter === 'out') items = items.filter((p) => p.vanStock <= 0);
+        if (params.stockFilter === 'low') items = items.filter((p) => p.lowStockThreshold != null && p.vanStock > 0 && p.vanStock <= p.lowStockThreshold);
         return { items, total: items.length, hasMore: false } as T;
       }
       case 'product.get': {
@@ -103,6 +105,7 @@ export const mockTransport: Transport = {
       case 'order.list': {
         let items = match(orders, params.search);
         if (params.hasReturn === true) items = items.filter((o) => !o.hasReturn && o.status !== 'draft');
+        if (params.status && params.status !== 'all') items = items.filter((o) => o.status === params.status);
         return { items, total: items.length, hasMore: false } as T;
       }
       case 'order.get': {

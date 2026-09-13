@@ -14,6 +14,10 @@ export type QueuedOrder = {
 
 const KEY = 'offline.orderQueue.v1';
 
+// Deliberately no seed/demo data here, unlike the product/customer/visit fixtures: a queued
+// order only makes sense as a record of something *this device* actually did while offline
+// (visit → build order → confirm with no signal). Pre-populating one would look exactly like a
+// real bug — an order that exists without anyone having logged in, checked in, or built it.
 export async function getQueue(): Promise<QueuedOrder[]> {
   try {
     const raw = await AsyncStorage.getItem(KEY);

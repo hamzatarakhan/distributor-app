@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   CustomerApi, InvoiceApi, OrderApi, ProductApi, ProfileApi, ReturnApi, VisitApi,
 } from '@/src/api/resources';
-import type { OrderLine, PaymentMethod, ReturnLine, Visit, VisitOutcome } from '@/src/api/types';
+import type { OrderLine, OrderStatus, PaymentMethod, ReturnLine, Visit, VisitOutcome } from '@/src/api/types';
 
 // ---- Products ----
-export const useProducts = (params: { search?: string } = {}) =>
+export const useProducts = (params: { search?: string; stockFilter?: 'all' | 'low' | 'out' } = {}) =>
   useQuery({ queryKey: ['products', params], queryFn: () => ProductApi.list(params) });
 
 // ---- Customers (Phase 2 — balance / credit-limit) ----
@@ -44,7 +44,7 @@ export function useCheckIn(id: number) {
 }
 
 // ---- Orders ----
-export const useOrders = (params: { search?: string; hasReturn?: boolean } = {}) =>
+export const useOrders = (params: { search?: string; hasReturn?: boolean; status?: 'all' | OrderStatus } = {}) =>
   useQuery({ queryKey: ['orders', params], queryFn: () => OrderApi.list(params) });
 
 export const useOrder = (id: number) =>

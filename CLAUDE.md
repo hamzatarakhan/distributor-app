@@ -68,8 +68,12 @@ they can be shown or hidden without touching Phase 1 at all.
 - `usePhase()` (`src/settings/PhaseProvider.tsx`) exposes `phase: 1 | 2`, persisted
   to AsyncStorage, switched from **More → App phase** (`app/settings/phase.tsx`).
 - **Every Phase 2 addition checks `phase === 2` at the call site** — an inline button/
-  card/section in an existing screen, or an entire screen only reachable from the
-  Phase 2 section of the More menu. When `phase === 1`, none of it renders and no
+  card/section in an existing screen, or an entire screen. Placement follows what the
+  thing *is*: day-to-day tools (Daily summary, Visits map, Sync queue) are quick-action
+  cards on the Visits home screen (`(tabs)/index.tsx`), not buried in More; an actual
+  preference (Visit reminders on/off, the App-phase toggle itself, Appearance, Language
+  — the last two as inline `FilterChips`, no separate screens) stays in More, same as
+  any other setting. When `phase === 1`, none of it renders and no
   Phase 2 permission (camera/location/notifications) is ever requested — Phase 1
   stays exactly the client's app.
 - Adding a new Phase 2 feature: gate it the same way, don't fork the Phase 1 screen.

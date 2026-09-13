@@ -11,19 +11,23 @@ export function Sheet({
   onClose,
   children,
   showClose = true,
+  dismissable = true,
 }: {
   visible: boolean;
   onClose: () => void;
   children: ReactNode;
   showClose?: boolean;
+  // Set false for content where an accidental backdrop tap would destroy unsaved work (e.g. a
+  // hand-drawn signature) — closing is then only possible via the explicit X button.
+  dismissable?: boolean;
 }) {
   const { colors, spacing, radii } = useTheme();
   const { isRTL } = useLocale();
   const insets = useSafeAreaInsets();
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismissable ? onClose : () => {}}>
       <Pressable
-        onPress={onClose}
+        onPress={dismissable ? onClose : undefined}
         style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }}>
         <Pressable
           onPress={(e) => e.stopPropagation()}

@@ -132,6 +132,7 @@ export default function InvoiceDetail() {
           ) : null}
           <Button variant="secondary" icon="document-outline" title={t('invoiceDetail.viewPdf')} onPress={openPdf} loading={pdfBusy} />
           <Button variant="secondary" icon="print-outline" title={t('invoiceDetail.print')} onPress={printOrShare} loading={printBusy} />
+          <Button variant="ghost" icon="home-outline" title={t('invoiceDetail.backToVisits')} onPress={() => router.dismissAll()} />
         </>
       ) : null}
     </Screen>

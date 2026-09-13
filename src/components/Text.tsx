@@ -4,7 +4,7 @@ import { useLocale } from '@/src/i18n/LocaleProvider';
 import { typography } from '@/src/theme/tokens';
 
 type Variant = keyof typeof typography;
-type Tone = 'text' | 'muted' | 'faint' | 'primary' | 'danger' | 'success' | 'onPrimary';
+type Tone = 'text' | 'muted' | 'faint' | 'primary' | 'danger' | 'success' | 'warning' | 'onPrimary';
 
 export function Text({
   variant = 'body',
@@ -21,6 +21,7 @@ export function Text({
     primary: colors.primary,
     danger: colors.danger,
     success: colors.success,
+    warning: colors.warning,
     onPrimary: colors.onPrimary,
   }[tone];
   // Default alignment follows the locale (unset RN Text alignment resolves to physical left on

@@ -129,10 +129,13 @@ export default function NewOrder() {
       footer={
         <StickyActionBar
           label={
-            total > 0
-              ? t('newOrder.confirmWithTotal', { total: total.toFixed(2), currency })
-              : t('newOrder.confirm')
+            phase === 2 && !online
+              ? t('offline.saveOfflineLabel')
+              : total > 0
+                ? t('newOrder.confirmWithTotal', { total: total.toFixed(2), currency })
+                : t('newOrder.confirm')
           }
+          variant={phase === 2 && !online ? 'secondary' : 'primary'}
           disabled={lines.length === 0}
           loading={createOrder.isPending}
           onPress={submit}

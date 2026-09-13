@@ -14,31 +14,36 @@ export function SignaturePad({ onSave }: { onSave: (svgPaths: string[]) => void 
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const [paths, setPaths] = useState<string[]>([]);
-  const current = useRef('');
-  const [, forceRender] = useState(0);
+  const [current, setCurrent] = useState('');
 
+  // onPanResponderTerminationRequest / onShouldBlockNativeResponder both explicitly refuse to
+  // hand the gesture to anything else mid-stroke — this pad lives inside a Sheet (a Modal over a
+  // Pressable backdrop) and, without these, the backdrop or an ancestor gesture handler could
+  // steal the responder mid-signature, which is what was cutting strokes short / losing them.
   const responder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: (e) => {
         const { locationX, locationY } = e.nativeEvent;
-        current.current = `M${locationX.toFixed(1)},${locationY.toFixed(1)}`;
-        forceRender((n) => n + 1);
+        setCurrent(`M${locationX.toFixed(1)},${locationY.toFixed(1)}`);
       },
       onPanResponderMove: (e) => {
         const { locationX, locationY } = e.nativeEvent;
-        current.current += ` L${locationX.toFixed(1)},${locationY.toFixed(1)}`;
-        forceRender((n) => n + 1);
+        setCurrent((c) => `${c} L${locationX.toFixed(1)},${locationY.toFixed(1)}`);
       },
       onPanResponderRelease: () => {
-        setPaths((p) => [...p, current.current]);
-        current.current = '';
+        setCurrent((c) => {
+          if (c) setPaths((p) => [...p, c]);
+          return '';
+        });
       },
     }),
   ).current;
 
-  const empty = paths.length === 0 && !current.current;
+  const empty = paths.length === 0 && !current;
 
   return (
     <View style={{ gap: spacing.sm }}>
@@ -56,8 +61,8 @@ export function SignaturePad({ onSave }: { onSave: (svgPaths: string[]) => void 
           {paths.map((d, i) => (
             <Path key={i} d={d} stroke={colors.text} strokeWidth={2.5} fill="none" strokeLinecap="round" />
           ))}
-          {current.current ? (
-            <Path d={current.current} stroke={colors.text} strokeWidth={2.5} fill="none" strokeLinecap="round" />
+          {current ? (
+            <Path d={current} stroke={colors.text} strokeWidth={2.5} fill="none" strokeLinecap="round" />
           ) : null}
         </Svg>
       </View>

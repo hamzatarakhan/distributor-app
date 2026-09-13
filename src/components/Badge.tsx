@@ -9,7 +9,7 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
     success: { bg: colors.successTint, fg: colors.success },
     warning: { bg: colors.warningTint, fg: colors.warning },
     info: { bg: colors.infoTint, fg: colors.info },
-    special: { bg: 'rgba(139,92,246,0.15)', fg: '#8B5CF6' },
+    special: { bg: colors.specialTint, fg: colors.special },
     neutral: { bg: colors.cardAlt, fg: colors.textMuted },
   };
   const c = map[tone];

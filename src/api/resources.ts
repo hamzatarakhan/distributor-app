@@ -1,11 +1,11 @@
 import { api } from './index';
 import type {
-  Customer, Invoice, Order, OrderLine, Paged, PaymentMethod, Product, Profile, ReturnLine,
+  Customer, Invoice, Order, OrderLine, OrderStatus, Paged, PaymentMethod, Product, Profile, ReturnLine,
   ReturnRecord, Visit, VisitOutcome,
 } from './types';
 
 export const ProductApi = {
-  list: (p: { search?: string } = {}) => api.request<Paged<Product>>('product.list', p),
+  list: (p: { search?: string; stockFilter?: 'all' | 'low' | 'out' } = {}) => api.request<Paged<Product>>('product.list', p),
   get: (id: number) => api.request<Product>('product.get', { id }),
 };
 
@@ -26,7 +26,7 @@ export const VisitApi = {
 };
 
 export const OrderApi = {
-  list: (p: { search?: string; hasReturn?: boolean } = {}) => api.request<Paged<Order>>('order.list', p),
+  list: (p: { search?: string; hasReturn?: boolean; status?: 'all' | OrderStatus } = {}) => api.request<Paged<Order>>('order.list', p),
   get: (id: number) => api.request<Order>('order.get', { id }),
   create: (
     v: { visitId?: number; customerId: number; customerName: string; lines: OrderLine[] },

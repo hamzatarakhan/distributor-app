@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Button, Card, ConfirmSheet, DetailRow, Icon, Screen, StickyActionBar, Text,
+  Badge, Button, Card, ConfirmSheet, DetailRow, Icon, MapsChooserSheet, Screen,
+  StickyActionBar, Text,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useConfirmVisit, useCustomer, useVisit } from '@/src/hooks/data';
 import { visitStatusKey, visitStatusTone } from '@/src/lib/status';
+import { useMapsNavigate } from '@/src/lib/maps';
 import { useLocale } from '@/src/i18n/LocaleProvider';
 import { usePhase } from '@/src/settings/PhaseProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
@@ -25,15 +27,18 @@ export default function VisitDetail() {
   const confirmVisit = useConfirmVisit(visitId);
   const [noSaleConfirm, setNoSaleConfirm] = useState(false);
   const [noSaleError, setNoSaleError] = useState<string | null>(null);
+  const { chooserTarget, navigate, closeChooser } = useMapsNavigate();
 
   const openMaps = () => {
-    if (!data?.address) return;
-    const q = encodeURIComponent(`${data.address}, ${data.city ?? ''}`);
-    Linking.openURL(`geo:0,0?q=${q}`);
+    if (!data?.address && data?.geoLat == null) return;
+    navigate({ lat: data?.geoLat, lng: data?.geoLng, address: data?.address, city: data?.city });
   };
   const call = () => data?.phone && Linking.openURL(`tel:${data.phone.replace(/\s/g, '')}`);
 
   const planned = data?.status === 'planned';
+  // Phase 2 only — Phase 1 has no check-in concept at all, so it must stay exactly as the
+  // client asked: ordering always available once a visit is planned, no extra gate.
+  const requireCheckIn = phase === 2 && !data?.checkIn;
 
   const markNoSale = () => {
     setNoSaleError(null);
@@ -59,6 +64,7 @@ export default function VisitDetail() {
             <StickyActionBar
               label={t('visitDetail.startOrder')}
               onPress={() => router.push(`/orders/new?visitId=${visitId}`)}
+              disabled={requireCheckIn}
               secondaryLabel={t('visitDetail.noPurchase')}
               onSecondaryPress={() => setNoSaleConfirm(true)}
             />
@@ -129,6 +135,11 @@ export default function VisitDetail() {
                 </Card>
               </Pressable>
             ) : null}
+            {requireCheckIn ? (
+              <Text variant="caption" tone="warning" style={{ marginTop: -spacing.sm }}>
+                {t('checkIn.requiredHint')}
+              </Text>
+            ) : null}
 
             {data.photoUri ? (
               <Card>
@@ -168,6 +179,8 @@ export default function VisitDetail() {
         onConfirm={markNoSale}
         onCancel={() => setNoSaleConfirm(false)}
       />
+
+      <MapsChooserSheet target={chooserTarget} onClose={closeChooser} />
     </>
   );
 }

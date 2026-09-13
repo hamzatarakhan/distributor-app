@@ -1,47 +1,59 @@
+import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { useLocale } from '@/src/i18n/LocaleProvider';
 import { Card } from './Card';
+import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
 export function StatCard({
   label,
   value,
+  icon,
   tone = 'text',
   onPress,
   selected,
 }: {
   label: string;
   value: string;
+  icon?: IconName;
   tone?: React.ComponentProps<typeof Text>['tone'];
   onPress?: () => void;
   selected?: boolean;
 }) {
-  const { colors, spacing } = useTheme();
-  const card = (
-    <Card
+  const { colors, spacing, radii } = useTheme();
+  const content = (
+    <View
       style={{
-        gap: spacing.xs,
-        ...(selected ? { backgroundColor: colors.primaryTint, borderColor: colors.primaryBorder, borderWidth: 0.5 } : null),
+        flex: 1,
+        alignItems: 'center',
+        gap: 2,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.xs,
+        borderRadius: radii.md,
+        backgroundColor: selected ? colors.primaryTint : 'transparent',
       }}>
-      <Text variant="caption" tone="muted" numberOfLines={1}>{label}</Text>
+      {icon ? <Icon name={icon} size={16} color={selected ? colors.primary : colors.textFaint} /> : null}
       <Text variant="h2" tone={selected ? 'primary' : tone}>{value}</Text>
-    </Card>
+      <Text variant="caption" tone="muted" numberOfLines={1}>{label}</Text>
+    </View>
   );
-  if (!onPress) return <View style={{ flex: 1, minWidth: 140 }}>{card}</View>;
+  if (!onPress) return content;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ flex: 1, minWidth: 140, opacity: pressed ? 0.85 : 1 })}>
-      {card}
+    <Pressable onPress={onPress} style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.85 : 1 })}>
+      {content}
     </Pressable>
   );
 }
 
-export function StatRow({ children }: { children: React.ReactNode }) {
+// One elevated bar — reads as a single cohesive summary instead of three separate
+// boxes competing for attention.
+export function StatRow({ children }: { children: ReactNode }) {
   const { spacing } = useTheme();
   const { isRTL } = useLocale();
   return (
-    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: spacing.md }}>
+    <Card style={{ flexDirection: isRTL ? 'row-reverse' : 'row', padding: spacing.xs, gap: 0 }}>
       {children}
-    </View>
+    </Card>
   );
 }

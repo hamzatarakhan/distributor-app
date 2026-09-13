@@ -26,7 +26,21 @@
     "more": "More"
   },
   "home": {
-    "greeting": "Hi{{name}}"
+    "greeting": "Hi{{name}}",
+    "quickTools": "Quick tools"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get started",
+    "title1": "Your day, organized",
+    "desc1": "See today's visits at a glance and know exactly where to go next.",
+    "title2": "Order in seconds",
+    "desc2": "Build an order from your van's live stock right at the customer's shop.",
+    "title3": "Invoicing, automatic",
+    "desc3": "Confirming an order instantly creates the invoice — no separate paperwork.",
+    "title4": "Ready to hit the road?",
+    "desc4": "Sign in with your Odoo account to get started."
   },
   "visits": {
     "subtitle": "Today’s visits",
@@ -45,7 +59,10 @@
     "noPurchaseConfirmDescription": "The visit will be marked done with no order.",
     "outcomeOrdered": "Ordered ✓",
     "outcomeNoSale": "No purchase this visit.",
-    "viewOrder": "View order"
+    "viewOrder": "View order",
+    "openInMaps": "Open in Maps",
+    "appleMaps": "Apple Maps",
+    "googleMaps": "Google Maps"
   },
   "newOrder": {
     "title": "New order",
@@ -72,7 +89,6 @@
     "confirmedDescription": "Van stock was deducted and the invoice was created.",
     "invoiceLabel": "Invoice",
     "couldNotConfirm": "Could not confirm",
-    "done": "Done",
     "viewInvoice": "View invoice",
     "createReturn": "Create return",
     "alreadyReturned": "A return was already filed for this order."
@@ -108,10 +124,13 @@
     "total": "Total",
     "amountDue": "Amount due",
     "viewPdf": "View / download PDF",
-    "print": "Print / share"
+    "print": "Print / share",
+    "backToVisits": "Back to visits"
   },
   "stock": {
     "searchPlaceholder": "Name or reference",
+    "filterLow": "Low stock",
+    "filterOut": "Out of stock",
     "emptyText": "No products match."
   },
   "productDetail": {
@@ -123,7 +142,6 @@
     "profile": "Profile",
     "appearance": "Appearance",
     "appPhase": "App phase",
-    "phase2Section": "Phase 2 (extra features)",
     "serverConnection": "Server / connection",
     "about": "About",
     "language": "Language",
@@ -182,6 +200,7 @@
     "notLocatedYet": "Not located yet",
     "metersAway": "{{distance}}m away",
     "notYet": "Not checked in yet",
+    "requiredHint": "Check in above to unlock starting an order for this visit.",
     "permissionDenied": "Location permission denied",
     "photoLabel": "Merchandising photo (optional)",
     "takePhoto": "Take photo",
@@ -206,7 +225,13 @@
   "visitsMap": {
     "title": "Visits map",
     "emptyText": "No visit locations to show.",
-    "unavailable": "Map view isn't available in this build."
+    "unavailable": "Map view isn't available in this build.",
+    "stopsLabel": "Stops",
+    "doneLabel": "Done",
+    "kmLabel": "km route",
+    "nearestFirst": "Ordered from your current location, nearest stop first",
+    "scheduleOrder": "Ordered by scheduled time — enable location for nearest-first routing",
+    "youAreHere": "You are here"
   },
   "syncQueue": {
     "title": "Sync queue",
@@ -219,6 +244,7 @@
   },
   "offline": {
     "banner": "Offline — new orders will be queued and synced later",
+    "saveOfflineLabel": "Save offline · will sync later",
     "queuedTitle": "Order queued",
     "queuedDescription": "No connection — this order will sync automatically once you're back online (see Sync queue in More)."
   },

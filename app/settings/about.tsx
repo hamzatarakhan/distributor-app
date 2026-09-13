@@ -10,10 +10,10 @@ export default function About() {
   return (
     <Screen>
       <Card>
-        <DetailRow label={t('about.version')} value={Constants.expoConfig?.version ?? '1.0.0'} />
-        <DetailRow label={t('about.runtime')} value={Constants.expoConfig?.sdkVersion ?? '54'} />
-        <DetailRow label={t('about.dataSource')} value={api.transportName()} />
-        <DetailRow label={t('about.server')} value={server || '—'} />
+        <DetailRow icon="pricetag-outline" iconTone="info" label={t('about.version')} value={Constants.expoConfig?.version ?? '1.0.0'} />
+        <DetailRow icon="hardware-chip-outline" iconTone="special" label={t('about.runtime')} value={Constants.expoConfig?.sdkVersion ?? '54'} />
+        <DetailRow icon="server-outline" iconTone="success" label={t('about.dataSource')} value={api.transportName()} />
+        <DetailRow icon="globe-outline" iconTone="warning" label={t('about.server')} value={server || '—'} />
       </Card>
       <Text variant="caption" tone="faint">
         {t('about.footer')}

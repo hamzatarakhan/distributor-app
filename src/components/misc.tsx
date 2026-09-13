@@ -1,16 +1,23 @@
 import { View } from 'react-native';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { useLocale } from '@/src/i18n/LocaleProvider';
+import type { BadgeTone } from '@/src/theme/tokens';
+import { IconBadge } from './IconBadge';
+import type { IconName } from './Icon';
 import { Text } from './Text';
 
 export function DetailRow({
   label,
   value,
   valueNode,
+  icon,
+  iconTone = 'neutral',
 }: {
   label: string;
   value?: string;
   valueNode?: React.ReactNode;
+  icon?: IconName;
+  iconTone?: BadgeTone;
 }) {
   const { spacing } = useTheme();
   const { isRTL } = useLocale();
@@ -23,7 +30,10 @@ export function DetailRow({
         gap: spacing.md,
         paddingVertical: 6,
       }}>
-      <Text variant="caption" tone="muted">{label}</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: spacing.sm }}>
+        {icon ? <IconBadge icon={icon} tone={iconTone} /> : null}
+        <Text variant="caption" tone="muted">{label}</Text>
+      </View>
       {valueNode ?? <Text variant="captionSemi" style={{ flexShrink: 1, textAlign: isRTL ? 'left' : 'right' }}>{value}</Text>}
     </View>
   );

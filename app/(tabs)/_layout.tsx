@@ -31,11 +31,11 @@ export default function TabLayout() {
         headerTintColor: colors.text,
         headerShadowVisible: false,
       }}>
-      <Tabs.Screen name="index" options={{ title: t('tabs.visits'), tabBarIcon: tabIcon('map') }} />
-      <Tabs.Screen name="stock" options={{ title: t('tabs.stock'), tabBarIcon: tabIcon('cube') }} />
-      <Tabs.Screen name="orders" options={{ title: t('tabs.orders'), tabBarIcon: tabIcon('cart') }} />
-      <Tabs.Screen name="invoices" options={{ title: t('tabs.invoices'), tabBarIcon: tabIcon('document-text') }} />
-      <Tabs.Screen name="more" options={{ title: t('tabs.more'), tabBarIcon: tabIcon('ellipsis-horizontal') }} />
+      <Tabs.Screen name="index" options={{ title: t('tabs.visits'), tabBarIcon: tabIcon('map'), tabBarActiveTintColor: colors.primary }} />
+      <Tabs.Screen name="stock" options={{ title: t('tabs.stock'), tabBarIcon: tabIcon('cube'), tabBarActiveTintColor: colors.special }} />
+      <Tabs.Screen name="orders" options={{ title: t('tabs.orders'), tabBarIcon: tabIcon('cart'), tabBarActiveTintColor: colors.warning }} />
+      <Tabs.Screen name="invoices" options={{ title: t('tabs.invoices'), tabBarIcon: tabIcon('document-text'), tabBarActiveTintColor: colors.success }} />
+      <Tabs.Screen name="more" options={{ title: t('tabs.more'), tabBarIcon: tabIcon('ellipsis-horizontal'), tabBarActiveTintColor: colors.info }} />
     </Tabs>
   );
 }
