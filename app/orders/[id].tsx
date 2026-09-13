@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Button, Card, DetailRow, Divider, Money, ResultSheet, Screen, StickyActionBar, Text,
+  Badge, Card, DetailRow, Divider, Money, ResultSheet, Screen, StickyActionBar, Text,
   type ResultState,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
@@ -58,29 +58,17 @@ export default function OrderDetail() {
                 loading={confirmOrder.isPending}
                 onPress={() => submit()}
               />
-            ) : (
-              <View style={{ padding: spacing.lg, gap: spacing.sm }}>
-                {data.invoiceId ? (
-                  <Button
-                    title={t('orderDetail.viewInvoice')}
-                    onPress={() => router.push(`/invoices/${data.invoiceId}`)}
-                    fullWidth
-                  />
-                ) : null}
-                {!data.hasReturn ? (
-                  <Button
-                    variant="secondary"
-                    title={t('orderDetail.createReturn')}
-                    onPress={() => router.push(`/orders/${orderId}/return`)}
-                    fullWidth
-                  />
-                ) : (
-                  <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
-                    {t('orderDetail.alreadyReturned')}
-                  </Text>
-                )}
-              </View>
-            )
+            ) : data.invoiceId ? (
+              <StickyActionBar
+                label={t('orderDetail.viewInvoice')}
+                onPress={() => router.push(`/invoices/${data.invoiceId}`)}
+                secondaryLabel={!data.hasReturn ? t('orderDetail.createReturn') : undefined}
+                onSecondaryPress={
+                  !data.hasReturn ? () => router.push(`/orders/${orderId}/return`) : undefined
+                }
+                secondaryVariant="secondary"
+              />
+            ) : undefined
           ) : undefined
         }>
         {data ? (
@@ -93,6 +81,9 @@ export default function OrderDetail() {
 
             <Card>
               <DetailRow label={t('orderDetail.date')} value={data.date} />
+              {data.hasReturn ? (
+                <DetailRow label={t('orderDetail.createReturn')} valueNode={<Text variant="captionSemi" tone="muted">{t('orderDetail.alreadyReturned')}</Text>} />
+              ) : null}
             </Card>
 
             <Text variant="h2" style={{ marginTop: spacing.sm }}>{t('orderDetail.lines')}</Text>

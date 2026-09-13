@@ -52,17 +52,12 @@ export default function VisitDetail() {
         onRetry={refetch}
         footer={
           planned ? (
-            <View style={{ borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.card, padding: spacing.lg, gap: spacing.sm }}>
-              <StickyActionBar
-                label={t('visitDetail.startOrder')}
-                onPress={() => router.push(`/orders/new?visitId=${visitId}`)}
-              />
-              <Button
-                variant="ghost"
-                title={t('visitDetail.noPurchase')}
-                onPress={() => setNoSaleConfirm(true)}
-              />
-            </View>
+            <StickyActionBar
+              label={t('visitDetail.startOrder')}
+              onPress={() => router.push(`/orders/new?visitId=${visitId}`)}
+              secondaryLabel={t('visitDetail.noPurchase')}
+              onSecondaryPress={() => setNoSaleConfirm(true)}
+            />
           ) : undefined
         }>
         {data ? (
