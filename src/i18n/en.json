@@ -52,6 +52,7 @@
     "forCustomer": "Order for {{name}}",
     "searchPlaceholder": "Name or reference",
     "vanStock": "{{qty}} {{uom}} in van",
+    "discountLabel": "Discount",
     "emptyText": "No products match.",
     "clearCart": "Clear cart",
     "confirm": "Confirm order",

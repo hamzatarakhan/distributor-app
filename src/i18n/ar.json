@@ -52,6 +52,7 @@
     "forCustomer": "أوردر لـ {{name}}",
     "searchPlaceholder": "الاسم أو المرجع",
     "vanStock": "{{qty}} {{uom}} بالسيارة",
+    "discountLabel": "الخصم",
     "emptyText": "لا توجد منتجات مطابقة.",
     "clearCart": "تفريغ السلة",
     "confirm": "تأكيد الأوردر",

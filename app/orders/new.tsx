@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
-  Button, Card, Icon, ListRow, Money, PercentChips, QtyStepper, ResultSheet, Screen, SearchBar,
+  Button, Card, Divider, Icon, Money, PercentChips, QtyStepper, ResultSheet, Screen, SearchBar,
   StickyActionBar, Text, type ResultState,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
@@ -147,36 +147,43 @@ export default function NewOrder() {
         {items.map((p) => {
           const qty = cart[p.id] ?? 0;
           const low = phase === 2 && p.lowStockThreshold != null && p.vanStock <= p.lowStockThreshold;
+          const showDiscount = phase === 2 && qty > 0;
           return (
-            <ListRow
-              key={p.id}
-              chevron={false}
-              title={p.name}
-              subtitle={
-                <View style={{ gap: 4 }}>
-                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+            // A plain Card, not ListRow — this is a cart line (title + price/stock + a qty
+            // stepper, with an optional discount row), not a tappable navigation row, and
+            // ListRow's single-line title + one subtitle slot was too little room once the
+            // discount chips needed to fit too.
+            <Card key={p.id} style={{ gap: spacing.sm }}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: spacing.md }}>
+                <View style={{ flex: 1 }}>
+                  <Text variant="title">{p.name}</Text>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
                     <Money value={p.price} currency={p.currency} variant="caption" tone="muted" />
                     <Text variant="caption" tone={low ? 'danger' : 'faint'}>
                       · {t('newOrder.vanStock', { qty: p.vanStock, uom: p.uom })}
                       {low ? ` (${t('lowStock.badge')})` : ''}
                     </Text>
                   </View>
-                  {phase === 2 && qty > 0 ? (
-                    <PercentChips
-                      value={discounts[p.id] ?? 0}
-                      onChange={(pct) => setDiscounts((s) => ({ ...s, [p.id]: pct }))}
-                    />
-                  ) : null}
                 </View>
-              }
-              right={
                 <QtyStepper
                   value={qty}
                   onChange={(n) => setCart((s) => ({ ...s, [p.id]: n }))}
                   max={p.vanStock}
                 />
-              }
-            />
+              </View>
+              {showDiscount ? (
+                <>
+                  <Divider />
+                  <View style={{ gap: 6 }}>
+                    <Text variant="caption" tone="muted">{t('newOrder.discountLabel')}</Text>
+                    <PercentChips
+                      value={discounts[p.id] ?? 0}
+                      onChange={(pct) => setDiscounts((s) => ({ ...s, [p.id]: pct }))}
+                    />
+                  </View>
+                </>
+              ) : null}
+            </Card>
           );
         })}
       </View>
