@@ -46,12 +46,22 @@ export default function NewOrder() {
 
   return (
     <Screen
+      header={
+        <>
+          {visit.data ? (
+            <Text variant="h2">{t('newOrder.forCustomer', { name: visit.data.customerName })}</Text>
+          ) : null}
+          <SearchBar value={search} onChangeText={setSearch} placeholder={t('newOrder.searchPlaceholder')} />
+        </>
+      }
       loading={products.isLoading || visit.isLoading}
       error={products.error ?? visit.error}
       onRetry={() => {
         products.refetch();
         visit.refetch();
       }}
+      empty={!products.isLoading && items.length === 0}
+      emptyText={t('newOrder.emptyText')}
       footer={
         <StickyActionBar
           label={
@@ -64,10 +74,6 @@ export default function NewOrder() {
           onPress={submit}
         />
       }>
-      {visit.data ? (
-        <Text variant="h2">{t('newOrder.forCustomer', { name: visit.data.customerName })}</Text>
-      ) : null}
-      <SearchBar value={search} onChangeText={setSearch} placeholder={t('newOrder.searchPlaceholder')} />
       {error ? (
         <Card>
           <Text tone="danger" variant="caption">{error}</Text>

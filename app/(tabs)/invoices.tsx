@@ -29,6 +29,12 @@ export default function InvoicesScreen() {
 
   return (
     <Screen
+      header={
+        <>
+          <SearchBar value={search} onChangeText={setSearch} placeholder={t('invoices.searchPlaceholder')} />
+          <FilterChips value={filter} onChange={setFilter} options={FILTERS as any} />
+        </>
+      }
       onRefresh={refetch}
       refreshing={isRefetching}
       loading={isLoading}
@@ -36,8 +42,6 @@ export default function InvoicesScreen() {
       onRetry={refetch}
       empty={!isLoading && items.length === 0}
       emptyText={t('invoices.emptyText')}>
-      <SearchBar value={search} onChangeText={setSearch} placeholder={t('invoices.searchPlaceholder')} />
-      <FilterChips value={filter} onChange={setFilter} options={FILTERS as any} />
       {outstanding > 0 ? (
         <Card style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text variant="caption" tone="muted">{t('invoices.outstanding', { count: items.length })}</Text>

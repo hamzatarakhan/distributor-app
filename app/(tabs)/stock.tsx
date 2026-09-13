@@ -17,6 +17,7 @@ export default function VanStockScreen() {
 
   return (
     <Screen
+      header={<SearchBar value={search} onChangeText={setSearch} placeholder={t('stock.searchPlaceholder')} />}
       onRefresh={refetch}
       refreshing={isRefetching}
       loading={isLoading}
@@ -24,7 +25,6 @@ export default function VanStockScreen() {
       onRetry={refetch}
       empty={!isLoading && items.length === 0}
       emptyText={t('stock.emptyText')}>
-      <SearchBar value={search} onChangeText={setSearch} placeholder={t('stock.searchPlaceholder')} />
       <View style={{ gap: spacing.md }}>
         {items.map((p) => (
           <ListRow

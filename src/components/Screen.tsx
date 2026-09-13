@@ -14,6 +14,11 @@ import { LoadingRows } from './Skeleton';
 
 type Props = {
   children: ReactNode;
+  // Rendered above `children` and never swapped out for a loading/error/empty state — put a
+  // SearchBar/FilterChips row here. Without this slot, searching to zero results (or the
+  // in-flight instant while React Query treats a new search term as an uncached query) replaced
+  // the whole screen with the empty/loading state, taking the search box away with it.
+  header?: ReactNode;
   scroll?: boolean;
   onRefresh?: () => void;
   refreshing?: boolean;
@@ -29,6 +34,7 @@ type Props = {
 
 export function Screen({
   children,
+  header,
   scroll = true,
   onRefresh,
   refreshing,
@@ -51,8 +57,15 @@ export function Screen({
   else if (error) body = <ErrorBanner error={error} onRetry={onRetry} />;
   else if (empty) body = <EmptyState text={emptyText ?? t('common.nothingHereYet')} />;
 
+  const content = (
+    <>
+      {header}
+      {body}
+    </>
+  );
+
   const inner = (
-    <View style={{ flex: 1, padding: pad, gap: spacing.md }}>{body}</View>
+    <View style={{ flex: 1, padding: pad, gap: spacing.md }}>{content}</View>
   );
 
   return (
@@ -74,7 +87,7 @@ export function Screen({
             ) : undefined
           }
           keyboardShouldPersistTaps="handled">
-          {body}
+          {content}
         </ScrollView>
       ) : (
         inner

@@ -51,6 +51,7 @@
     "forCustomer": "Order for {{name}}",
     "searchPlaceholder": "Name or reference",
     "vanStock": "{{qty}} {{uom}} in van",
+    "emptyText": "No products match.",
     "clearCart": "Clear cart",
     "confirm": "Confirm order",
     "confirmWithTotal": "Confirm order · {{total}} {{currency}}"

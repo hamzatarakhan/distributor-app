@@ -18,6 +18,7 @@ export default function OrdersScreen() {
 
   return (
     <Screen
+      header={<SearchBar value={search} onChangeText={setSearch} placeholder={t('orders.searchPlaceholder')} />}
       onRefresh={refetch}
       refreshing={isRefetching}
       loading={isLoading}
@@ -25,7 +26,6 @@ export default function OrdersScreen() {
       onRetry={refetch}
       empty={!isLoading && items.length === 0}
       emptyText={t('orders.emptyText')}>
-      <SearchBar value={search} onChangeText={setSearch} placeholder={t('orders.searchPlaceholder')} />
       <View style={{ gap: spacing.md }}>
         {items.map((o) => (
           <ListRow
