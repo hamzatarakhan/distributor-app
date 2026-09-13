@@ -25,7 +25,8 @@ export default function VisitsHome() {
   const done = all.filter((v) => v.status === 'done');
   const items = filter === 'all' ? all : filter === 'planned' ? remaining : done;
 
-  const toggle = (f: StatFilter) => setFilter((current) => (current === f ? 'all' : f));
+  // 'all' has no meaningful "off" state to toggle back to — only planned/done do.
+  const toggle = (f: StatFilter) => setFilter((current) => (f === 'all' ? 'all' : current === f ? 'all' : f));
 
   const loading = visits.isLoading;
   const refreshing = visits.isRefetching || profile.isRefetching;
@@ -42,6 +43,12 @@ export default function VisitsHome() {
           <Text tone="muted" variant="caption">{t('visits.subtitle')}</Text>
 
           <StatRow>
+            <StatCard
+              label={t('visits.statAll')}
+              value={String(all.length)}
+              onPress={() => toggle('all')}
+              selected={filter === 'all'}
+            />
             <StatCard
               label={t('visits.statRemaining')}
               value={String(remaining.length)}

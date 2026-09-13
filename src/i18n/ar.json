@@ -30,6 +30,7 @@
   },
   "visits": {
     "subtitle": "زيارات اليوم",
+    "statAll": "الكل",
     "statRemaining": "متبقية",
     "statDone": "منتهية",
     "emptyText": "لا توجد زيارات مجدولة اليوم."

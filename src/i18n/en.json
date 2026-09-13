@@ -30,6 +30,7 @@
   },
   "visits": {
     "subtitle": "Today’s visits",
+    "statAll": "All",
     "statRemaining": "Remaining",
     "statDone": "Done",
     "emptyText": "No visits scheduled for today."
