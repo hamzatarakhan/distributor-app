@@ -1,14 +1,28 @@
 import { router } from 'expo-router';
-import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
-import { Screen } from '@/src/components';
+import { Screen, Text } from '@/src/components';
 import { useVisits } from '@/src/hooks/data';
 import { visitStatusTone } from '@/src/lib/status';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
-// Phase 2. Android needs a Google Maps API key configured (app.json > android.config.googleMaps)
-// before tiles render there — without one the map still loads, just blank/grey. iOS uses Apple
-// Maps by default and needs no key.
+// react-native-maps is a third-party native module. expo-router's file-based routing requires
+// every file under app/ to build its route table, so a plain top-level `import` here would run
+// at app STARTUP (not only when this screen opens) — if the module isn't actually linked in
+// this Expo Go build, that crashes the whole app, Phase 1 included. Deferred + guarded require
+// means a missing module degrades to a message on this one screen instead.
+let MapView: any = null;
+let Marker: any = null;
+try {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+} catch {
+  // not available in this runtime — screen below shows a fallback instead of crashing
+}
+
+// Android needs a Google Maps API key configured (app.json > android.config.googleMaps) before
+// tiles render — without one the map still loads, just blank/grey. iOS uses Apple Maps by
+// default and needs no key.
 export default function VisitsMap() {
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -22,6 +36,14 @@ export default function VisitsMap() {
     neutral: colors.textFaint,
     special: colors.primary,
   } as const;
+
+  if (!MapView) {
+    return (
+      <Screen>
+        <Text tone="muted">{t('visitsMap.unavailable')}</Text>
+      </Screen>
+    );
+  }
 
   return (
     <Screen

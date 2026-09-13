@@ -204,7 +204,8 @@
   },
   "visitsMap": {
     "title": "Visits map",
-    "emptyText": "No visit locations to show."
+    "emptyText": "No visit locations to show.",
+    "unavailable": "Map view isn't available in this build."
   },
   "syncQueue": {
     "title": "Sync queue",
