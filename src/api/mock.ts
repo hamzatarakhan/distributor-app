@@ -1,6 +1,7 @@
 import * as fx from './fixtures';
+import { lineTotal, orderTotal } from '@/src/lib/orderMath';
 import type { Transport, Op } from './transport';
-import type { Credentials, Invoice, Order, OrderLine, Session, Visit } from './types';
+import type { Credentials, Customer, Invoice, Order, OrderLine, Payment, Session, Visit } from './types';
 
 const delay = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 
@@ -13,9 +14,11 @@ function match<T>(list: T[], q?: string) {
 // In-memory state so a visit confirmed / order created / return filed in this app session shows
 // up right away elsewhere (Orders list, invoice list, the visit's own status). Resets on reload —
 // it's a mock, not a database; the real transports write through to Odoo instead.
-let visits = fx.visits.map((v) => ({ ...v }));
-let orders = fx.orders.map((o) => ({ ...o, lines: o.lines.map((l) => ({ ...l })) }));
-let invoices = fx.invoices.map((i) => ({ ...i }));
+let visits: Visit[] = fx.visits.map((v) => ({ ...v }));
+let orders: Order[] = fx.orders.map((o) => ({ ...o, lines: o.lines.map((l) => ({ ...l })) }));
+let invoices: Invoice[] = fx.invoices.map((i) => ({ ...i, payments: [...(i.payments ?? [])] }));
+let customers: Customer[] = fx.customers.map((c) => ({ ...c }));
+let nextPaymentId = 1;
 let nextOrderId = Math.max(0, ...orders.map((o) => o.id)) + 1;
 let nextInvoiceId = Math.max(0, ...invoices.map((i) => i.id)) + 1;
 let nextReturnId = 1;
@@ -60,6 +63,12 @@ export const mockTransport: Transport = {
         return p as T;
       }
 
+      case 'customer.get': {
+        const c = customers.find((x) => x.id === Number(params.id));
+        if (!c) throw new Error('Customer not found');
+        return c as T;
+      }
+
       case 'visit.list': {
         let items = match(visits, params.search);
         if (params.status && params.status !== 'all') items = items.filter((v) => v.status === params.status);
@@ -73,7 +82,20 @@ export const mockTransport: Transport = {
       case 'visit.confirm': {
         const v = visits.find((x) => x.id === Number(params.id));
         if (!v) throw new Error('Visit not found');
-        const updated: Visit = { ...v, status: 'done', outcome: params.outcome, note: params.note };
+        const updated: Visit = {
+          ...v,
+          status: 'done',
+          outcome: params.outcome,
+          note: params.note,
+          photoUri: params.photoUri ?? v.photoUri,
+        };
+        visits = visits.map((x) => (x.id === v.id ? updated : x));
+        return updated as T;
+      }
+      case 'visit.checkin': {
+        const v = visits.find((x) => x.id === Number(params.id));
+        if (!v) throw new Error('Visit not found');
+        const updated: Visit = { ...v, checkIn: params.checkIn, photoUri: params.photoUri ?? v.photoUri };
         visits = visits.map((x) => (x.id === v.id ? updated : x));
         return updated as T;
       }
@@ -90,7 +112,7 @@ export const mockTransport: Transport = {
       }
       case 'order.create': {
         const lines = (params.lines as OrderLine[]) ?? [];
-        const total = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+        const total = orderTotal(lines);
         const order: Order = {
           id: nextOrderId++,
           reference: `SO/2026/${String(500 + nextOrderId).padStart(4, '0')}`,
@@ -112,8 +134,9 @@ export const mockTransport: Transport = {
         return order as T;
       }
       case 'order.confirm': {
-        const order = orders.find((x) => x.id === Number(params.id));
-        if (!order) throw new Error('Order not found');
+        const found = orders.find((x) => x.id === Number(params.id));
+        if (!found) throw new Error('Order not found');
+        const order: Order = params.signature ? { ...found, signature: params.signature } : found;
         // Confirming an order is the "stock-out" moment: it deducts van stock and creates the
         // invoice in one step, matching how the rep experiences it in the field.
         const invoice: Invoice = {
@@ -131,13 +154,17 @@ export const mockTransport: Transport = {
           status: 'not_paid',
           lines: order.lines.map((l, i) => ({
             id: i + 1,
-            description: l.product,
+            description: l.discountPercent ? `${l.product} (-${l.discountPercent}%)` : l.product,
             qty: l.qty,
             unitPrice: l.unitPrice,
-            subtotal: l.qty * l.unitPrice,
+            subtotal: Math.round(lineTotal(l) * 100) / 100,
           })),
+          payments: [],
         };
         invoices = [invoice, ...invoices];
+        customers = customers.map((c) =>
+          c.id === order.customerId ? { ...c, balance: c.balance + invoice.amountTotal } : c,
+        );
         const updated: Order = { ...order, status: 'invoiced', invoiceId: invoice.id };
         orders = orders.map((x) => (x.id === order.id ? updated : x));
         return { order: updated, invoice } as T;
@@ -172,6 +199,32 @@ export const mockTransport: Transport = {
       }
       case 'invoice.pdf':
         return { url: 'https://www.orimi.com/pdf-test.pdf' } as T;
+
+      case 'invoice.recordPayment': {
+        const inv = invoices.find((x) => x.id === Number(params.id));
+        if (!inv) throw new Error('Invoice not found');
+        const payment: Payment = {
+          id: nextPaymentId++,
+          method: params.method,
+          amount: Number(params.amount),
+          date: today(),
+        };
+        const amountDue = Math.max(0, Math.round((inv.amountDue - payment.amount) * 100) / 100);
+        const updated: Invoice = {
+          ...inv,
+          amountDue,
+          status: amountDue === 0 ? 'paid' : 'partial',
+          payments: [...(inv.payments ?? []), payment],
+        };
+        invoices = invoices.map((x) => (x.id === inv.id ? updated : x));
+        // Recording a payment also relieves the customer's outstanding balance for the credit
+        // check on the Visit/New order screens.
+        const custName = inv.customerName;
+        customers = customers.map((c) =>
+          c.name === custName ? { ...c, balance: Math.max(0, c.balance - payment.amount) } : c,
+        );
+        return updated as T;
+      }
 
       default:
         throw new Error(`mock: unknown op ${op}`);

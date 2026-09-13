@@ -13,7 +13,7 @@ import { ErrorBanner } from './ErrorBanner';
 import { LoadingRows } from './Skeleton';
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
   // Rendered above `children` and never swapped out for a loading/error/empty state — put a
   // SearchBar/FilterChips row here. Without this slot, searching to zero results (or the
   // in-flight instant while React Query treats a new search term as an uncached query) replaced

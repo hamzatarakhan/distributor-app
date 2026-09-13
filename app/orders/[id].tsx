@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Card, DetailRow, Divider, Money, ResultSheet, Screen, StickyActionBar, Text,
-  type ResultState,
+  Badge, Card, DetailRow, Divider, Money, ResultSheet, Screen, Sheet, SignaturePad,
+  StickyActionBar, Text, type ResultState,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useConfirmOrder, useOrder } from '@/src/hooks/data';
 import { orderStatusKey, orderStatusTone } from '@/src/lib/status';
+import { lineTotal } from '@/src/lib/orderMath';
 import { useLocale } from '@/src/i18n/LocaleProvider';
+import { usePhase } from '@/src/settings/PhaseProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function OrderDetail() {
@@ -18,13 +20,15 @@ export default function OrderDetail() {
   const { spacing } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
+  const { phase } = usePhase();
   const { data, isLoading, error, refetch, isRefetching } = useOrder(orderId);
   const confirmOrder = useConfirmOrder(orderId);
   const [result, setResult] = useState<ResultState | null>(null);
+  const [signing, setSigning] = useState(false);
 
-  const submit = (fail?: boolean) => {
+  const submit = (signature?: string[], fail?: boolean) => {
     confirmOrder.mutate(
-      { fail },
+      { signature, fail },
       {
         onSuccess: (res) =>
           setResult({
@@ -38,6 +42,11 @@ export default function OrderDetail() {
           setResult({ kind: 'error', title: t('orderDetail.couldNotConfirm'), description: errorMessage(e) }),
       },
     );
+  };
+
+  const startConfirm = () => {
+    if (phase === 2) setSigning(true);
+    else submit();
   };
 
   const draft = data?.status === 'draft';
@@ -56,7 +65,7 @@ export default function OrderDetail() {
               <StickyActionBar
                 label={t('orderDetail.confirmOrder')}
                 loading={confirmOrder.isPending}
-                onPress={() => submit()}
+                onPress={startConfirm}
               />
             ) : data.invoiceId ? (
               <StickyActionBar
@@ -84,6 +93,9 @@ export default function OrderDetail() {
               {data.hasReturn ? (
                 <DetailRow label={t('orderDetail.createReturn')} valueNode={<Text variant="captionSemi" tone="muted">{t('orderDetail.alreadyReturned')}</Text>} />
               ) : null}
+              {data.signature ? (
+                <DetailRow label={t('signature.title')} valueNode={<Text variant="captionSemi" tone="success">{t('signature.captured')}</Text>} />
+              ) : null}
             </Card>
 
             <Text variant="h2" style={{ marginTop: spacing.sm }}>{t('orderDetail.lines')}</Text>
@@ -92,11 +104,13 @@ export default function OrderDetail() {
                 <View key={l.productId}>
                   {i > 0 ? <Divider /> : null}
                   <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', gap: spacing.md }}>
-                    <Text variant="caption" style={{ flex: 1 }}>{l.product}</Text>
+                    <Text variant="caption" style={{ flex: 1 }}>
+                      {l.product}{l.discountPercent ? ` (-${l.discountPercent}%)` : ''}
+                    </Text>
                     <Text variant="caption" tone="muted">{l.qty} × {l.unitPrice}</Text>
                   </View>
                   <Text variant="captionSemi" style={{ textAlign: isRTL ? 'left' : 'right' }}>
-                    <Money value={l.qty * l.unitPrice} currency={data.currency} variant="captionSemi" />
+                    <Money value={lineTotal(l)} currency={data.currency} variant="captionSemi" />
                   </Text>
                 </View>
               ))}
@@ -108,6 +122,17 @@ export default function OrderDetail() {
           </>
         ) : null}
       </Screen>
+
+      <Sheet visible={signing} onClose={() => setSigning(false)}>
+        <Text variant="h2">{t('signature.title')}</Text>
+        <Text tone="muted" variant="caption">{t('signature.confirmHint')}</Text>
+        <SignaturePad
+          onSave={(paths) => {
+            setSigning(false);
+            submit(paths);
+          }}
+        />
+      </Sheet>
 
       <ResultSheet
         state={result}

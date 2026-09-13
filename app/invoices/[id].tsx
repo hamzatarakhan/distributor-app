@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import {
 import { useInvoice } from '@/src/hooks/data';
 import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
 import { useLocale } from '@/src/i18n/LocaleProvider';
+import { usePhase } from '@/src/settings/PhaseProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function InvoiceDetail() {
@@ -17,6 +18,7 @@ export default function InvoiceDetail() {
   const { spacing } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
+  const { phase } = usePhase();
   const { data, isLoading, error, refetch, isRefetching } = useInvoice(invoiceId);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [printBusy, setPrintBusy] = useState(false);
@@ -108,6 +110,26 @@ export default function InvoiceDetail() {
             } />
           </Card>
 
+          {phase === 2 && (data.payments?.length ?? 0) > 0 ? (
+            <Card>
+              <Text variant="captionSemi" tone="muted">{t('recordPayment.history')}</Text>
+              {data.payments!.map((p) => (
+                <DetailRow
+                  key={p.id}
+                  label={p.date}
+                  valueNode={
+                    <Text variant="captionSemi">
+                      {t(p.method === 'cash' ? 'recordPayment.cash' : 'recordPayment.cheque')} · {p.amount.toFixed(2)} {data.currency}
+                    </Text>
+                  }
+                />
+              ))}
+            </Card>
+          ) : null}
+
+          {phase === 2 && data.amountDue > 0 ? (
+            <Button title={t('recordPayment.title')} onPress={() => router.push(`/invoices/${invoiceId}/payment`)} fullWidth />
+          ) : null}
           <Button variant="secondary" icon="document-outline" title={t('invoiceDetail.viewPdf')} onPress={openPdf} loading={pdfBusy} />
           <Button variant="secondary" icon="print-outline" title={t('invoiceDetail.print')} onPress={printOrShare} loading={printBusy} />
         </>

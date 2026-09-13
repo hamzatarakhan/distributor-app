@@ -1,0 +1,38 @@
+Add Phase 2 feature set behind a phase toggle, Phase 1 untouched
+
+Implements every idea from the 2026-09-13 Phase 2 feature list as real, working
+screens/flows against the mock backend, gated behind one persisted flag
+(usePhase(), switched from More > App phase) so the app can drop back to
+exactly the client's Phase 1 requirement at any time with nothing to undo.
+
+New domain: Customer (balance/credit limit), Payment (cash/cheque on an
+invoice), Product.lowStockThreshold, OrderLine.discountPercent, Order.signature,
+Visit.geoLat/geoLng/checkIn/photoUri. New ops: customer.get, visit.checkin,
+invoice.recordPayment. Shared order-total math moved to src/lib/orderMath.ts
+(mock.ts and the UI now compute discounted totals the same way — the order
+detail screen was previously showing pre-discount line subtotals).
+
+Phase 2 features, each gated at its call site:
+- Offline mode: real connectivity detection (@react-native-community/netinfo),
+  new orders queue to AsyncStorage when offline and replay via Sync queue once
+  back online (src/lib/offlineQueue.ts) — scoped to order creation, the
+  highest-value case, not every write.
+- Cash/cheque payment recording on an invoice (invoices/[id]/payment.tsx),
+  with a payment history list on the invoice.
+- Customer balance / credit-limit check, shown on Visit detail and the New
+  order screen (warns before a sale would exceed the limit).
+- Per-line discounts in the order builder (PercentChips).
+- Customer signature capture before confirming an order — SignaturePad is a
+  from-scratch PanResponder + react-native-svg <Path>, no signature dependency.
+- Barcode scanning in the order builder (expo-camera CameraView) that adds
+  the matched product to the cart.
+- Low van-stock flag on products.
+- GPS check-in against the visit's known location (haversine in
+  src/lib/geo.ts) plus an optional merchandising photo (expo-image-picker).
+- Visits map (react-native-maps) — Android tiles need a Google Maps API key
+  before they render; noted in CLAUDE.md, doesn't crash without one.
+- End-of-day summary computed from already-loaded orders/visits.
+- Local visit-reminder notifications (expo-notifications) — local only,
+  since Expo Go dropped remote push on Android.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

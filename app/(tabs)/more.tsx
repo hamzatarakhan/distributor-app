@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Switch, View } from 'react-native';
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
-import { Card, ConfirmSheet, Icon, ListRow, Screen, Text } from '@/src/components';
+import { Card, ConfirmSheet, Icon, ListRow, Screen, SectionHeader, Text } from '@/src/components';
+import { errorMessage } from '@/src/components/ErrorBanner';
 import { useAuth } from '@/src/auth/AuthContext';
-import { useProfile } from '@/src/hooks/data';
+import { useProfile, useVisits } from '@/src/hooks/data';
+import { areRemindersScheduled, cancelAllReminders, scheduleTodayReminders } from '@/src/lib/reminders';
+import { usePhase } from '@/src/settings/PhaseProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function More() {
@@ -13,7 +16,29 @@ export default function More() {
   const { t } = useTranslation();
   const { signOut, session } = useAuth();
   const profile = useProfile();
+  const { phase } = usePhase();
   const [confirm, setConfirm] = useState(false);
+  const [remindersOn, setRemindersOn] = useState(false);
+  const [reminderError, setReminderError] = useState<string | null>(null);
+  const visits = useVisits({ status: 'planned' });
+
+  useEffect(() => {
+    if (phase === 2) areRemindersScheduled().then(setRemindersOn).catch(() => {});
+  }, [phase]);
+
+  const toggleReminders = async (on: boolean) => {
+    setReminderError(null);
+    try {
+      if (on) {
+        await scheduleTodayReminders(visits.data?.items ?? []);
+      } else {
+        await cancelAllReminders();
+      }
+      setRemindersOn(on);
+    } catch (e) {
+      setReminderError(errorMessage(e));
+    }
+  };
 
   return (
     <Screen>
@@ -42,6 +67,12 @@ export default function More() {
           onPress={() => router.push('/settings/language')}
         />
         <ListRow
+          title={t('more.appPhase')}
+          subtitle={phase === 1 ? t('appPhase.phase1') : t('appPhase.phase2')}
+          left={<Icon name="layers-outline" color={colors.textMuted} />}
+          onPress={() => router.push('/settings/phase')}
+        />
+        <ListRow
           title={t('more.serverConnection')}
           left={<Icon name="server-outline" color={colors.textMuted} />}
           onPress={() => router.push('/(auth)/server-config')}
@@ -65,6 +96,36 @@ export default function More() {
           onPress={() => setConfirm(true)}
         />
       </View>
+
+      {phase === 2 ? (
+        <>
+          <SectionHeader title={t('more.phase2Section')} />
+          <View style={{ gap: spacing.md }}>
+            <ListRow
+              title={t('eodSummary.title')}
+              left={<Icon name="stats-chart-outline" color={colors.textMuted} />}
+              onPress={() => router.push('/eod-summary')}
+            />
+            <ListRow
+              title={t('visitsMap.title')}
+              left={<Icon name="map-outline" color={colors.textMuted} />}
+              onPress={() => router.push('/visits-map')}
+            />
+            <ListRow
+              title={t('syncQueue.title')}
+              left={<Icon name="cloud-upload-outline" color={colors.textMuted} />}
+              onPress={() => router.push('/sync-queue')}
+            />
+            <ListRow
+              title={t('reminders.title')}
+              subtitle={reminderError ?? undefined}
+              chevron={false}
+              left={<Icon name="notifications-outline" color={colors.textMuted} />}
+              right={<Switch value={remindersOn} onValueChange={toggleReminders} />}
+            />
+          </View>
+        </>
+      ) : null}
 
       <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
         v{Constants.expoConfig?.version ?? '1.0.0'}

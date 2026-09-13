@@ -121,6 +121,8 @@
     "account": "Account",
     "profile": "Profile",
     "appearance": "Appearance",
+    "appPhase": "App phase",
+    "phase2Section": "Phase 2 (extra features)",
     "serverConnection": "Server / connection",
     "about": "About",
     "language": "Language",
@@ -128,6 +130,98 @@
     "signOut": "Sign out",
     "signOutConfirmTitle": "Sign out?",
     "signOutConfirmDescription": "You’ll need to sign in again to use the app."
+  },
+  "appPhase": {
+    "hint": "Switch between what the client asked for and the extra ideas layered on top. Applies instantly.",
+    "phase1": "Phase 1 requirements",
+    "phase1Hint": "Exactly what the client asked for — login, visits, orders, invoices, returns.",
+    "phase2": "Phase 2 requirements",
+    "phase2Hint": "Adds offline mode, payments, credit checks, signatures, barcode scan, map, reminders and more."
+  },
+  "lowStock": {
+    "badge": "low"
+  },
+  "creditCheck": {
+    "label": "Balance {{balance}} / limit {{limit}}",
+    "balance": "Balance / credit limit"
+  },
+  "recordPayment": {
+    "title": "Record payment",
+    "amountDue": "Amount due",
+    "methodLabel": "Payment method",
+    "cash": "Cash",
+    "cheque": "Cheque",
+    "amountLabel": "Amount",
+    "save": "Save payment",
+    "savedTitle": "Payment recorded",
+    "savedDescription": "The invoice balance has been updated.",
+    "couldNotSave": "Could not save",
+    "history": "Payments recorded"
+  },
+  "signature": {
+    "title": "Customer signature",
+    "confirmHint": "Have the customer sign to confirm this order before it's finalized.",
+    "clear": "Clear",
+    "save": "Save signature",
+    "hint": "Sign above with your finger.",
+    "captured": "Captured ✓"
+  },
+  "barcodeScan": {
+    "title": "Scan barcode",
+    "hint": "Point the camera at a product barcode.",
+    "notFound": "No product matches code {{code}}.",
+    "tryAgain": "Scan again",
+    "permissionHint": "Camera access is needed to scan a barcode.",
+    "grantPermission": "Grant camera access"
+  },
+  "checkIn": {
+    "title": "Check in",
+    "hint": "Confirms you're at the customer's location using your phone's GPS.",
+    "getLocation": "Get my location",
+    "notLocatedYet": "Not located yet",
+    "metersAway": "{{distance}}m away",
+    "notYet": "Not checked in yet",
+    "permissionDenied": "Location permission denied",
+    "photoLabel": "Merchandising photo (optional)",
+    "takePhoto": "Take photo",
+    "save": "Save check-in",
+    "savedTitle": "Check-in saved",
+    "savedNear": "You're at the customer's location.",
+    "savedFar": "Saved — but you're {{distance}}m from the customer's known location.",
+    "couldNotSave": "Could not save"
+  },
+  "eodSummary": {
+    "title": "Daily summary",
+    "hint": "Today's activity, for end-of-shift reconciliation.",
+    "sales": "Sales",
+    "ordersConfirmed": "Orders confirmed",
+    "totalSales": "Total sales",
+    "returns": "Returns",
+    "visits": "Visits",
+    "visitsDone": "Visits done",
+    "visitsOrdered": "Resulted in an order",
+    "visitsNoSale": "No purchase"
+  },
+  "visitsMap": {
+    "title": "Visits map",
+    "emptyText": "No visit locations to show."
+  },
+  "syncQueue": {
+    "title": "Sync queue",
+    "online": "Online",
+    "offline": "Offline — actions will queue here",
+    "emptyText": "Nothing queued.",
+    "syncAll": "Sync all",
+    "syncNow": "Sync now",
+    "lineCount": "{{count}} items"
+  },
+  "offline": {
+    "banner": "Offline — new orders will be queued and synced later",
+    "queuedTitle": "Order queued",
+    "queuedDescription": "No connection — this order will sync automatically once you're back online (see Sync queue in More)."
+  },
+  "reminders": {
+    "title": "Visit reminders"
   },
   "theme": {
     "hint": "Applies immediately and is remembered on this device.",

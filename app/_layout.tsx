@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
@@ -8,12 +9,42 @@ import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/src/auth/AuthContext';
 import { queryClient } from '@/src/hooks/queryClient';
+import { Text } from '@/src/components';
 import { ThemeProvider, useTheme } from '@/src/theme/ThemeProvider';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
+import { PhaseProvider, usePhase } from '@/src/settings/PhaseProvider';
+import { useIsOnline } from '@/src/lib/useOnline';
 import { useTranslation } from 'react-i18next';
 import '@/src/i18n';
 
+function OfflineBanner() {
+  const { phase } = usePhase();
+  const online = useIsOnline();
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  if (phase !== 2 || online) return null;
+  return (
+    <View style={{ backgroundColor: colors.warningTint, paddingVertical: 6, alignItems: 'center' }}>
+      <Text variant="captionSemi" style={{ color: colors.warning, textAlign: 'center' }}>{t('offline.banner')}</Text>
+    </View>
+  );
+}
+
 export const unstable_settings = { anchor: '(tabs)' };
+
+// Phase 2 visit reminders are local notifications — this just controls how they present while
+// the app is in the foreground. Guarded: a misbehaving notifications module on some environment
+// shouldn't be able to crash the whole app over a reminder banner.
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+} catch {}
 
 function RootNavigator() {
   const { session, ready } = useAuth();
@@ -30,6 +61,7 @@ function RootNavigator() {
 
   return (
     <>
+      <OfflineBanner />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.card },
@@ -42,6 +74,7 @@ function RootNavigator() {
           <Stack.Screen name="stock/[productId]" options={{ title: t('tabs.stock') }} />
           <Stack.Screen name="visits/[id]" options={{ title: t('visitDetail.title') }} />
           <Stack.Screen name="orders/new" options={{ title: t('newOrder.title') }} />
+          <Stack.Screen name="orders/scan" options={{ title: t('barcodeScan.title') }} />
           <Stack.Screen name="orders/[id]" options={{ title: t('orderDetail.title') }} />
           <Stack.Screen name="orders/[id]/return" options={{ title: t('createReturn.title') }} />
           <Stack.Screen name="invoices/[id]" options={{ title: t('invoiceDetail.title') }} />
@@ -49,6 +82,12 @@ function RootNavigator() {
           <Stack.Screen name="settings/profile" options={{ title: t('more.profile') }} />
           <Stack.Screen name="settings/language" options={{ title: t('more.language') }} />
           <Stack.Screen name="settings/about" options={{ title: t('more.about') }} />
+          <Stack.Screen name="settings/phase" options={{ title: t('more.appPhase') }} />
+          <Stack.Screen name="invoices/[id]/payment" options={{ title: t('recordPayment.title') }} />
+          <Stack.Screen name="visits/[id]/checkin" options={{ title: t('checkIn.title') }} />
+          <Stack.Screen name="eod-summary" options={{ title: t('eodSummary.title') }} />
+          <Stack.Screen name="visits-map" options={{ title: t('visitsMap.title') }} />
+          <Stack.Screen name="sync-queue" options={{ title: t('syncQueue.title') }} />
           <Stack.Screen name="kitchen-sink" options={{ title: 'Kitchen sink' }} />
         </Stack.Protected>
         <Stack.Protected guard={!session}>
@@ -67,9 +106,11 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <LocaleProvider>
             <ThemeProvider>
-              <AuthProvider>
-                <RootNavigator />
-              </AuthProvider>
+              <PhaseProvider>
+                <AuthProvider>
+                  <RootNavigator />
+                </AuthProvider>
+              </PhaseProvider>
             </ThemeProvider>
           </LocaleProvider>
         </QueryClientProvider>

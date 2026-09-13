@@ -15,9 +15,11 @@ export type Op =
   | 'profile.get'
   | 'product.list'
   | 'product.get'
+  | 'customer.get'
   | 'visit.list'
   | 'visit.get'
   | 'visit.confirm'
+  | 'visit.checkin'
   | 'order.create'
   | 'order.get'
   | 'order.list'
@@ -25,7 +27,8 @@ export type Op =
   | 'return.create'
   | 'invoice.list'
   | 'invoice.get'
-  | 'invoice.pdf';
+  | 'invoice.pdf'
+  | 'invoice.recordPayment';
 
 export class NotConfiguredError extends Error {
   constructor(transport: string, op: string) {

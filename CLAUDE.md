@@ -56,6 +56,37 @@ list of the same product catalog the order builder uses (`ProductApi` / `Product
 type) — no warehouse KPIs (forecast/reserved/reorder point), no receiving flow.
 Neither of those existed in the requirement; don't re-add them without being asked.
 
+## Phase 1 vs Phase 2
+
+Everything above is **Phase 1 — exactly the client's requirement**, nothing more.
+**Phase 2** layers on extra ideas (offline mode, cash/cheque collection, credit-limit
+check, customer signature, barcode scan, low-stock flag, discounts, GPS check-in +
+merchandising photo, a map of visits, an end-of-day summary, local visit-reminder
+notifications) that were **not asked for** — built anyway, gated behind one flag, so
+they can be shown or hidden without touching Phase 1 at all.
+
+- `usePhase()` (`src/settings/PhaseProvider.tsx`) exposes `phase: 1 | 2`, persisted
+  to AsyncStorage, switched from **More → App phase** (`app/settings/phase.tsx`).
+- **Every Phase 2 addition checks `phase === 2` at the call site** — an inline button/
+  card/section in an existing screen, or an entire screen only reachable from the
+  Phase 2 section of the More menu. When `phase === 1`, none of it renders and no
+  Phase 2 permission (camera/location/notifications) is ever requested — Phase 1
+  stays exactly the client's app.
+- Adding a new Phase 2 feature: gate it the same way, don't fork the Phase 1 screen.
+- Native modules added for this: `expo-camera` (barcode scan), `expo-image-picker`
+  (merchandising photo), `expo-location` (GPS check-in, `src/lib/geo.ts` for the
+  haversine distance), `expo-notifications` (**local** reminders only — Expo Go
+  dropped remote push on Android), `react-native-maps` (visits map — Android tiles
+  need a Google Maps API key in `app.json > android.config.googleMaps` before they
+  render; the screen itself won't crash without one, tiles just stay blank),
+  `react-native-svg` (hand-rolled `SignaturePad`, no signature-pad dependency),
+  `@react-native-community/netinfo` (`src/lib/useOnline.ts`).
+- Offline mode is scoped to the one highest-value case: building an order with no
+  signal queues it (`src/lib/offlineQueue.ts`, AsyncStorage) instead of calling the
+  API; **More → Sync queue** replays queued orders through the real `OrderApi.create`
+  once back online. Other writes (visit confirm, returns, payments) aren't queued —
+  a deliberate scope cut, extend the same pattern to them if asked.
+
 ## Wiring a real Odoo endpoint
 
 Backend (REST vs JSON-RPC) is not finalized. Default transport is `mock`

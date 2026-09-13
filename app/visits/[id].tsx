@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
@@ -6,18 +7,21 @@ import {
   Badge, Button, Card, ConfirmSheet, DetailRow, Icon, Screen, StickyActionBar, Text,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
-import { useConfirmVisit, useVisit } from '@/src/hooks/data';
+import { useConfirmVisit, useCustomer, useVisit } from '@/src/hooks/data';
 import { visitStatusKey, visitStatusTone } from '@/src/lib/status';
 import { useLocale } from '@/src/i18n/LocaleProvider';
+import { usePhase } from '@/src/settings/PhaseProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function VisitDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const visitId = Number(id);
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, radii } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
+  const { phase } = usePhase();
   const { data, isLoading, error, refetch, isRefetching } = useVisit(visitId);
+  const customer = useCustomer(phase === 2 ? (data?.customerId ?? 0) : 0);
   const confirmVisit = useConfirmVisit(visitId);
   const [noSaleConfirm, setNoSaleConfirm] = useState(false);
   const [noSaleError, setNoSaleError] = useState<string | null>(null);
@@ -93,6 +97,45 @@ export default function VisitDetail() {
                 }
               />
             </Card>
+
+            {phase === 2 && customer.data ? (
+              <Card>
+                <DetailRow
+                  label={t('creditCheck.balance')}
+                  valueNode={
+                    <Text
+                      variant="captionSemi"
+                      tone={customer.data.balance >= customer.data.creditLimit ? 'danger' : 'text'}>
+                      {customer.data.balance.toFixed(0)} / {customer.data.creditLimit.toFixed(0)} {customer.data.currency}
+                    </Text>
+                  }
+                />
+              </Card>
+            ) : null}
+
+            {phase === 2 ? (
+              <Pressable onPress={() => router.push(`/visits/${visitId}/checkin`)}>
+                <Card style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: spacing.md }}>
+                  <Icon name="navigate-circle-outline" color={colors.primary} />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="captionSemi">{t('checkIn.title')}</Text>
+                    <Text variant="caption" tone="faint">
+                      {data.checkIn
+                        ? t('checkIn.metersAway', { distance: data.checkIn.distanceMeters })
+                        : t('checkIn.notYet')}
+                    </Text>
+                  </View>
+                  <Icon name="chevron-forward" size={18} color={colors.textFaint} />
+                </Card>
+              </Pressable>
+            ) : null}
+
+            {data.photoUri ? (
+              <Card>
+                <Text variant="captionSemi" tone="muted">{t('checkIn.photoLabel')}</Text>
+                <Image source={{ uri: data.photoUri }} style={{ width: '100%', height: 160, borderRadius: radii.md }} />
+              </Card>
+            ) : null}
 
             {!planned ? (
               <Card>

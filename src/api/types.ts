@@ -16,6 +16,7 @@ export type Session = {
 export type Paged<T> = { items: T[]; total: number; hasMore: boolean };
 
 // ---- Products ---- (sales catalog for building an order, and van-stock reference)
+// lowStockThreshold: Phase 2 — below this, the product is flagged low in the van.
 export type Product = {
   id: number;
   name: string;
@@ -24,12 +25,24 @@ export type Product = {
   price: number;
   currency: string;
   vanStock: number;
+  lowStockThreshold?: number;
+};
+
+// ---- Customers ---- (Phase 2 — balance / credit-limit check before selling more)
+export type Customer = {
+  id: number;
+  name: string;
+  currency: string;
+  creditLimit: number;
+  balance: number; // total outstanding across open invoices
 };
 
 // ---- Visits ----
 export type VisitStatus = 'planned' | 'done' | 'skipped';
 export type VisitOutcome = 'no_sale' | 'ordered';
 
+// geoLat/geoLng: the customer's known location, for Phase 2 GPS check-in distance comparison.
+// checkIn/photoUri: captured when the visit is confirmed, Phase 2 only.
 export type Visit = {
   id: number;
   customerId: number;
@@ -42,17 +55,23 @@ export type Visit = {
   outcome?: VisitOutcome;
   orderId?: number;
   note?: string;
+  geoLat?: number;
+  geoLng?: number;
+  checkIn?: { lat: number; lng: number; distanceMeters: number; at: string };
+  photoUri?: string;
 };
 
 // ---- Orders ----
 export type OrderStatus = 'draft' | 'confirmed' | 'invoiced';
 
+// discountPercent: Phase 2 — a per-line discount applied in the order builder.
 export type OrderLine = {
   productId: number;
   product: string;
   uom: string;
   qty: number;
   unitPrice: number;
+  discountPercent?: number;
 };
 
 export type Order = {
@@ -68,6 +87,7 @@ export type Order = {
   total: number;
   invoiceId?: number;
   hasReturn?: boolean;
+  signature?: string[]; // SVG path strings — Phase 2 proof-of-delivery, captured at confirm time
 };
 
 // ---- Returns ----
@@ -92,6 +112,10 @@ export type InvoiceLine = {
   subtotal: number;
 };
 
+// payments: Phase 2 — cash/cheque collection recorded against this invoice.
+export type PaymentMethod = 'cash' | 'cheque';
+export type Payment = { id: number; method: PaymentMethod; amount: number; date: string };
+
 export type Invoice = {
   id: number;
   number: string;
@@ -107,6 +131,7 @@ export type Invoice = {
   status: InvoiceStatus;
   lines?: InvoiceLine[];
   pdfUrl?: string;
+  payments?: Payment[];
 };
 
 export type Profile = {
