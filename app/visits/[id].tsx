@@ -125,7 +125,7 @@ export default function VisitDetail() {
                         : t('checkIn.notYet')}
                     </Text>
                   </View>
-                  <Icon name="chevron-forward" size={18} color={colors.textFaint} />
+                  <Icon name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={colors.textFaint} />
                 </Card>
               </Pressable>
             ) : null}
