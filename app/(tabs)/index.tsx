@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Card, IconBadge, ListRow, Screen, SectionHeader, StatCard, StatRow, Text,
+  Badge, Card, Icon, IconBadge, ListRow, Screen, SectionHeader, StatCard, StatRow, Text,
 } from '@/src/components';
-import { useProfile, useVisits } from '@/src/hooks/data';
+import { useActivityLog, useOfflineQueueCount, useProfile, useVisits } from '@/src/hooks/data';
 import { visitStatusKey, visitStatusTone } from '@/src/lib/status';
 import { usePhase } from '@/src/settings/PhaseProvider';
 import { useLocale } from '@/src/i18n/LocaleProvider';
@@ -15,12 +15,38 @@ import type { IconName } from '@/src/components';
 
 type StatFilter = 'all' | 'planned' | 'done';
 
-function QuickAction({ icon, tone, label, onPress }: { icon: IconName; tone: BadgeTone; label: string; onPress: () => void }) {
+// Small red count pill, anchored to the corner of whatever it's given as a sibling — used on
+// both the Quick Tools boxes and the notification bell.
+function CountBadge({ count }: { count?: number }) {
+  const { colors } = useTheme();
+  const { isRTL } = useLocale();
+  if (!count) return null;
+  return (
+    <View
+      style={{
+        position: 'absolute', top: -4, [isRTL ? 'left' : 'right']: -4,
+        minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4,
+        backgroundColor: colors.danger, alignItems: 'center', justifyContent: 'center',
+        borderWidth: 2, borderColor: colors.card,
+      }}>
+      <Text variant="caption" style={{ color: colors.onPrimary, fontSize: 10, lineHeight: 12 }}>
+        {count > 99 ? '99+' : count}
+      </Text>
+    </View>
+  );
+}
+
+function QuickAction({
+  icon, tone, label, badge, onPress,
+}: { icon: IconName; tone: BadgeTone; label: string; badge?: number; onPress: () => void }) {
   const { spacing } = useTheme();
   return (
     <Pressable onPress={onPress} style={({ pressed }) => ({ flex: 1, minWidth: 100, opacity: pressed ? 0.85 : 1 })}>
       <Card style={{ alignItems: 'center', gap: spacing.xs }}>
-        <IconBadge icon={icon} tone={tone} />
+        <View>
+          <IconBadge icon={icon} tone={tone} />
+          <CountBadge count={badge} />
+        </View>
         <Text variant="caption" tone="muted" numberOfLines={1}>{label}</Text>
       </Card>
     </Pressable>
@@ -28,12 +54,15 @@ function QuickAction({ icon, tone, label, onPress }: { icon: IconName; tone: Bad
 }
 
 export default function VisitsHome() {
-  const { spacing } = useTheme();
+  const { colors, spacing } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const { phase } = usePhase();
   const profile = useProfile();
   const visits = useVisits({});
+  const offlineQueue = useOfflineQueueCount();
+  const activityLog = useActivityLog();
+  const unreadCount = (activityLog.data ?? []).filter((i) => !i.read).length;
   const [filter, setFilter] = useState<StatFilter>('all');
 
   const all = [...(visits.data?.items ?? [])].sort((a, b) =>
@@ -51,6 +80,8 @@ export default function VisitsHome() {
   const refetchAll = () => {
     visits.refetch();
     profile.refetch();
+    offlineQueue.refetch();
+    activityLog.refetch();
   };
 
   const today = new Date().toLocaleDateString(isRTL ? 'ar' : 'en-US', {
@@ -65,8 +96,28 @@ export default function VisitsHome() {
     <Screen
       header={
         <>
-          <Text variant="h1">{t('home.greeting', { name: profile.data ? `, ${profile.data.name.split(' ')[0]}` : '' })}</Text>
-          <Text tone="muted" variant="caption">{today}</Text>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <Text variant="h1">{t('home.greeting', { name: profile.data ? `, ${profile.data.name.split(' ')[0]}` : '' })}</Text>
+              <Text tone="muted" variant="caption">{today}</Text>
+            </View>
+            {phase === 2 ? (
+              <Pressable onPress={() => router.push('/notifications')} hitSlop={8}>
+                <View>
+                  <View
+                    style={{
+                      width: 40, height: 40, borderRadius: 20,
+                      backgroundColor: colors.primaryTint,
+                      borderWidth: 1, borderColor: colors.primaryBorder,
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                    <Icon name="notifications-outline" size={20} color={colors.primary} />
+                  </View>
+                  <CountBadge count={unreadCount} />
+                </View>
+              </Pressable>
+            ) : null}
+          </View>
 
           <StatRow>
             <StatCard
@@ -99,8 +150,8 @@ export default function VisitsHome() {
               <SectionHeader title={t('home.quickTools')} />
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: spacing.md }}>
                 <QuickAction icon="stats-chart-outline" tone="special" label={t('eodSummary.title')} onPress={() => router.push('/eod-summary')} />
-                <QuickAction icon="map-outline" tone="success" label={t('visitsMap.title')} onPress={() => router.push('/visits-map')} />
-                <QuickAction icon="cloud-upload-outline" tone="info" label={t('syncQueue.title')} onPress={() => router.push('/sync-queue')} />
+                <QuickAction icon="map-outline" tone="success" label={t('visitsMap.title')} badge={remaining.length} onPress={() => router.push('/visits-map')} />
+                <QuickAction icon="cloud-upload-outline" tone="info" label={t('syncQueue.title')} badge={offlineQueue.data} onPress={() => router.push('/sync-queue')} />
               </View>
             </>
           ) : null}

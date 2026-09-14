@@ -211,7 +211,7 @@
     "couldNotSave": "Could not save"
   },
   "eodSummary": {
-    "title": "Daily summary",
+    "title": "Day recap",
     "hint": "Today's activity, for end-of-shift reconciliation.",
     "sales": "Sales",
     "ordersConfirmed": "Orders confirmed",
@@ -250,6 +250,15 @@
   },
   "reminders": {
     "title": "Visit reminders"
+  },
+  "activity": {
+    "title": "Notifications",
+    "emptyText": "Nothing yet — activity shows up here as you confirm visits, orders, and payments.",
+    "orderConfirmed": "Order confirmed for {{name}}",
+    "checkedIn": "Checked in at {{name}}",
+    "noSale": "No purchase recorded for {{name}}",
+    "paymentRecorded": "Payment recorded for {{name}}",
+    "synced": "Synced queued order for {{name}}"
   },
   "theme": {
     "hint": "Applies immediately and is remembered on this device.",

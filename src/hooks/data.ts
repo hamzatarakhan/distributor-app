@@ -2,7 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   CustomerApi, InvoiceApi, OrderApi, ProductApi, ProfileApi, ReturnApi, VisitApi,
 } from '@/src/api/resources';
+import { getLog, logActivity } from '@/src/lib/activityLog';
+import { getQueue } from '@/src/lib/offlineQueue';
 import type { OrderLine, OrderStatus, PaymentMethod, ReturnLine, Visit, VisitOutcome } from '@/src/api/types';
+
+// ---- Offline order queue (Phase 2) — sharing the 'offlineQueue' query key with Sync queue's own
+// invalidations means this count updates on its own whenever an order is queued or synced,
+// without Home needing to know about either of those flows.
+export const useOfflineQueueCount = () =>
+  useQuery({ queryKey: ['offlineQueue'], queryFn: async () => (await getQueue()).length });
+
+// ---- Activity log / notification inbox (Phase 2) ----
+export const useActivityLog = () => useQuery({ queryKey: ['activityLog'], queryFn: getLog });
 
 // ---- Products ----
 export const useProducts = (params: { search?: string; stockFilter?: 'all' | 'low' | 'out' } = {}) =>
@@ -24,9 +35,13 @@ export function useConfirmVisit(id: number) {
   return useMutation({
     mutationFn: (v: { outcome: VisitOutcome; note?: string; photoUri?: string; fail?: boolean }) =>
       VisitApi.confirm(id, v.outcome, v),
-    onSuccess: () => {
+    onSuccess: async (visit) => {
       qc.invalidateQueries({ queryKey: ['visits'] });
       qc.invalidateQueries({ queryKey: ['visit', id] });
+      if (visit.outcome === 'no_sale') {
+        await logActivity('close-circle-outline', 'neutral', 'activity.noSale', { name: visit.customerName });
+        qc.invalidateQueries({ queryKey: ['activityLog'] });
+      }
     },
   });
 }
@@ -36,9 +51,11 @@ export function useCheckIn(id: number) {
   return useMutation({
     mutationFn: (v: { checkIn: NonNullable<Visit['checkIn']>; photoUri?: string; fail?: boolean }) =>
       VisitApi.checkin(id, v.checkIn, v.photoUri, v.fail),
-    onSuccess: () => {
+    onSuccess: async (visit) => {
       qc.invalidateQueries({ queryKey: ['visits'] });
       qc.invalidateQueries({ queryKey: ['visit', id] });
+      await logActivity('navigate-circle-outline', 'info', 'activity.checkedIn', { name: visit.customerName });
+      qc.invalidateQueries({ queryKey: ['activityLog'] });
     },
   });
 }
@@ -67,10 +84,12 @@ export function useConfirmOrder(id: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (v: { signature?: string[]; fail?: boolean } = {}) => OrderApi.confirm(id, v.signature, v.fail),
-    onSuccess: () => {
+    onSuccess: async (res) => {
       qc.invalidateQueries({ queryKey: ['orders'] });
       qc.invalidateQueries({ queryKey: ['order', id] });
       qc.invalidateQueries({ queryKey: ['invoices'] });
+      await logActivity('cart-outline', 'success', 'activity.orderConfirmed', { name: res.order.customerName });
+      qc.invalidateQueries({ queryKey: ['activityLog'] });
     },
   });
 }
@@ -98,10 +117,12 @@ export function useRecordPayment(id: number) {
   return useMutation({
     mutationFn: (v: { method: PaymentMethod; amount: number; fail?: boolean }) =>
       InvoiceApi.recordPayment(id, v.method, v.amount, v.fail),
-    onSuccess: () => {
+    onSuccess: async (invoice) => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       qc.invalidateQueries({ queryKey: ['invoice', id] });
       qc.invalidateQueries({ queryKey: ['customer'] });
+      await logActivity('cash-outline', 'success', 'activity.paymentRecorded', { name: invoice.customerName });
+      qc.invalidateQueries({ queryKey: ['activityLog'] });
     },
   });
 }

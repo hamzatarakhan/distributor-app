@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { Button, Card, EmptyState, Screen, Text } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { OrderApi } from '@/src/api/resources';
+import { logActivity } from '@/src/lib/activityLog';
 import { getQueue, removeFromQueue, type QueuedOrder } from '@/src/lib/offlineQueue';
 import { useIsOnline } from '@/src/lib/useOnline';
 import { useTheme } from '@/src/theme/ThemeProvider';
@@ -29,8 +30,11 @@ export default function SyncQueue() {
     try {
       await OrderApi.create(item.payload);
       await removeFromQueue(item.id);
+      await logActivity('cloud-done-outline', 'success', 'activity.synced', { name: item.payload.customerName });
       qc.invalidateQueries({ queryKey: ['orders'] });
       qc.invalidateQueries({ queryKey: ['visits'] });
+      qc.invalidateQueries({ queryKey: ['offlineQueue'] });
+      qc.invalidateQueries({ queryKey: ['activityLog'] });
       await load();
     } catch (e) {
       setErrors((s) => ({ ...s, [item.id]: errorMessage(e) }));

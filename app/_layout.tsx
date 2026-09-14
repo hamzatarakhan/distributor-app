@@ -99,6 +99,7 @@ function RootNavigator() {
           <Stack.Screen name="eod-summary" options={{ title: t('eodSummary.title') }} />
           <Stack.Screen name="visits-map" options={{ title: t('visitsMap.title') }} />
           <Stack.Screen name="sync-queue" options={{ title: t('syncQueue.title') }} />
+          <Stack.Screen name="notifications" options={{ title: t('activity.title') }} />
           <Stack.Screen name="kitchen-sink" options={{ title: 'Kitchen sink' }} />
         </Stack.Protected>
         <Stack.Protected guard={!session}>

@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Button, Card, Divider, Icon, Money, PercentChips, QtyStepper, ResultSheet, Screen, SearchBar,
   StickyActionBar, Text, type ResultState,
@@ -34,6 +35,7 @@ export default function NewOrder() {
   const [discounts, setDiscounts] = useState<Record<number, number>>({});
   const [error, setError] = useState<string | null>(null);
   const createOrder = useCreateOrder();
+  const qc = useQueryClient();
   const appliedScan = useRef<string | null>(null);
 
   useEffect(() => {
@@ -66,6 +68,7 @@ export default function NewOrder() {
     const payload = { visitId, customerId: visit.data.customerId, customerName: visit.data.customerName, lines };
     if (phase === 2 && !online) {
       await enqueueOrder(payload);
+      qc.invalidateQueries({ queryKey: ['offlineQueue'] });
       setResult({
         kind: 'success',
         title: t('offline.queuedTitle'),

@@ -13,11 +13,6 @@ export function Card({ style, ...rest }: ViewProps) {
           borderRadius: radii.lg,
           padding: spacing.lg,
           gap: spacing.sm,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 6,
-          elevation: 1,
         },
         style,
       ]}
