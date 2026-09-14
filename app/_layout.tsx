@@ -91,6 +91,11 @@ function RootNavigator() {
       <OfflineBanner />
       <Stack
         screenOptions={{
+          // Without this, iOS's back button falls back to the PREVIOUS screen's title — and
+          // since the (tabs) group's own Stack.Screen never got an explicit title, that fallback
+          // was the literal route-group folder name "(tabs)". Icon-only back buttons sidestep
+          // this class of bug everywhere, not just here.
+          headerBackButtonDisplayMode: 'minimal',
           headerStyle: { backgroundColor: colors.card },
           headerTintColor: colors.text,
           headerShadowVisible: false,
