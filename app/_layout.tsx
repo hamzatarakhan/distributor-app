@@ -1,17 +1,17 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/src/auth/AuthContext';
 import { queryClient } from '@/src/hooks/queryClient';
-import { BrandSplash, Text, useMinDelay } from '@/src/components';
+import { BrandSplash, Icon, Text, useMinDelay } from '@/src/components';
 import { ThemeProvider, useTheme } from '@/src/theme/ThemeProvider';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
 import { PhaseProvider, usePhase } from '@/src/settings/PhaseProvider';
@@ -20,6 +20,20 @@ import { Onboarding } from '@/src/onboarding/Onboarding';
 import { useOnboardingSeen } from '@/src/onboarding/useOnboardingSeen';
 import { useTranslation } from 'react-i18next';
 import '@/src/i18n';
+
+// Shown on every pushed screen (visit/order/invoice detail, settings, etc.) — these can stack
+// several levels deep from Home, and repeatedly tapping the native back arrow to get out was the
+// reported pain point. One tap here always lands back on Home, regardless of how deep the stack
+// currently is. Not shown on the tabs themselves (the root Stack hides its own header there —
+// each tab already has its own header, and switching tabs is already a one-tap "reset").
+function HomeHeaderButton() {
+  const { colors } = useTheme();
+  return (
+    <Pressable onPress={() => router.dismissAll()} hitSlop={10} style={{ padding: 4 }}>
+      <Icon name="home-outline" size={22} color={colors.text} />
+    </Pressable>
+  );
+}
 
 function OfflineBanner() {
   const { phase } = usePhase();
@@ -80,6 +94,7 @@ function RootNavigator() {
           headerStyle: { backgroundColor: colors.card },
           headerTintColor: colors.text,
           headerShadowVisible: false,
+          headerRight: HomeHeaderButton,
           contentStyle: { backgroundColor: colors.background },
         }}>
         <Stack.Protected guard={!!session}>

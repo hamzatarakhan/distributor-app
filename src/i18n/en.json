@@ -124,8 +124,7 @@
     "total": "Total",
     "amountDue": "Amount due",
     "viewPdf": "View / download PDF",
-    "print": "Print / share",
-    "backToVisits": "Back to visits"
+    "print": "Print / share"
   },
   "stock": {
     "searchPlaceholder": "Name or reference",

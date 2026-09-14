@@ -31,7 +31,7 @@ export default function TabLayout() {
         headerTintColor: colors.text,
         headerShadowVisible: false,
       }}>
-      <Tabs.Screen name="index" options={{ title: t('tabs.visits'), tabBarIcon: tabIcon('map'), tabBarActiveTintColor: colors.primary }} />
+      <Tabs.Screen name="index" options={{ headerShown: false, title: t('tabs.visits'), tabBarIcon: tabIcon('map'), tabBarActiveTintColor: colors.primary }} />
       <Tabs.Screen name="stock" options={{ title: t('tabs.stock'), tabBarIcon: tabIcon('cube'), tabBarActiveTintColor: colors.special }} />
       <Tabs.Screen name="orders" options={{ title: t('tabs.orders'), tabBarIcon: tabIcon('cart'), tabBarActiveTintColor: colors.warning }} />
       <Tabs.Screen name="invoices" options={{ title: t('tabs.invoices'), tabBarIcon: tabIcon('document-text'), tabBarActiveTintColor: colors.success }} />

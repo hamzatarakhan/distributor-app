@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
   Badge, Card, Icon, IconBadge, ListRow, Screen, SectionHeader, StatCard, StatRow, Text,
@@ -58,6 +59,7 @@ export default function VisitsHome() {
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const { phase } = usePhase();
+  const insets = useSafeAreaInsets();
   const profile = useProfile();
   const visits = useVisits({});
   const offlineQueue = useOfflineQueueCount();
@@ -96,7 +98,7 @@ export default function VisitsHome() {
     <Screen
       header={
         <>
-          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View style={{ paddingTop: insets.top, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
               <Text variant="h1">{t('home.greeting', { name: profile.data ? `, ${profile.data.name.split(' ')[0]}` : '' })}</Text>
               <Text tone="muted" variant="caption">{today}</Text>

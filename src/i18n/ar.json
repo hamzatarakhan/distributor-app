@@ -124,8 +124,7 @@
     "total": "الإجمالي",
     "amountDue": "المبلغ المستحق",
     "viewPdf": "عرض / تحميل PDF",
-    "print": "طباعة / مشاركة",
-    "backToVisits": "الرجوع للزيارات"
+    "print": "طباعة / مشاركة"
   },
   "stock": {
     "searchPlaceholder": "الاسم أو المرجع",
