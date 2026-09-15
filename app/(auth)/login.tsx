@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon, Text } from '@/src/components';
+import { Button, FilterChips, Icon, Text } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useAuth } from '@/src/auth/AuthContext';
 import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
+import type { Role } from '@/src/api';
 
 function LabeledInput(props: React.ComponentProps<typeof TextInput> & { label: string; right?: React.ReactNode }) {
   const { colors, radii } = useTheme();
@@ -44,15 +45,21 @@ export default function Login() {
   const { signIn, server } = useAuth();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<Role>('rep');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const ROLE_OPTIONS: { value: Role; label: string }[] = [
+    { value: 'rep', label: t('auth.login.roleRep') },
+    { value: 'manager', label: t('auth.login.roleManager') },
+  ];
 
   const submit = async () => {
     setBusy(true);
     setError(null);
     try {
-      await signIn(login.trim(), password);
+      await signIn(login.trim(), password, role);
       router.replace('/(tabs)');
     } catch (e) {
       setError(errorMessage(e));
@@ -83,6 +90,11 @@ export default function Login() {
           </View>
           <Text variant="h1">{t('auth.login.title')}</Text>
           <Text tone="muted" variant="caption">{t('auth.login.subtitle')}</Text>
+        </View>
+
+        <View style={{ gap: 6 }}>
+          <Text variant="captionSemi" tone="muted">{t('auth.login.roleLabel')}</Text>
+          <FilterChips options={ROLE_OPTIONS} value={role} onChange={setRole} />
         </View>
 
         <LabeledInput

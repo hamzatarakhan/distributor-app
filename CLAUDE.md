@@ -91,6 +91,33 @@ they can be shown or hidden without touching Phase 1 at all.
   once back online. Other writes (visit confirm, returns, payments) aren't queued —
   a deliberate scope cut, extend the same pattern to them if asked.
 
+## Manager vs rep role
+
+Not part of the client's original requirement — added on request to let one manager
+assign visits to a small team, sharing the exact same app and screens (no separate
+portal/codebase).
+
+- Login has a role picker (`app/(auth)/login.tsx`, `Session['role']: 'rep' | 'manager'`).
+  A rep session also carries `repId` — the mock always scopes it to `fx.reps[0]`
+  (there's no real user directory in a mock); a real backend would derive both from
+  whoever's actually logging in.
+- `src/api/index.ts`'s `request()` injects `__role`/`__repId` into every call from the
+  active session — this is how `visit.list` enforces the split in `mock.ts`: a rep only
+  ever gets visits where `repId` matches theirs, a manager gets all of them. A real
+  backend would enforce the same rule server-side (Postgres RLS, an Odoo domain filter,
+  etc.) — the mock's `if (params.__role === 'rep') items = items.filter(...)` is
+  standing in for that, not a substitute for it.
+- **Only Visits is role-scoped.** Orders/Invoices/Van stock were never a "my own data"
+  concept in the original requirement, so they stay unfiltered for both roles — a
+  deliberate scope cut, extend the same `__role`/`__repId` pattern to them if asked.
+- Manager-only capability: **Assign a visit** — a button on Home (`(tabs)/index.tsx`,
+  `isManager` check on `session.role`) opens a sheet to pick a rep + customer + time,
+  calling the new `visit.create` op. Reps don't create their own visits — assignment is
+  a manager action, matching the ask that prompted this.
+- Everything else on Home (stat row, Quick Tools, the visit list itself) is the same
+  component for both roles — it just renders differently once the data itself is
+  scoped, rather than forking into a separate manager screen tree.
+
 ## Wiring a real Odoo endpoint
 
 Backend (REST vs JSON-RPC) is not finalized. Default transport is `mock`

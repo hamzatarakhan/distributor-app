@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  CustomerApi, InvoiceApi, OrderApi, ProductApi, ProfileApi, ReturnApi, VisitApi,
+  CustomerApi, InvoiceApi, OrderApi, ProductApi, ProfileApi, RepApi, ReturnApi, VisitApi,
 } from '@/src/api/resources';
 import { getLog, logActivity } from '@/src/lib/activityLog';
 import { getQueue } from '@/src/lib/offlineQueue';
@@ -23,12 +23,27 @@ export const useProducts = (params: { search?: string; stockFilter?: 'all' | 'lo
 export const useCustomer = (id: number) =>
   useQuery({ queryKey: ['customer', id], queryFn: () => CustomerApi.get(id), enabled: !!id });
 
+// Manager's customer picker when assigning a visit
+export const useCustomers = () => useQuery({ queryKey: ['customers'], queryFn: CustomerApi.list });
+
 // ---- Visits ----
 export const useVisits = (params: { search?: string; status?: string } = {}) =>
   useQuery({ queryKey: ['visits', params], queryFn: () => VisitApi.list(params) });
 
 export const useVisit = (id: number) =>
   useQuery({ queryKey: ['visit', id], queryFn: () => VisitApi.get(id), enabled: !!id });
+
+// ---- Reps / manager: assigning visits ----
+export const useReps = () => useQuery({ queryKey: ['reps'], queryFn: RepApi.list });
+
+export function useCreateVisit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { customerId: number; repId: number; scheduledTime?: string; fail?: boolean }) =>
+      VisitApi.create(v, v.fail),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+}
 
 export function useConfirmVisit(id: number) {
   const qc = useQueryClient();

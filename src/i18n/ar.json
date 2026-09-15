@@ -29,6 +29,13 @@
     "greeting": "مرحباً{{name}}",
     "quickTools": "أدوات سريعة"
   },
+  "assignVisit": {
+    "title": "تعيين زيارة",
+    "repLabel": "المندوب",
+    "customerLabel": "الزبون",
+    "timeLabel": "الوقت (اختياري)",
+    "submit": "إنشاء الزيارة"
+  },
   "onboarding": {
     "skip": "تخطي",
     "next": "التالي",
@@ -294,6 +301,9 @@
     "login": {
       "title": "مندوب المبيعات",
       "subtitle": "سجّل الدخول إلى حساب أودو الخاص بك",
+      "roleLabel": "تسجيل الدخول كـ",
+      "roleRep": "مندوب مبيعات",
+      "roleManager": "مدير",
       "usernameLabel": "اسم المستخدم أو البريد الإلكتروني",
       "passwordLabel": "كلمة المرور",
       "signIn": "تسجيل الدخول",

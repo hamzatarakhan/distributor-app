@@ -47,6 +47,8 @@ export const api = {
       ...params,
       __server: session?.server,
       __db: session?.database,
+      __role: session?.role,
+      __repId: session?.repId,
     });
   },
 };

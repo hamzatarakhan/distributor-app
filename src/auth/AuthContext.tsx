@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api, setActiveSession } from '@/src/api';
-import type { Credentials, Session } from '@/src/api';
+import type { Credentials, Role, Session } from '@/src/api';
 
 const SESSION_KEY = 'auth.session.v1';
 const SERVER_KEY = 'auth.server.v1';
@@ -12,7 +12,7 @@ type AuthValue = {
   server: string;
   database?: string;
   setServer: (server: string, database?: string) => Promise<void>;
-  signIn: (login: string, password: string) => Promise<void>;
+  signIn: (login: string, password: string, role: Role) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await SecureStore.setItemAsync(SERVER_KEY, JSON.stringify({ server: s, database: db }));
   };
 
-  const signIn = async (login: string, password: string) => {
-    const creds: Credentials = { server, database, login, password };
+  const signIn = async (login: string, password: string, role: Role) => {
+    const creds: Credentials = { server, database, login, password, role };
     const s = await api.login(creds);
     setActiveSession(s);
     setSession(s);

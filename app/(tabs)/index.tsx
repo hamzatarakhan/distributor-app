@@ -1,17 +1,23 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Card, Icon, IconBadge, ListRow, Screen, SectionHeader, StatCard, StatRow, Text,
+  Badge, Button, Card, FilterChips, Icon, IconBadge, ListRow, Screen, SectionHeader, Sheet,
+  StatCard, StatRow, Text,
 } from '@/src/components';
-import { useActivityLog, useOfflineQueueCount, useProfile, useVisits } from '@/src/hooks/data';
+import { errorMessage } from '@/src/components/ErrorBanner';
+import {
+  useActivityLog, useCreateVisit, useCustomers, useOfflineQueueCount, useProfile, useReps, useVisits,
+} from '@/src/hooks/data';
 import { visitStatusKey, visitStatusTone } from '@/src/lib/status';
 import { usePhase } from '@/src/settings/PhaseProvider';
+import { useAuth } from '@/src/auth/AuthContext';
 import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import type { BadgeTone } from '@/src/theme/tokens';
+import type { Customer } from '@/src/api/types';
 import type { IconName } from '@/src/components';
 
 type StatFilter = 'all' | 'planned' | 'done';
@@ -37,6 +43,94 @@ function CountBadge({ count }: { count?: number }) {
   );
 }
 
+function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const { colors, radii, spacing } = useTheme();
+  const { t } = useTranslation();
+  const reps = useReps();
+  const customers = useCustomers();
+  const createVisit = useCreateVisit();
+  const [repId, setRepId] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [time, setTime] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setRepId('');
+    setCustomerId('');
+    setTime('');
+    setError(null);
+  };
+
+  const submit = () => {
+    if (!repId || !customerId) return;
+    setError(null);
+    createVisit.mutate(
+      { repId: Number(repId), customerId: Number(customerId), scheduledTime: time || undefined },
+      {
+        onSuccess: () => {
+          reset();
+          onClose();
+        },
+        onError: (e) => setError(errorMessage(e)),
+      },
+    );
+  };
+
+  return (
+    <Sheet
+      visible={visible}
+      onClose={() => {
+        reset();
+        onClose();
+      }}>
+      <Text variant="h2">{t('assignVisit.title')}</Text>
+
+      <View style={{ gap: 6 }}>
+        <Text variant="captionSemi" tone="muted">{t('assignVisit.repLabel')}</Text>
+        <FilterChips
+          options={(reps.data?.items ?? []).map((r) => ({ value: String(r.id), label: r.name }))}
+          value={repId}
+          onChange={setRepId}
+        />
+      </View>
+
+      <View style={{ gap: 6 }}>
+        <Text variant="captionSemi" tone="muted">{t('assignVisit.customerLabel')}</Text>
+        <FilterChips
+          options={(customers.data?.items ?? []).map((c: Customer) => ({ value: String(c.id), label: c.name }))}
+          value={customerId}
+          onChange={setCustomerId}
+        />
+      </View>
+
+      <View style={{ gap: 6 }}>
+        <Text variant="captionSemi" tone="muted">{t('assignVisit.timeLabel')}</Text>
+        <TextInput
+          value={time}
+          onChangeText={setTime}
+          placeholder="14:00"
+          placeholderTextColor={colors.textFaint}
+          style={{
+            borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
+            padding: 12, fontSize: 15, color: colors.text, backgroundColor: colors.card,
+          }}
+        />
+      </View>
+
+      {error ? <Text tone="danger" variant="caption">{error}</Text> : null}
+
+      <Button
+        title={t('assignVisit.submit')}
+        onPress={submit}
+        loading={createVisit.isPending}
+        disabled={!repId || !customerId}
+        fullWidth
+        style={{ marginTop: spacing.sm }}
+      />
+    </Sheet>
+  );
+}
+
 function QuickAction({
   icon, tone, label, badge, onPress,
 }: { icon: IconName; tone: BadgeTone; label: string; badge?: number; onPress: () => void }) {
@@ -59,6 +153,9 @@ export default function VisitsHome() {
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const { phase } = usePhase();
+  const { session } = useAuth();
+  const isManager = session?.role === 'manager';
+  const [assignOpen, setAssignOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const profile = useProfile();
   const visits = useVisits({});
@@ -147,6 +244,15 @@ export default function VisitsHome() {
             />
           </StatRow>
 
+          {isManager ? (
+            <Button
+              icon="person-add-outline"
+              title={t('assignVisit.title')}
+              onPress={() => setAssignOpen(true)}
+              fullWidth
+            />
+          ) : null}
+
           {phase === 2 ? (
             <>
               <SectionHeader title={t('home.quickTools')} />
@@ -173,12 +279,17 @@ export default function VisitsHome() {
           <ListRow
             key={v.id}
             title={v.customerName}
-            subtitle={`${v.scheduledTime ?? ''} · ${v.city ?? ''}`}
+            subtitle={
+              isManager
+                ? `${v.scheduledTime ?? ''} · ${v.repName ?? '—'}`
+                : `${v.scheduledTime ?? ''} · ${v.city ?? ''}`
+            }
             right={<Badge label={t(visitStatusKey[v.status])} tone={visitStatusTone[v.status]} />}
             onPress={() => router.push(`/visits/${v.id}`)}
           />
         ))}
       </View>
+      <AssignVisitSheet visible={assignOpen} onClose={() => setAssignOpen(false)} />
     </Screen>
   );
 }

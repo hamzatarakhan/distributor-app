@@ -1,4 +1,11 @@
-import type { Customer, Invoice, Order, Product, Profile, ReturnRecord, Visit } from './types';
+import type { Customer, Invoice, Order, Product, Profile, Rep, ReturnRecord, Visit } from './types';
+
+// The rep a mock 'rep' session is scoped to is always reps[0] — see mock.ts login(). A manager
+// session sees all of these.
+export const reps: Rep[] = [
+  { id: 1, name: 'Hamza Tarakhan' },
+  { id: 2, name: 'Sami Rep' },
+];
 
 export const profile: Profile = {
   name: 'Hamza Tarakhan',
@@ -35,22 +42,23 @@ export const visits: Visit[] = [
   {
     id: 1, customerId: 101, customerName: 'الوردة الحمراء', address: '12 Rainbow St, Jabal Amman',
     city: 'Amman', phone: '+962 79 111 2222', scheduledTime: '09:00', status: 'planned',
-    geoLat: 31.9552, geoLng: 35.9106,
+    geoLat: 31.9552, geoLng: 35.9106, repId: 1, repName: 'Hamza Tarakhan',
   },
   {
     id: 2, customerId: 102, customerName: 'Downtown Mini Market', address: '5 University Blvd',
     city: 'Amman', phone: '+962 79 333 4444', scheduledTime: '10:30', status: 'planned',
-    geoLat: 31.9633, geoLng: 35.8725,
+    geoLat: 31.9633, geoLng: 35.8725, repId: 2, repName: 'Sami Rep',
   },
   {
     id: 3, customerId: 103, customerName: 'Sunrise Supermarket', address: '88 Mecca St',
     city: 'Amman', phone: '+962 78 555 6666', scheduledTime: '12:00', status: 'done',
-    outcome: 'ordered', orderId: 501, geoLat: 31.9497, geoLng: 35.9328,
+    outcome: 'ordered', orderId: 501, geoLat: 31.9497, geoLng: 35.9328, repId: 1, repName: 'Hamza Tarakhan',
   },
   {
     id: 4, customerId: 104, customerName: 'Corner Shop 24/7', address: '3 King Hussein St',
     city: 'Zarqa', phone: '+962 79 777 8888', scheduledTime: '13:30', status: 'done',
     outcome: 'no_sale', note: 'Overstocked, will check back next week.', geoLat: 32.0728, geoLng: 36.0876,
+    repId: 2, repName: 'Sami Rep',
   },
 ];
 

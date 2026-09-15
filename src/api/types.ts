@@ -1,6 +1,11 @@
 // Domain types the UI works with. Transports map Odoo's shapes into these.
 
-export type Credentials = { server: string; database?: string; login: string; password: string };
+// A manager assigns visits to reps and sees everyone's activity; a rep sees only their own —
+// enforced by the mock transport filtering `visit.list` by `repId`, the same way a real backend
+// would enforce it with a row-level security rule keyed off this same role/repId pair.
+export type Role = 'rep' | 'manager';
+
+export type Credentials = { server: string; database?: string; login: string; password: string; role: Role };
 
 export type Session = {
   token: string; // opaque: session cookie value, bearer token, or mock marker
@@ -11,7 +16,11 @@ export type Session = {
   database?: string;
   company?: string;
   warehouseIds?: number[];
+  role: Role;
+  repId?: number; // set when role === 'rep' — which rep's visits this session is scoped to
 };
+
+export type Rep = { id: number; name: string };
 
 export type Paged<T> = { items: T[]; total: number; hasMore: boolean };
 
@@ -59,6 +68,8 @@ export type Visit = {
   geoLng?: number;
   checkIn?: { lat: number; lng: number; distanceMeters: number; at: string };
   photoUri?: string;
+  repId?: number;
+  repName?: string;
 };
 
 // ---- Orders ----

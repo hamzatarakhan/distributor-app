@@ -3,6 +3,10 @@ import { lineTotal, orderTotal } from '@/src/lib/orderMath';
 import type { Transport, Op } from './transport';
 import type { Credentials, Customer, Invoice, Order, OrderLine, Payment, Session, Visit } from './types';
 
+// A rep-role mock session is always scoped to the first fixture rep — there's no real user
+// directory to pick from in a mock. A manager session isn't scoped to any single rep.
+const DEMO_REP_ID = fx.reps[0].id;
+
 const delay = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 
 function match<T>(list: T[], q?: string) {
@@ -22,6 +26,7 @@ let nextPaymentId = 1;
 let nextOrderId = Math.max(0, ...orders.map((o) => o.id)) + 1;
 let nextInvoiceId = Math.max(0, ...invoices.map((i) => i.id)) + 1;
 let nextReturnId = 1;
+let nextVisitId = Math.max(0, ...visits.map((v) => v.id)) + 1;
 
 export const mockTransport: Transport = {
   name: 'mock',
@@ -38,6 +43,8 @@ export const mockTransport: Transport = {
       database: creds.database,
       company: fx.profile.company,
       warehouseIds: [1],
+      role: creds.role,
+      repId: creds.role === 'rep' ? DEMO_REP_ID : undefined,
     };
   },
 
@@ -65,6 +72,9 @@ export const mockTransport: Transport = {
         return p as T;
       }
 
+      case 'customer.list':
+        return { items: customers, total: customers.length, hasMore: false } as T;
+
       case 'customer.get': {
         const c = customers.find((x) => x.id === Number(params.id));
         if (!c) throw new Error('Customer not found');
@@ -74,6 +84,10 @@ export const mockTransport: Transport = {
       case 'visit.list': {
         let items = match(visits, params.search);
         if (params.status && params.status !== 'all') items = items.filter((v) => v.status === params.status);
+        // A rep only ever sees visits assigned to them — a real backend would enforce this as a
+        // row-level security rule; the mock enforces the same restriction here since there's no
+        // database to attach one to. A manager session (__role !== 'rep') sees everyone's.
+        if (params.__role === 'rep') items = items.filter((v) => v.repId === params.__repId);
         return { items, total: items.length, hasMore: false } as T;
       }
       case 'visit.get': {
@@ -101,6 +115,26 @@ export const mockTransport: Transport = {
         visits = visits.map((x) => (x.id === v.id ? updated : x));
         return updated as T;
       }
+      case 'visit.create': {
+        const rep = fx.reps.find((r) => r.id === Number(params.repId));
+        if (!rep) throw new Error('Rep not found');
+        const customer = customers.find((c) => c.id === Number(params.customerId));
+        if (!customer) throw new Error('Customer not found');
+        const created: Visit = {
+          id: nextVisitId++,
+          customerId: customer.id,
+          customerName: customer.name,
+          scheduledTime: params.scheduledTime,
+          status: 'planned',
+          repId: rep.id,
+          repName: rep.name,
+        };
+        visits = [...visits, created];
+        return created as T;
+      }
+
+      case 'rep.list':
+        return { items: fx.reps, total: fx.reps.length, hasMore: false } as T;
 
       case 'order.list': {
         let items = match(orders, params.search);

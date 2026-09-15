@@ -42,6 +42,7 @@ export const restTransport: Transport = {
       database: creds.database,
       company: json.company,
       warehouseIds: json.warehouse_ids,
+      role: creds.role,
     };
   },
 

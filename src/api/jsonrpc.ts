@@ -39,6 +39,7 @@ export const jsonRpcTransport: Transport = {
       server: creds.server,
       database: creds.database,
       company: result.company_id?.[1],
+      role: creds.role,
       // TODO: fetch the distributor's warehouse(s) once the Odoo model is confirmed
     };
   },

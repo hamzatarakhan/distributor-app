@@ -29,6 +29,13 @@
     "greeting": "Hi{{name}}",
     "quickTools": "Quick tools"
   },
+  "assignVisit": {
+    "title": "Assign a visit",
+    "repLabel": "Rep",
+    "customerLabel": "Customer",
+    "timeLabel": "Time (optional)",
+    "submit": "Create visit"
+  },
   "onboarding": {
     "skip": "Skip",
     "next": "Next",
@@ -294,6 +301,9 @@
     "login": {
       "title": "Sales Rep",
       "subtitle": "Sign in to your Odoo account",
+      "roleLabel": "Sign in as",
+      "roleRep": "Sales Rep",
+      "roleManager": "Manager",
       "usernameLabel": "Username or email",
       "passwordLabel": "Password",
       "signIn": "Sign in",
