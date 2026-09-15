@@ -49,6 +49,11 @@
     "repToday": "{{done}}/{{total}} today",
     "allReps": "All reps"
   },
+  "team": {
+    "role": "Sales rep",
+    "todayVisits": "Today's visits",
+    "ordersSummary": "{{count}} orders placed"
+  },
   "warehouse": {
     "hint": "Central stock — issue it to a rep's van from here.",
     "warehouseQty": "{{qty}} {{uom}} in warehouse",

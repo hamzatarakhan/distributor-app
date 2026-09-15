@@ -114,13 +114,27 @@ sibling top-level `expo-router` groups, each with its own 5-tab navigator, gated
   - `order.create`: stamps the new order with `repId`/`repName` from the session, so
     a manager can later see who placed it. `order.confirm` carries that (plus
     `customerId`) onto the invoice it creates.
-- `app/(manager)/index.tsx` ("Team" tab) is the manager's Home: greeting, a **My
-  team** row (one tile per rep, today's done/total visit count — this is the
-  hierarchy view, tap a tile to filter everything below to that rep), stat cards,
-  **Assign a visit** (opens a sheet: rep + customer + a native date/time picker via
-  `@react-native-community/datetimepicker`, `visit.create`), then the full
-  multi-rep schedule. Reps don't create their own visits — assignment is a manager
-  action.
+- `app/(manager)/index.tsx` ("Team" tab) is the manager's Home: greeting, stat
+  cards, **Assign a visit** (opens a sheet: rep + customer + a native date/time
+  picker via `@react-native-community/datetimepicker` — see below, `visit.create`),
+  then the full multi-rep schedule. Reps don't create their own visits —
+  assignment is a manager action.
+- **Team hierarchy** (`app/team.tsx` list → `app/team/[id].tsx` detail, linked from
+  More → "My team", manager-only) is a separate screen, not a row on Home — a tile
+  row of every rep breaks down once the team is more than a couple of people.
+  `team.tsx` is a plain scrolling roster (same `.map`-over-an-array pattern as every
+  other list screen here, not a `FlatList` — nothing else in the app virtualizes
+  either); each row opens `team/[id]`, which shows that one rep's today's visits
+  plus orders/invoices totals — all derived from data already scoped by `repId`
+  (`visit.list`, and `Order`/`Invoice.repId`), no invented profile fields.
+- Date/time picker (`PickerField` in `app/(manager)/index.tsx`): iOS uses the
+  native `display="compact"` control inline. Android has no inline mode — mounting
+  `<DateTimePicker>` conditionally inside a scrolling `Sheet` rendered as a broken
+  inline spinner overlapping other content, so Android instead calls the
+  imperative `DateTimePickerAndroid.open()` (a pressable field triggers it), which
+  pops the native dialog with nothing mounted in the tree to misposition. If a
+  future date/time field needs this again, reuse `PickerField` rather than going
+  back to a bare `TextInput` expecting a typed date string.
 - `app/(manager)/orders.tsx` and `invoices.tsx` are their own screens (not re-exports
   of the rep tabs): same list queries, plus a rep filter chip row and `repName` (who
   placed/collected it) alongside the customer on every row — what a manager actually

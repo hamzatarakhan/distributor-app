@@ -49,6 +49,11 @@
     "repToday": "{{done}}/{{total}} اليوم",
     "allReps": "كل المندوبين"
   },
+  "team": {
+    "role": "مندوب مبيعات",
+    "todayVisits": "زيارات اليوم",
+    "ordersSummary": "{{count}} أوردر"
+  },
   "warehouse": {
     "hint": "المخزون المركزي — من هون بتصدر بضاعة لسيارة أي مندوب.",
     "warehouseQty": "{{qty}} {{uom}} بالمستودع",

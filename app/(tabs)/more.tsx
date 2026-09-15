@@ -70,6 +70,13 @@ export default function More() {
           left={<IconBadge icon="person-outline" tone="info" />}
           onPress={() => router.push('/settings/profile')}
         />
+        {session?.role === 'manager' ? (
+          <ListRow
+            title={t('manager.myTeam')}
+            left={<IconBadge icon="people-outline" tone="special" />}
+            onPress={() => router.push('/team')}
+          />
+        ) : null}
       </View>
 
       <Card style={{ gap: spacing.md }}>

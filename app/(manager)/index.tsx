@@ -1,11 +1,11 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
-  Badge, Button, Card, CountBadge, FilterChips, Icon, ListRow, Screen, SectionHeader, Sheet,
+  Badge, Button, CountBadge, FilterChips, Icon, ListRow, Screen, SectionHeader, Sheet,
   StatCard, StatRow, Text,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
@@ -36,15 +36,14 @@ function toHHMM(d: Date) {
 }
 
 // A single date/time picker field. iOS renders its native "compact" control inline (tap opens a
-// popover, no extra state needed). Android's picker has no inline mode — it's always an
-// imperative dialog — so there we show a pressable field and mount <DateTimePicker> only while
-// the dialog should be open. This (not two bare TextInputs expecting a typed "2026-09-15") is
-// what was actually broken before: typing a valid date/time string by hand isn't a reasonable ask.
+// popover). Android has no inline mode at all — mounting <DateTimePicker> conditionally inside a
+// scrolling Sheet is exactly what rendered as a broken inline spinner overlapping other content;
+// the library's own docs call this out and recommend the imperative DateTimePickerAndroid.open()
+// instead, which pops the native dialog itself with no JSX mounted in our tree to misposition.
 function PickerField({
   label, value, mode, onChange,
 }: { label?: string; value: Date; mode: 'date' | 'time'; onChange: (d: Date) => void }) {
   const { colors, radii } = useTheme();
-  const [open, setOpen] = useState(false);
   const text = mode === 'date'
     ? value.toLocaleDateString()
     : value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -64,24 +63,22 @@ function PickerField({
     <View style={{ gap: 6, flex: 1 }}>
       {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={() =>
+          DateTimePickerAndroid.open({
+            value,
+            mode,
+            display: 'default',
+            onChange: (event, d) => {
+              if (event.type === 'set' && d) onChange(d);
+            },
+          })
+        }
         style={{
           borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
           padding: 12, backgroundColor: colors.card,
         }}>
         <Text>{text}</Text>
       </Pressable>
-      {open ? (
-        <DateTimePicker
-          value={value}
-          mode={mode}
-          display="default"
-          onChange={(event, d) => {
-            setOpen(false);
-            if (event.type === 'set' && d) onChange(d);
-          }}
-        />
-      ) : null}
     </View>
   );
 }
@@ -185,38 +182,25 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
 }
 
 export default function ManagerTeam() {
-  const { colors, spacing, radii } = useTheme();
+  const { colors, spacing } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const insets = useSafeAreaInsets();
   const profile = useProfile();
-  const reps = useReps();
   const visits = useVisits({});
   const activityLog = useActivityLog();
   const unreadCount = (activityLog.data ?? []).filter((i) => !i.read).length;
   const [filter, setFilter] = useState<StatFilter>('all');
-  const [repFilter, setRepFilter] = useState<'all' | number>('all');
   const [assignOpen, setAssignOpen] = useState(false);
 
   const today = todayIso();
   const allSorted = [...(visits.data?.items ?? [])].sort((a, b) =>
     `${a.date ?? ''}${a.scheduledTime ?? ''}`.localeCompare(`${b.date ?? ''}${b.scheduledTime ?? ''}`),
   );
-  const todayVisits = allSorted.filter((v) => (v.date ?? today) === today);
-
-  // Who's on the team and how their day is going — the hierarchy view the manager needs, folded
-  // into Home instead of a separate screen since it's also the most useful thing to filter the
-  // schedule by. Tapping a rep narrows everything below (stat cards + schedule) to just them.
-  const repStats = (reps.data?.items ?? []).map((r) => {
-    const mine = todayVisits.filter((v) => v.repId === r.id);
-    return { rep: r, total: mine.length, done: mine.filter((v) => v.status === 'done').length };
-  });
-
-  const repFiltered = repFilter === 'all' ? allSorted : allSorted.filter((v) => v.repId === repFilter);
-  const todays = repFiltered.filter((v) => (v.date ?? today) === today);
+  const todays = allSorted.filter((v) => (v.date ?? today) === today);
   const remaining = todays.filter((v) => v.status === 'planned');
   const done = todays.filter((v) => v.status === 'done');
-  const items = filter === 'all' ? repFiltered : filter === 'planned' ? repFiltered.filter((v) => v.status === 'planned') : repFiltered.filter((v) => v.status === 'done');
+  const items = filter === 'all' ? allSorted : filter === 'planned' ? allSorted.filter((v) => v.status === 'planned') : allSorted.filter((v) => v.status === 'done');
 
   const loading = visits.isLoading;
   const refreshing = visits.isRefetching || profile.isRefetching;
@@ -258,30 +242,6 @@ export default function ManagerTeam() {
                   <CountBadge count={unreadCount} />
                 </View>
               </Pressable>
-            </View>
-
-            <SectionHeader title={t('manager.myTeam')} />
-            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-              {repStats.map(({ rep, total, done: repDone }) => {
-                const active = repFilter === rep.id;
-                return (
-                  <Pressable
-                    key={rep.id}
-                    onPress={() => setRepFilter(active ? 'all' : rep.id)}
-                    style={{
-                      flexGrow: 1, minWidth: 140,
-                      borderWidth: 1,
-                      borderColor: active ? colors.primary : colors.border,
-                      backgroundColor: active ? colors.primaryTint : colors.card,
-                      borderRadius: radii.lg,
-                      padding: spacing.md,
-                      gap: 2,
-                    }}>
-                    <Text variant="captionSemi">{rep.name}</Text>
-                    <Text variant="caption" tone="muted">{t('manager.repToday', { done: repDone, total })}</Text>
-                  </Pressable>
-                );
-              })}
             </View>
 
             <StatRow>
