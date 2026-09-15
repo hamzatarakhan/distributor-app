@@ -84,10 +84,13 @@ export const mockTransport: Transport = {
       case 'visit.list': {
         let items = match(visits, params.search);
         if (params.status && params.status !== 'all') items = items.filter((v) => v.status === params.status);
-        // A rep only ever sees visits assigned to them — a real backend would enforce this as a
-        // row-level security rule; the mock enforces the same restriction here since there's no
-        // database to attach one to. A manager session (__role !== 'rep') sees everyone's.
-        if (params.__role === 'rep') items = items.filter((v) => v.repId === params.__repId);
+        // A rep only ever sees visits assigned to them, and only *today's* — matching the
+        // client's own "today's visit list" requirement. A real backend would enforce the rep
+        // scoping as a row-level security rule; the date scoping is just "what day is it".
+        // A manager sees every rep's visits across every day, for full schedule oversight.
+        if (params.__role === 'rep') {
+          items = items.filter((v) => v.repId === params.__repId && (v.date ?? today()) === today());
+        }
         return { items, total: items.length, hasMore: false } as T;
       }
       case 'visit.get': {
@@ -124,6 +127,7 @@ export const mockTransport: Transport = {
           id: nextVisitId++,
           customerId: customer.id,
           customerName: customer.name,
+          date: params.date || today(),
           scheduledTime: params.scheduledTime,
           status: 'planned',
           repId: rep.id,
@@ -135,6 +139,20 @@ export const mockTransport: Transport = {
 
       case 'rep.list':
         return { items: fx.reps, total: fx.reps.length, hasMore: false } as T;
+
+      case 'stock.issue': {
+        const p = fx.products.find((x) => x.id === Number(params.productId));
+        if (!p) throw new Error('Product not found');
+        const qty = Number(params.qty);
+        if (!qty || qty <= 0) throw new Error('Enter a quantity greater than 0.');
+        if ((p.warehouseStock ?? 0) < qty) throw new Error('Not enough warehouse stock.');
+        // ponytail: one shared vanStock number stands in for "the rep's van" — there's no
+        // per-rep van in this data model yet. Issuing stock always tops up that single number;
+        // real per-rep van inventories would need vanStock to move onto a rep-keyed table.
+        p.warehouseStock = (p.warehouseStock ?? 0) - qty;
+        p.vanStock = p.vanStock + qty;
+        return p as T;
+      }
 
       case 'order.list': {
         let items = match(orders, params.search);

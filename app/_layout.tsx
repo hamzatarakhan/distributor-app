@@ -102,8 +102,13 @@ function RootNavigator() {
           headerRight: HomeHeaderButton,
           contentStyle: { backgroundColor: colors.background },
         }}>
-        <Stack.Protected guard={!!session}>
+        <Stack.Protected guard={session?.role === 'rep'}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack.Protected>
+        <Stack.Protected guard={session?.role === 'manager'}>
+          <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+        </Stack.Protected>
+        <Stack.Protected guard={!!session}>
           <Stack.Screen name="stock/[productId]" options={{ title: t('tabs.stock') }} />
           <Stack.Screen name="visits/[id]" options={{ title: t('visitDetail.title') }} />
           <Stack.Screen name="orders/new" options={{ title: t('newOrder.title') }} />

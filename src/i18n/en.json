@@ -33,8 +33,25 @@
     "title": "Assign a visit",
     "repLabel": "Rep",
     "customerLabel": "Customer",
+    "dateLabel": "Date",
     "timeLabel": "Time (optional)",
     "submit": "Create visit"
+  },
+  "manager": {
+    "tabTeam": "Team",
+    "tabWarehouse": "Warehouse",
+    "teamSubtitle": "Team schedule · {{date}}",
+    "statToday": "Today",
+    "scheduleTitle": "Schedule"
+  },
+  "warehouse": {
+    "hint": "Central stock — issue it to a rep's van from here.",
+    "warehouseQty": "{{qty}} {{uom}} in warehouse",
+    "vanQty": "{{qty}} {{uom}} on vans",
+    "issue": "Issue",
+    "issueTitle": "Issue stock",
+    "qtyLabel": "Quantity",
+    "issueSubmit": "Issue to rep"
   },
   "onboarding": {
     "skip": "Skip",

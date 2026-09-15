@@ -35,6 +35,9 @@ export type Product = {
   currency: string;
   vanStock: number;
   lowStockThreshold?: number;
+  // Manager-only concept: the central warehouse's own reserve, separate from what's already
+  // loaded on a van. "Issue to rep" moves units from here into vanStock.
+  warehouseStock?: number;
 };
 
 // ---- Customers ---- (Phase 2 — balance / credit-limit check before selling more)
@@ -59,6 +62,7 @@ export type Visit = {
   address?: string;
   city?: string;
   phone?: string;
+  date?: string; // YYYY-MM-DD — which day this visit is scheduled for
   scheduledTime?: string;
   status: VisitStatus;
   outcome?: VisitOutcome;

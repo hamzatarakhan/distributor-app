@@ -11,6 +11,8 @@ export const RepApi = {
 export const ProductApi = {
   list: (p: { search?: string; stockFilter?: 'all' | 'low' | 'out' } = {}) => api.request<Paged<Product>>('product.list', p),
   get: (id: number) => api.request<Product>('product.get', { id }),
+  issueStock: (productId: number, repId: number, qty: number, fail?: boolean) =>
+    api.request<Product>('stock.issue', { productId, repId, qty, __fail: fail }),
 };
 
 export const CustomerApi = {
@@ -28,7 +30,7 @@ export const VisitApi = {
   ) => api.request<Visit>('visit.confirm', { id, outcome, ...extra, __fail: extra.fail }),
   checkin: (id: number, checkIn: NonNullable<Visit['checkIn']>, photoUri?: string, fail?: boolean) =>
     api.request<Visit>('visit.checkin', { id, checkIn, photoUri, __fail: fail }),
-  create: (v: { customerId: number; repId: number; scheduledTime?: string }, fail?: boolean) =>
+  create: (v: { customerId: number; repId: number; date?: string; scheduledTime?: string }, fail?: boolean) =>
     api.request<Visit>('visit.create', { ...v, __fail: fail }),
 };
 

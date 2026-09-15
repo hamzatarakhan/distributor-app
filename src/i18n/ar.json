@@ -33,8 +33,25 @@
     "title": "تعيين زيارة",
     "repLabel": "المندوب",
     "customerLabel": "الزبون",
+    "dateLabel": "التاريخ",
     "timeLabel": "الوقت (اختياري)",
     "submit": "إنشاء الزيارة"
+  },
+  "manager": {
+    "tabTeam": "الفريق",
+    "tabWarehouse": "المستودع",
+    "teamSubtitle": "جدول الفريق · {{date}}",
+    "statToday": "اليوم",
+    "scheduleTitle": "الجدول"
+  },
+  "warehouse": {
+    "hint": "المخزون المركزي — من هون بتصدر بضاعة لسيارة أي مندوب.",
+    "warehouseQty": "{{qty}} {{uom}} بالمستودع",
+    "vanQty": "{{qty}} {{uom}} عالسيارات",
+    "issue": "تصدير",
+    "issueTitle": "تصدير بضاعة",
+    "qtyLabel": "الكمية",
+    "issueSubmit": "صدّر للمندوب"
   },
   "onboarding": {
     "skip": "تخطي",

@@ -39,9 +39,19 @@ export const useReps = () => useQuery({ queryKey: ['reps'], queryFn: RepApi.list
 export function useCreateVisit() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { customerId: number; repId: number; scheduledTime?: string; fail?: boolean }) =>
+    mutationFn: (v: { customerId: number; repId: number; date?: string; scheduledTime?: string; fail?: boolean }) =>
       VisitApi.create(v, v.fail),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+}
+
+// ---- Manager: issue warehouse stock to a rep's van ----
+export function useIssueStock() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { productId: number; repId: number; qty: number; fail?: boolean }) =>
+      ProductApi.issueStock(v.productId, v.repId, v.qty, v.fail),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['products'] }),
   });
 }
 

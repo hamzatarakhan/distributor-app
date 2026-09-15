@@ -23,6 +23,7 @@ export type Op =
   | 'visit.checkin'
   | 'visit.create'
   | 'rep.list'
+  | 'stock.issue'
   | 'order.create'
   | 'order.get'
   | 'order.list'

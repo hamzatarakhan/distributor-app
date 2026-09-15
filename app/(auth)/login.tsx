@@ -60,7 +60,7 @@ export default function Login() {
     setError(null);
     try {
       await signIn(login.trim(), password, role);
-      router.replace('/(tabs)');
+      router.replace(role === 'manager' ? '/(manager)/index' : '/(tabs)');
     } catch (e) {
       setError(errorMessage(e));
     } finally {

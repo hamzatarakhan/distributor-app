@@ -3,6 +3,7 @@ export { BrandSplash, useMinDelay } from './BrandSplash';
 export { Button } from './Button';
 export { Card } from './Card';
 export { ConfirmSheet } from './ConfirmSheet';
+export { CountBadge } from './CountBadge';
 export { EmptyState } from './EmptyState';
 export { ErrorBanner, errorMessage } from './ErrorBanner';
 export { FilterChips } from './FilterChips';

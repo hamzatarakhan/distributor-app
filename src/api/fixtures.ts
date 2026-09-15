@@ -17,16 +17,16 @@ export const profile: Profile = {
 };
 
 export const products: Product[] = [
-  { id: 1, name: 'Cola 330ml Can (24pk)', reference: 'BEV-COLA-24', uom: 'Case', price: 22, currency: 'JOD', vanStock: 40, lowStockThreshold: 10 },
-  { id: 2, name: 'Spring Water 1.5L (6pk)', reference: 'BEV-H2O-6', uom: 'Case', price: 19.5, currency: 'JOD', vanStock: 8, lowStockThreshold: 10 },
-  { id: 3, name: 'Energy Drink 250ml (12pk)', reference: 'BEV-NRG-12', uom: 'Case', price: 32, currency: 'JOD', vanStock: 25, lowStockThreshold: 10 },
-  { id: 4, name: 'Orange Juice 1L (8pk)', reference: 'BEV-OJ-8', uom: 'Case', price: 28, currency: 'JOD', vanStock: 3, lowStockThreshold: 10 },
-  { id: 5, name: 'Sparkling Lemonade 330ml (24pk)', reference: 'BEV-LEM-24', uom: 'Case', price: 24, currency: 'JOD', vanStock: 30, lowStockThreshold: 10 },
-  { id: 6, name: 'Iced Tea Peach 500ml (12pk)', reference: 'BEV-ICT-12', uom: 'Case', price: 21, currency: 'JOD', vanStock: 0, lowStockThreshold: 10 },
-  { id: 7, name: 'Diet Cola 330ml Can (24pk)', reference: 'BEV-DCOLA-24', uom: 'Case', price: 22, currency: 'JOD', vanStock: 18, lowStockThreshold: 10 },
-  { id: 8, name: 'Mineral Water 500ml (12pk)', reference: 'BEV-H2O-12S', uom: 'Case', price: 12, currency: 'JOD', vanStock: 60, lowStockThreshold: 15 },
-  { id: 9, name: 'Mango Nectar 1L (8pk)', reference: 'BEV-MNG-8', uom: 'Case', price: 29, currency: 'JOD', vanStock: 5, lowStockThreshold: 10 },
-  { id: 10, name: 'Sports Drink 500ml (12pk)', reference: 'BEV-SPT-12', uom: 'Case', price: 26, currency: 'JOD', vanStock: 14, lowStockThreshold: 10 },
+  { id: 1, name: 'Cola 330ml Can (24pk)', reference: 'BEV-COLA-24', uom: 'Case', price: 22, currency: 'JOD', vanStock: 40, lowStockThreshold: 10, warehouseStock: 220 },
+  { id: 2, name: 'Spring Water 1.5L (6pk)', reference: 'BEV-H2O-6', uom: 'Case', price: 19.5, currency: 'JOD', vanStock: 8, lowStockThreshold: 10, warehouseStock: 60 },
+  { id: 3, name: 'Energy Drink 250ml (12pk)', reference: 'BEV-NRG-12', uom: 'Case', price: 32, currency: 'JOD', vanStock: 25, lowStockThreshold: 10, warehouseStock: 140 },
+  { id: 4, name: 'Orange Juice 1L (8pk)', reference: 'BEV-OJ-8', uom: 'Case', price: 28, currency: 'JOD', vanStock: 3, lowStockThreshold: 10, warehouseStock: 45 },
+  { id: 5, name: 'Sparkling Lemonade 330ml (24pk)', reference: 'BEV-LEM-24', uom: 'Case', price: 24, currency: 'JOD', vanStock: 30, lowStockThreshold: 10, warehouseStock: 180 },
+  { id: 6, name: 'Iced Tea Peach 500ml (12pk)', reference: 'BEV-ICT-12', uom: 'Case', price: 21, currency: 'JOD', vanStock: 0, lowStockThreshold: 10, warehouseStock: 90 },
+  { id: 7, name: 'Diet Cola 330ml Can (24pk)', reference: 'BEV-DCOLA-24', uom: 'Case', price: 22, currency: 'JOD', vanStock: 18, lowStockThreshold: 10, warehouseStock: 130 },
+  { id: 8, name: 'Mineral Water 500ml (12pk)', reference: 'BEV-H2O-12S', uom: 'Case', price: 12, currency: 'JOD', vanStock: 60, lowStockThreshold: 15, warehouseStock: 300 },
+  { id: 9, name: 'Mango Nectar 1L (8pk)', reference: 'BEV-MNG-8', uom: 'Case', price: 29, currency: 'JOD', vanStock: 5, lowStockThreshold: 10, warehouseStock: 50 },
+  { id: 10, name: 'Sports Drink 500ml (12pk)', reference: 'BEV-SPT-12', uom: 'Case', price: 26, currency: 'JOD', vanStock: 14, lowStockThreshold: 10, warehouseStock: 100 },
 ];
 
 // Amman coordinates, spread a little so the map/GPS check-in features have something to show.
@@ -38,25 +38,27 @@ export const customers: Customer[] = [
 ];
 
 // "Al-Warda Al-Hamra" is the client's own example customer from the requirements call.
+const TODAY = '2026-09-15';
+
 export const visits: Visit[] = [
   {
     id: 1, customerId: 101, customerName: 'الوردة الحمراء', address: '12 Rainbow St, Jabal Amman',
-    city: 'Amman', phone: '+962 79 111 2222', scheduledTime: '09:00', status: 'planned',
+    city: 'Amman', phone: '+962 79 111 2222', date: TODAY, scheduledTime: '09:00', status: 'planned',
     geoLat: 31.9552, geoLng: 35.9106, repId: 1, repName: 'Hamza Tarakhan',
   },
   {
     id: 2, customerId: 102, customerName: 'Downtown Mini Market', address: '5 University Blvd',
-    city: 'Amman', phone: '+962 79 333 4444', scheduledTime: '10:30', status: 'planned',
+    city: 'Amman', phone: '+962 79 333 4444', date: TODAY, scheduledTime: '10:30', status: 'planned',
     geoLat: 31.9633, geoLng: 35.8725, repId: 2, repName: 'Sami Rep',
   },
   {
     id: 3, customerId: 103, customerName: 'Sunrise Supermarket', address: '88 Mecca St',
-    city: 'Amman', phone: '+962 78 555 6666', scheduledTime: '12:00', status: 'done',
+    city: 'Amman', phone: '+962 78 555 6666', date: TODAY, scheduledTime: '12:00', status: 'done',
     outcome: 'ordered', orderId: 501, geoLat: 31.9497, geoLng: 35.9328, repId: 1, repName: 'Hamza Tarakhan',
   },
   {
     id: 4, customerId: 104, customerName: 'Corner Shop 24/7', address: '3 King Hussein St',
-    city: 'Zarqa', phone: '+962 79 777 8888', scheduledTime: '13:30', status: 'done',
+    city: 'Zarqa', phone: '+962 79 777 8888', date: TODAY, scheduledTime: '13:30', status: 'done',
     outcome: 'no_sale', note: 'Overstocked, will check back next week.', geoLat: 32.0728, geoLng: 36.0876,
     repId: 2, repName: 'Sami Rep',
   },
