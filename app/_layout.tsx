@@ -48,7 +48,17 @@ function OfflineBanner() {
   );
 }
 
-export const unstable_settings = { anchor: '(tabs)' };
+// Two sibling top-level groups now ((tabs) for reps, (manager) for managers) — each needs its
+// own anchor entry here, or expo-router doesn't know which of its own screens is the initial one
+// when you navigate to the bare group root. Without the '(manager)' entry, `router.replace`ing
+// there fell through to treating whatever screen happened to load as a raw pushed route instead
+// of properly entering that group's own Tabs navigator (showed a literal "index" title + a
+// POP_TO_TOP warning).
+export const unstable_settings = {
+  anchor: '(tabs)',
+  '(tabs)': { anchor: 'index' },
+  '(manager)': { anchor: 'index' },
+};
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 SplashScreen.setOptions({ duration: 400, fade: true });
