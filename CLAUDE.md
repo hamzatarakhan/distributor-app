@@ -127,16 +127,29 @@ sibling top-level `expo-router` groups, each with its own 5-tab navigator, gated
   either); each row opens `team/[id]`, which shows that one rep's today's visits
   plus orders/invoices totals — all derived from data already scoped by `repId`
   (`visit.list`, and `Order`/`Invoice.repId`), no invented profile fields.
-- Date/time picker (`PickerField` in `app/(manager)/index.tsx`): neither platform
-  mounts `<DateTimePicker>` inline inside the field's own spot in the `Sheet` —
-  that's what broke twice (Android's picker has no inline mode at all; iOS's
-  `display="compact"` doesn't report its real size to the flex layout either way,
-  both rendered as a floating pill overlapping the row below). A pressable field
-  opens the picker in its own top-level overlay instead: Android via the
-  imperative `DateTimePickerAndroid.open()` (native OS dialog), iOS via a small
-  bottom `Modal` with `display="spinner"` + a Done button (mirrors this app's own
-  `Sheet` look). Reuse `PickerField` for any future date/time input rather than a
-  bare `TextInput` expecting a typed date string, or a picker mounted inline.
+- Date/time picker (`PickerField` in `app/(manager)/index.tsx`) went through three
+  broken attempts before landing — worth knowing if a future date/time field
+  reuses this pattern instead of `PickerField` itself:
+  1. Two bare `TextInput`s expecting a typed `"2026-09-15"` string — not a
+     reasonable ask, replaced with an actual picker.
+  2. iOS `display="compact"` mounted inline — doesn't report its real size to
+     the flex layout, rendered as a floating pill overlapping the row below.
+  3. A `<Modal>` for the iOS picker, opened from inside `AssignVisitSheet` — which
+     is itself a `<Modal>` (`Sheet.tsx`). Nesting one native Modal inside another
+     is a known source of a subtree silently failing to lay out (Modal renders
+     into its own native window/portal, not a normal tree node) — the *whole*
+     Date field vanished, not just the picker.
+  - What actually works: Android calls the imperative `DateTimePickerAndroid.open()`
+    (a native OS dialog, no component mounted at all — no portal risk). iOS
+    renders `display="spinner"` **inline**, toggled by local state, directly in
+    the field's own `View` (no `Modal` anywhere) — `spinner` has a real,
+    well-defined intrinsic size, unlike `compact`, so it lays out correctly with
+    no wrapper needed. A visible "Done" button commits the draft value.
+  - Also watch for `toLocaleDateString()`/`toLocaleTimeString()`/`toLocaleString()`
+    called with **no explicit locale** — Hermes' default-locale resolution is
+    unreliable on some devices and silently produces empty text instead of
+    throwing. Always pass one (`isRTL ? 'ar' : 'en-US'`, matching every other
+    locale-aware format call in this app) or avoid `Intl` entirely.
 - `app/(manager)/orders.tsx` and `invoices.tsx` are their own screens (not re-exports
   of the rep tabs): same list queries, plus a rep filter chip row and `repName` (who
   placed/collected it) alongside the customer on every row — what a manager actually

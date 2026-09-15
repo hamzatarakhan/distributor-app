@@ -1,7 +1,7 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Platform, Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
@@ -85,32 +85,27 @@ function PickerField({
         <Text>{text}</Text>
       </Pressable>
 
-      {Platform.OS === 'ios' ? (
-        <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-          <Pressable
-            onPress={() => setOpen(false)}
-            style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }}>
-            <Pressable
-              onPress={(e) => e.stopPropagation()}
-              style={{
-                backgroundColor: colors.background,
-                borderTopLeftRadius: radii.lg,
-                borderTopRightRadius: radii.lg,
-                padding: spacing.lg,
-                gap: spacing.md,
-              }}>
-              <DateTimePicker value={draft} mode={mode} display="spinner" onChange={(_, d) => d && setDraft(d)} />
-              <Button
-                title={t('common.done')}
-                onPress={() => {
-                  onChange(draft);
-                  setOpen(false);
-                }}
-                fullWidth
-              />
-            </Pressable>
-          </Pressable>
-        </Modal>
+      {Platform.OS === 'ios' && open ? (
+        // No <Modal> here on purpose — this field lives inside the AssignVisitSheet, which is
+        // itself a <Modal> (see Sheet.tsx). Nesting a second native Modal inside a first is a
+        // known source of exactly this bug's symptom: a whole subtree silently failing to lay
+        // out (RN's Modal renders into its own native window/portal, not a normal view in the
+        // tree). "spinner" mode has a real, well-defined intrinsic size — unlike "compact" —
+        // so it can render directly in this normal View, no portal involved at all.
+        <View style={{
+          backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
+          borderRadius: radii.md, padding: spacing.sm, gap: spacing.sm,
+        }}>
+          <DateTimePicker value={draft} mode={mode} display="spinner" onChange={(_, d) => d && setDraft(d)} />
+          <Button
+            title={t('common.done')}
+            onPress={() => {
+              onChange(draft);
+              setOpen(false);
+            }}
+            fullWidth
+          />
+        </View>
       ) : null}
     </View>
   );
