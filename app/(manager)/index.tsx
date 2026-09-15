@@ -35,78 +35,33 @@ function toHHMM(d: Date) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// A single date/time picker field. Neither platform gets a picker mounted inline in our own
-// layout — that's what actually broke both times: iOS's "compact" control doesn't report its
-// real size to the flex layout and rendered as a floating pill overlapping the row below it;
-// Android's picker has no inline mode at all and rendering it inline produced the same kind of
-// overlap. So both platforms now open the picker in its own top-level overlay, fully decoupled
-// from this field's position in the Sheet: Android via the library's own imperative
-// DateTimePickerAndroid.open() (a native OS dialog), iOS via a small bottom Modal with a spinner
-// and a Done button (mirrors this app's own Sheet component, so it looks native to the app too).
+// A plain pressable field showing the current date/time as text — it never mounts a picker of
+// its own. Three earlier attempts all mounted SOME kind of picker at this field's own position
+// in the tree (inline "compact" control, an inline conditional <DateTimePicker>, a <Modal>
+// opened from here) and every one of them broke, because this field lives inside
+// AssignVisitSheet's <Sheet>, which is itself a Modal — anything with its own native
+// presentation/portal semantics mounted at this depth was fighting that. So this field does
+// nothing but render text and call `onOpen`; where the picker actually lives is
+// AssignVisitSheet's problem now, not this component's.
 function PickerField({
-  label, value, mode, onChange,
-}: { label?: string; value: Date; mode: 'date' | 'time'; onChange: (d: Date) => void }) {
-  const { colors, radii, spacing } = useTheme();
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(value);
+  label, value, mode, onOpen,
+}: { label?: string; value: Date; mode: 'date' | 'time'; onOpen: () => void }) {
+  const { colors, radii } = useTheme();
   // Not toLocaleDateString()/toLocaleTimeString() with no explicit locale — that "use the
-  // device's default locale" resolution is exactly what silently broke this field: Hermes on
-  // some devices can't resolve a default locale and returns garbage/empty text instead of
-  // throwing, so nothing shows. The manual pad-based formatters below (also what actually gets
-  // submitted) need no Intl/ICU data at all.
+  // device's default locale" resolution is unreliable on-device (Hermes can silently return
+  // empty text instead of throwing). These need no Intl/ICU data at all.
   const text = mode === 'date' ? toIsoDate(value) : toHHMM(value);
-
-  const openPicker = () => {
-    if (Platform.OS === 'android') {
-      DateTimePickerAndroid.open({
-        value,
-        mode,
-        display: 'default',
-        onChange: (event, d) => {
-          if (event.type === 'set' && d) onChange(d);
-        },
-      });
-      return;
-    }
-    setDraft(value);
-    setOpen(true);
-  };
-
   return (
-    <View style={{ gap: 6, flex: 1 }}>
+    <View style={{ gap: 6 }}>
       {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
       <Pressable
-        onPress={openPicker}
+        onPress={onOpen}
         style={{
           borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
           padding: 12, backgroundColor: colors.card,
         }}>
         <Text>{text}</Text>
       </Pressable>
-
-      {Platform.OS === 'ios' && open ? (
-        // No <Modal> here on purpose — this field lives inside the AssignVisitSheet, which is
-        // itself a <Modal> (see Sheet.tsx). Nesting a second native Modal inside a first is a
-        // known source of exactly this bug's symptom: a whole subtree silently failing to lay
-        // out (RN's Modal renders into its own native window/portal, not a normal view in the
-        // tree). "spinner" mode has a real, well-defined intrinsic size — unlike "compact" —
-        // so it can render directly in this normal View, no portal involved at all.
-        <View style={{
-          backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
-          borderRadius: radii.md, padding: spacing.sm, gap: spacing.sm,
-        }}>
-          <DateTimePicker value={draft} mode={mode} display="spinner" onChange={(_, d) => d && setDraft(d)} />
-          <Button
-            title={t('common.done')}
-            onPress={() => {
-              onChange(draft);
-              setOpen(false);
-            }}
-            fullWidth
-          />
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -124,6 +79,11 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
   const [timeEnabled, setTimeEnabled] = useState(false);
   const [time, setTime] = useState(() => new Date());
   const [error, setError] = useState<string | null>(null);
+  // Which field's picker is currently showing — 'date' | 'time' | null. On iOS this swaps the
+  // Sheet's own content over to the picker (see below); on Android it's never set at all, since
+  // DateTimePickerAndroid.open() is a native dialog that needs nothing rendered for it.
+  const [activeField, setActiveField] = useState<'date' | 'time' | null>(null);
+  const [draft, setDraft] = useState(() => new Date());
 
   const reset = () => {
     setRepId('');
@@ -132,6 +92,25 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
     setTimeEnabled(false);
     setTime(new Date());
     setError(null);
+    setActiveField(null);
+  };
+
+  const openField = (field: 'date' | 'time') => {
+    const current = field === 'date' ? date : time;
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: current,
+        mode: field,
+        display: 'default',
+        onChange: (event, d) => {
+          if (event.type !== 'set' || !d) return;
+          if (field === 'date') setDate(d); else setTime(d);
+        },
+      });
+      return;
+    }
+    setDraft(current);
+    setActiveField(field);
   };
 
   const submit = () => {
@@ -161,50 +140,81 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
         reset();
         onClose();
       }}>
-      <Text variant="h2">{t('assignVisit.title')}</Text>
+      {activeField ? (
+        // Swaps the Sheet's own content for the picker instead of opening a second Modal on top
+        // of it — this is the one Modal AssignVisitSheet ever has open at once, so there's no
+        // nested-Modal portal conflict, and no risk of the picker's own layout misbehaving since
+        // it's a direct child of the same Pressable that already renders every other field fine.
+        <>
+          <Text variant="h2">
+            {activeField === 'date' ? t('assignVisit.dateLabel') : t('assignVisit.timeLabel')}
+          </Text>
+          <DateTimePicker value={draft} mode={activeField} display="spinner" onChange={(_, d) => d && setDraft(d)} />
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: spacing.sm }}>
+            <Button
+              variant="secondary"
+              title={t('common.cancel')}
+              onPress={() => setActiveField(null)}
+              style={{ flex: 1 }}
+            />
+            <Button
+              title={t('common.done')}
+              onPress={() => {
+                if (activeField === 'date') setDate(draft); else setTime(draft);
+                setActiveField(null);
+              }}
+              style={{ flex: 1 }}
+            />
+          </View>
+        </>
+      ) : (
+        <>
+          <Text variant="h2">{t('assignVisit.title')}</Text>
 
-      <View style={{ gap: 6 }}>
-        <Text variant="captionSemi" tone="muted">{t('assignVisit.repLabel')}</Text>
-        <FilterChips
-          options={(reps.data?.items ?? []).map((r) => ({ value: String(r.id), label: r.name }))}
-          value={repId}
-          onChange={setRepId}
-        />
-      </View>
+          <View style={{ gap: 6 }}>
+            <Text variant="captionSemi" tone="muted">{t('assignVisit.repLabel')}</Text>
+            <FilterChips
+              options={(reps.data?.items ?? []).map((r) => ({ value: String(r.id), label: r.name }))}
+              value={repId}
+              onChange={setRepId}
+            />
+          </View>
 
-      <View style={{ gap: 6 }}>
-        <Text variant="captionSemi" tone="muted">{t('assignVisit.customerLabel')}</Text>
-        <FilterChips
-          options={(customers.data?.items ?? []).map((c: Customer) => ({ value: String(c.id), label: c.name }))}
-          value={customerId}
-          onChange={setCustomerId}
-        />
-      </View>
+          <View style={{ gap: 6 }}>
+            <Text variant="captionSemi" tone="muted">{t('assignVisit.customerLabel')}</Text>
+            <FilterChips
+              options={(customers.data?.items ?? []).map((c: Customer) => ({ value: String(c.id), label: c.name }))}
+              value={customerId}
+              onChange={setCustomerId}
+            />
+          </View>
 
-      <PickerField label={t('assignVisit.dateLabel')} mode="date" value={date} onChange={setDate} />
+          <PickerField label={t('assignVisit.dateLabel')} mode="date" value={date} onOpen={() => openField('date')} />
 
-      <View style={{ gap: 6 }}>
-        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text variant="captionSemi" tone="muted">{t('assignVisit.timeLabel')}</Text>
-          <Pressable onPress={() => setTimeEnabled((v) => !v)} hitSlop={8}>
-            <Text variant="caption" tone="primary">
-              {timeEnabled ? t('assignVisit.removeTime') : t('assignVisit.addTime')}
-            </Text>
-          </Pressable>
-        </View>
-        {timeEnabled ? <PickerField mode="time" value={time} onChange={setTime} /> : null}
-      </View>
+          <View style={{ gap: 6 }}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text variant="captionSemi" tone="muted">{t('assignVisit.timeLabel')}</Text>
+              <Pressable onPress={() => setTimeEnabled((v) => !v)} hitSlop={8}>
+                <Text variant="caption" tone="primary">
+                  {timeEnabled ? t('assignVisit.removeTime') : t('assignVisit.addTime')}
+                </Text>
+              </Pressable>
+            </View>
+            {timeEnabled ? <PickerField mode="time" value={time} onOpen={() => openField('time')} /> : null}
+          </View>
 
-      {error ? <Text tone="danger" variant="caption">{error}</Text> : null}
+          {error ? <Text tone="danger" variant="caption">{error}</Text> : null}
 
-      <Button
-        title={t('assignVisit.submit')}
-        onPress={submit}
-        loading={createVisit.isPending}
-        disabled={!repId || !customerId}
-        fullWidth
-        style={{ marginTop: spacing.sm }}
-      />
+          <Button
+            title={t('assignVisit.submit')}
+            onPress={submit}
+            loading={createVisit.isPending}
+            disabled={!repId || !customerId}
+            fullWidth
+            style={{ marginTop: spacing.sm }}
+          />
+        </>
+      )}
     </Sheet>
   );
 }
