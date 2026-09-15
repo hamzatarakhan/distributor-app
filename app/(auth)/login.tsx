@@ -60,7 +60,12 @@ export default function Login() {
     setError(null);
     try {
       await signIn(login.trim(), password, role);
-      router.replace(role === 'manager' ? '/(manager)/index' : '/(tabs)');
+      // Must be the bare group root, not '/(manager)/index' — navigating to that nested path
+      // directly (bypassing the tab navigator's own tab-selection flow) is what produced the
+      // "index" literal title and the POP_TO_TOP warning. '/(manager)' isn't in the typed-routes
+      // union yet (unlike '/(tabs)', which has always been the anchor group) — this is a real
+      // runtime route, just not one Metro's typegen has caught up to for a brand-new group.
+      router.replace((role === 'manager' ? '/(manager)' : '/(tabs)') as '/(tabs)');
     } catch (e) {
       setError(errorMessage(e));
     } finally {
