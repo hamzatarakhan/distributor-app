@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Button, FilterChips, Icon, Text } from '@/src/components';
+import { Button, Icon, Text } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
 import { useAuth } from '@/src/auth/AuthContext';
 import { useLocale } from '@/src/i18n/LocaleProvider';
@@ -45,15 +45,13 @@ export default function Login() {
   const { signIn, server } = useAuth();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role>('rep');
+  // Manager role picker hidden for now (on request) — everyone signs in as a rep until it's
+  // restored. Kept as a real Role, not a literal, so re-enabling is just bringing back the
+  // FilterChips block that used to sit above the username field.
+  const [role] = useState<Role>('rep');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const ROLE_OPTIONS: { value: Role; label: string }[] = [
-    { value: 'rep', label: t('auth.login.roleRep') },
-    { value: 'manager', label: t('auth.login.roleManager') },
-  ];
 
   const submit = async () => {
     setBusy(true);
@@ -95,11 +93,6 @@ export default function Login() {
           </View>
           <Text variant="h1">{t('auth.login.title')}</Text>
           <Text tone="muted" variant="caption">{t('auth.login.subtitle')}</Text>
-        </View>
-
-        <View style={{ gap: 6 }}>
-          <Text variant="captionSemi" tone="muted">{t('auth.login.roleLabel')}</Text>
-          <FilterChips options={ROLE_OPTIONS} value={role} onChange={setRole} />
         </View>
 
         <LabeledInput
