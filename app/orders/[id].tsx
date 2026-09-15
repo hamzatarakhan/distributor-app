@@ -7,6 +7,7 @@ import {
   StickyActionBar, Text, type ResultState,
 } from '@/src/components';
 import { errorMessage } from '@/src/components/ErrorBanner';
+import { useAuth } from '@/src/auth/AuthContext';
 import { useConfirmOrder, useOrder } from '@/src/hooks/data';
 import { orderStatusKey, orderStatusTone } from '@/src/lib/status';
 import { lineTotal } from '@/src/lib/orderMath';
@@ -21,6 +22,7 @@ export default function OrderDetail() {
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const { phase } = usePhase();
+  const { session } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useOrder(orderId);
   const confirmOrder = useConfirmOrder(orderId);
   const [result, setResult] = useState<ResultState | null>(null);
@@ -93,6 +95,9 @@ export default function OrderDetail() {
 
             <Card>
               <DetailRow label={t('orderDetail.date')} value={data.date} />
+              {session?.role === 'manager' && data.repName ? (
+                <DetailRow label={t('assignVisit.repLabel')} value={data.repName} />
+              ) : null}
               {data.hasReturn ? (
                 <DetailRow label={t('orderDetail.createReturn')} valueNode={<Text variant="captionSemi" tone="muted">{t('orderDetail.alreadyReturned')}</Text>} />
               ) : null}

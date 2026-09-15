@@ -94,29 +94,44 @@ they can be shown or hidden without touching Phase 1 at all.
 ## Manager vs rep role
 
 Not part of the client's original requirement — added on request to let one manager
-assign visits to a small team, sharing the exact same app and screens (no separate
-portal/codebase).
+oversee/assign visits to a small team. Same Expo app and codebase, no separate
+portal — but the two roles get genuinely different screens, not one screen that
+renders differently: `app/(tabs)/` (reps) and `app/(manager)/` (managers) are
+sibling top-level `expo-router` groups, each with its own 5-tab navigator, gated in
+`app/_layout.tsx` by `Stack.Protected guard={session?.role === 'rep' | 'manager'}`.
+`app/(auth)/login.tsx` has the role picker and routes to the matching group root.
 
-- Login has a role picker (`app/(auth)/login.tsx`, `Session['role']: 'rep' | 'manager'`).
-  A rep session also carries `repId` — the mock always scopes it to `fx.reps[0]`
-  (there's no real user directory in a mock); a real backend would derive both from
-  whoever's actually logging in.
+- `Session['role']: 'rep' | 'manager'`; a rep session also carries `repId` — the mock
+  always scopes it to `fx.reps[0]` (no real user directory in a mock); a real backend
+  would derive both from whoever's actually logging in.
 - `src/api/index.ts`'s `request()` injects `__role`/`__repId` into every call from the
-  active session — this is how `visit.list` enforces the split in `mock.ts`: a rep only
-  ever gets visits where `repId` matches theirs, a manager gets all of them. A real
-  backend would enforce the same rule server-side (Postgres RLS, an Odoo domain filter,
-  etc.) — the mock's `if (params.__role === 'rep') items = items.filter(...)` is
-  standing in for that, not a substitute for it.
-- **Only Visits is role-scoped.** Orders/Invoices/Van stock were never a "my own data"
-  concept in the original requirement, so they stay unfiltered for both roles — a
-  deliberate scope cut, extend the same `__role`/`__repId` pattern to them if asked.
-- Manager-only capability: **Assign a visit** — a button on Home (`(tabs)/index.tsx`,
-  `isManager` check on `session.role`) opens a sheet to pick a rep + customer + time,
-  calling the new `visit.create` op. Reps don't create their own visits — assignment is
-  a manager action, matching the ask that prompted this.
-- Everything else on Home (stat row, Quick Tools, the visit list itself) is the same
-  component for both roles — it just renders differently once the data itself is
-  scoped, rather than forking into a separate manager screen tree.
+  active session. `mock.ts` uses this in two ways:
+  - `visit.list`: a rep only ever gets visits where `repId` matches theirs *and* whose
+    `date` is today; a manager gets every rep's visits, every date. A real backend
+    would enforce the rep scoping server-side (Postgres RLS, an Odoo domain filter);
+    the mock's `if (params.__role === 'rep') items = items.filter(...)` stands in for
+    that, not a substitute for it.
+  - `order.create`: stamps the new order with `repId`/`repName` from the session, so
+    a manager can later see who placed it. `order.confirm` carries that (plus
+    `customerId`) onto the invoice it creates.
+- `app/(manager)/index.tsx` ("Team" tab) is the manager's Home: greeting, a **My
+  team** row (one tile per rep, today's done/total visit count — this is the
+  hierarchy view, tap a tile to filter everything below to that rep), stat cards,
+  **Assign a visit** (opens a sheet: rep + customer + a native date/time picker via
+  `@react-native-community/datetimepicker`, `visit.create`), then the full
+  multi-rep schedule. Reps don't create their own visits — assignment is a manager
+  action.
+- `app/(manager)/orders.tsx` and `invoices.tsx` are their own screens (not re-exports
+  of the rep tabs): same list queries, plus a rep filter chip row and `repName` (who
+  placed/collected it) alongside the customer on every row — what a manager actually
+  needs to audit the team's activity, not what a rep needs to see their own.
+- `app/(manager)/warehouse.tsx` — the manager's own stock reserve (`Product.warehouseStock`,
+  separate from the shared `vanStock` every rep's van draws from), with an **Issue to
+  rep** action (`stock.issue`) that moves units from warehouse into `vanStock`.
+- Order/invoice **detail** screens (`app/orders/[id].tsx`, `app/invoices/[id].tsx`)
+  stay one shared file for both roles — cheaper than forking — but add a `repName`
+  `DetailRow` when `useAuth().session.role === 'manager'`; a rep viewing their own
+  order/invoice doesn't need to be told it's theirs.
 
 ## Wiring a real Odoo endpoint
 

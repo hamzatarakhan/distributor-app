@@ -35,6 +35,8 @@
     "customerLabel": "الزبون",
     "dateLabel": "التاريخ",
     "timeLabel": "الوقت (اختياري)",
+    "addTime": "إضافة وقت",
+    "removeTime": "إزالة الوقت",
     "submit": "إنشاء الزيارة"
   },
   "manager": {
@@ -42,7 +44,10 @@
     "tabWarehouse": "المستودع",
     "teamSubtitle": "جدول الفريق · {{date}}",
     "statToday": "اليوم",
-    "scheduleTitle": "الجدول"
+    "scheduleTitle": "الجدول",
+    "myTeam": "فريقي",
+    "repToday": "{{done}}/{{total}} اليوم",
+    "allReps": "كل المندوبين"
   },
   "warehouse": {
     "hint": "المخزون المركزي — من هون بتصدر بضاعة لسيارة أي مندوب.",

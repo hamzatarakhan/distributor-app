@@ -1,6 +1,7 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,8 +23,71 @@ function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+function toIsoDate(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toHHMM(d: Date) {
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// A single date/time picker field. iOS renders its native "compact" control inline (tap opens a
+// popover, no extra state needed). Android's picker has no inline mode — it's always an
+// imperative dialog — so there we show a pressable field and mount <DateTimePicker> only while
+// the dialog should be open. This (not two bare TextInputs expecting a typed "2026-09-15") is
+// what was actually broken before: typing a valid date/time string by hand isn't a reasonable ask.
+function PickerField({
+  label, value, mode, onChange,
+}: { label?: string; value: Date; mode: 'date' | 'time'; onChange: (d: Date) => void }) {
+  const { colors, radii } = useTheme();
+  const [open, setOpen] = useState(false);
+  const text = mode === 'date'
+    ? value.toLocaleDateString()
+    : value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  if (Platform.OS === 'ios') {
+    return (
+      <View style={{ gap: 6, flex: 1 }}>
+        {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
+        <View style={{ alignItems: 'flex-start' }}>
+          <DateTimePicker value={value} mode={mode} display="compact" onChange={(_, d) => d && onChange(d)} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ gap: 6, flex: 1 }}>
+      {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
+      <Pressable
+        onPress={() => setOpen(true)}
+        style={{
+          borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
+          padding: 12, backgroundColor: colors.card,
+        }}>
+        <Text>{text}</Text>
+      </Pressable>
+      {open ? (
+        <DateTimePicker
+          value={value}
+          mode={mode}
+          display="default"
+          onChange={(event, d) => {
+            setOpen(false);
+            if (event.type === 'set' && d) onChange(d);
+          }}
+        />
+      ) : null}
+    </View>
+  );
+}
+
 function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { colors, radii, spacing } = useTheme();
+  const { spacing } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const reps = useReps();
@@ -31,15 +95,17 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
   const createVisit = useCreateVisit();
   const [repId, setRepId] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const [date, setDate] = useState(todayIso());
-  const [time, setTime] = useState('');
+  const [date, setDate] = useState(() => new Date());
+  const [timeEnabled, setTimeEnabled] = useState(false);
+  const [time, setTime] = useState(() => new Date());
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
     setRepId('');
     setCustomerId('');
-    setDate(todayIso());
-    setTime('');
+    setDate(new Date());
+    setTimeEnabled(false);
+    setTime(new Date());
     setError(null);
   };
 
@@ -47,7 +113,12 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
     if (!repId || !customerId) return;
     setError(null);
     createVisit.mutate(
-      { repId: Number(repId), customerId: Number(customerId), date, scheduledTime: time || undefined },
+      {
+        repId: Number(repId),
+        customerId: Number(customerId),
+        date: toIsoDate(date),
+        scheduledTime: timeEnabled ? toHHMM(time) : undefined,
+      },
       {
         onSuccess: () => {
           reset();
@@ -57,22 +128,6 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
       },
     );
   };
-
-  const field = (label: string, value: string, onChange: (v: string) => void, placeholder: string) => (
-    <View style={{ gap: 6, flex: 1 }}>
-      <Text variant="captionSemi" tone="muted">{label}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textFaint}
-        style={{
-          borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
-          padding: 12, fontSize: 15, color: colors.text, backgroundColor: colors.card,
-        }}
-      />
-    </View>
-  );
 
   return (
     <Sheet
@@ -101,9 +156,18 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
         />
       </View>
 
-      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 12 }}>
-        {field(t('assignVisit.dateLabel'), date, setDate, '2026-09-15')}
-        {field(t('assignVisit.timeLabel'), time, setTime, '14:00')}
+      <PickerField label={t('assignVisit.dateLabel')} mode="date" value={date} onChange={setDate} />
+
+      <View style={{ gap: 6 }}>
+        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text variant="captionSemi" tone="muted">{t('assignVisit.timeLabel')}</Text>
+          <Pressable onPress={() => setTimeEnabled((v) => !v)} hitSlop={8}>
+            <Text variant="caption" tone="primary">
+              {timeEnabled ? t('assignVisit.removeTime') : t('assignVisit.addTime')}
+            </Text>
+          </Pressable>
+        </View>
+        {timeEnabled ? <PickerField mode="time" value={time} onChange={setTime} /> : null}
       </View>
 
       {error ? <Text tone="danger" variant="caption">{error}</Text> : null}
@@ -121,25 +185,38 @@ function AssignVisitSheet({ visible, onClose }: { visible: boolean; onClose: () 
 }
 
 export default function ManagerTeam() {
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, radii } = useTheme();
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const insets = useSafeAreaInsets();
   const profile = useProfile();
+  const reps = useReps();
   const visits = useVisits({});
   const activityLog = useActivityLog();
   const unreadCount = (activityLog.data ?? []).filter((i) => !i.read).length;
   const [filter, setFilter] = useState<StatFilter>('all');
+  const [repFilter, setRepFilter] = useState<'all' | number>('all');
   const [assignOpen, setAssignOpen] = useState(false);
 
   const today = todayIso();
   const allSorted = [...(visits.data?.items ?? [])].sort((a, b) =>
     `${a.date ?? ''}${a.scheduledTime ?? ''}`.localeCompare(`${b.date ?? ''}${b.scheduledTime ?? ''}`),
   );
-  const todays = allSorted.filter((v) => (v.date ?? today) === today);
+  const todayVisits = allSorted.filter((v) => (v.date ?? today) === today);
+
+  // Who's on the team and how their day is going — the hierarchy view the manager needs, folded
+  // into Home instead of a separate screen since it's also the most useful thing to filter the
+  // schedule by. Tapping a rep narrows everything below (stat cards + schedule) to just them.
+  const repStats = (reps.data?.items ?? []).map((r) => {
+    const mine = todayVisits.filter((v) => v.repId === r.id);
+    return { rep: r, total: mine.length, done: mine.filter((v) => v.status === 'done').length };
+  });
+
+  const repFiltered = repFilter === 'all' ? allSorted : allSorted.filter((v) => v.repId === repFilter);
+  const todays = repFiltered.filter((v) => (v.date ?? today) === today);
   const remaining = todays.filter((v) => v.status === 'planned');
   const done = todays.filter((v) => v.status === 'done');
-  const items = filter === 'all' ? allSorted : filter === 'planned' ? allSorted.filter((v) => v.status === 'planned') : allSorted.filter((v) => v.status === 'done');
+  const items = filter === 'all' ? repFiltered : filter === 'planned' ? repFiltered.filter((v) => v.status === 'planned') : repFiltered.filter((v) => v.status === 'done');
 
   const loading = visits.isLoading;
   const refreshing = visits.isRefetching || profile.isRefetching;
@@ -181,6 +258,30 @@ export default function ManagerTeam() {
                   <CountBadge count={unreadCount} />
                 </View>
               </Pressable>
+            </View>
+
+            <SectionHeader title={t('manager.myTeam')} />
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+              {repStats.map(({ rep, total, done: repDone }) => {
+                const active = repFilter === rep.id;
+                return (
+                  <Pressable
+                    key={rep.id}
+                    onPress={() => setRepFilter(active ? 'all' : rep.id)}
+                    style={{
+                      flexGrow: 1, minWidth: 140,
+                      borderWidth: 1,
+                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.primaryTint : colors.card,
+                      borderRadius: radii.lg,
+                      padding: spacing.md,
+                      gap: 2,
+                    }}>
+                    <Text variant="captionSemi">{rep.name}</Text>
+                    <Text variant="caption" tone="muted">{t('manager.repToday', { done: repDone, total })}</Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
             <StatRow>

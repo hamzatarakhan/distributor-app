@@ -35,6 +35,8 @@
     "customerLabel": "Customer",
     "dateLabel": "Date",
     "timeLabel": "Time (optional)",
+    "addTime": "Add time",
+    "removeTime": "Remove time",
     "submit": "Create visit"
   },
   "manager": {
@@ -42,7 +44,10 @@
     "tabWarehouse": "Warehouse",
     "teamSubtitle": "Team schedule · {{date}}",
     "statToday": "Today",
-    "scheduleTitle": "Schedule"
+    "scheduleTitle": "Schedule",
+    "myTeam": "My team",
+    "repToday": "{{done}}/{{total}} today",
+    "allReps": "All reps"
   },
   "warehouse": {
     "hint": "Central stock — issue it to a rep's van from here.",

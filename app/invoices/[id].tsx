@@ -6,6 +6,7 @@ import { InvoiceApi } from '@/src/api/resources';
 import {
   Badge, Button, Card, DetailRow, Divider, Money, Screen, Text,
 } from '@/src/components';
+import { useAuth } from '@/src/auth/AuthContext';
 import { useInvoice } from '@/src/hooks/data';
 import { invoiceStatusKey, invoiceStatusTone, isOverdue } from '@/src/lib/status';
 import { useLocale } from '@/src/i18n/LocaleProvider';
@@ -19,6 +20,7 @@ export default function InvoiceDetail() {
   const { t } = useTranslation();
   const { isRTL } = useLocale();
   const { phase } = usePhase();
+  const { session } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useInvoice(invoiceId);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [printBusy, setPrintBusy] = useState(false);
@@ -70,6 +72,9 @@ export default function InvoiceDetail() {
           <Text tone="muted">{data.customerName}</Text>
 
           <Card>
+            {session?.role === 'manager' && data.repName ? (
+              <DetailRow label={t('assignVisit.repLabel')} value={data.repName} />
+            ) : null}
             <DetailRow label={t('invoiceDetail.invoiceDate')} value={data.invoiceDate} />
             <DetailRow
               label={t('invoiceDetail.dueDate')}

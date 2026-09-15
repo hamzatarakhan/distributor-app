@@ -68,6 +68,7 @@ export const orders: Order[] = [
   {
     id: 501, reference: 'SO/2026/0501', visitId: 3, customerId: 103, customerName: 'Sunrise Supermarket',
     date: '2026-09-13', status: 'invoiced', currency: 'JOD', invoiceId: 601, hasReturn: false,
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [
       { productId: 1, product: 'Cola 330ml Can (24pk)', uom: 'Case', qty: 10, unitPrice: 22 },
       { productId: 3, product: 'Energy Drink 250ml (12pk)', uom: 'Case', qty: 3, unitPrice: 32 },
@@ -77,18 +78,21 @@ export const orders: Order[] = [
   {
     id: 502, reference: 'SO/2026/0502', customerId: 104, customerName: 'Corner Shop 24/7',
     date: '2026-08-20', status: 'invoiced', currency: 'JOD', invoiceId: 602, hasReturn: false,
+    repId: 2, repName: 'Sami Rep',
     lines: [{ productId: 3, product: 'Energy Drink 250ml (12pk)', uom: 'Case', qty: 3, unitPrice: 32 }],
     total: 96,
   },
   {
     id: 503, reference: 'SO/2026/0503', customerId: 101, customerName: 'الوردة الحمراء',
     date: '2026-08-10', status: 'invoiced', currency: 'JOD', invoiceId: 603, hasReturn: false,
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [{ productId: 1, product: 'Cola 330ml Can (24pk)', uom: 'Case', qty: 20, unitPrice: 24 }],
     total: 480,
   },
   {
     id: 504, reference: 'SO/2026/0504', customerId: 102, customerName: 'Downtown Mini Market',
     date: '2026-09-10', status: 'draft', currency: 'JOD',
+    repId: 2, repName: 'Sami Rep',
     lines: [
       { productId: 2, product: 'Spring Water 1.5L (6pk)', uom: 'Case', qty: 4, unitPrice: 19.5 },
       { productId: 8, product: 'Mineral Water 500ml (12pk)', uom: 'Case', qty: 6, unitPrice: 12 },
@@ -98,12 +102,14 @@ export const orders: Order[] = [
   {
     id: 505, reference: 'SO/2026/0505', customerId: 103, customerName: 'Sunrise Supermarket',
     date: '2026-09-11', status: 'draft', currency: 'JOD',
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [{ productId: 5, product: 'Sparkling Lemonade 330ml (24pk)', uom: 'Case', qty: 8, unitPrice: 24 }],
     total: 192,
   },
   {
     id: 506, reference: 'SO/2026/0506', customerId: 101, customerName: 'الوردة الحمراء',
     date: '2026-09-08', status: 'invoiced', currency: 'JOD', invoiceId: 604, hasReturn: false,
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [
       { productId: 4, product: 'Orange Juice 1L (8pk)', uom: 'Case', qty: 5, unitPrice: 28 },
       { productId: 9, product: 'Mango Nectar 1L (8pk)', uom: 'Case', qty: 3, unitPrice: 29 },
@@ -114,30 +120,34 @@ export const orders: Order[] = [
 
 export const invoices: Invoice[] = [
   {
-    id: 601, number: 'INV/2026/0231', orderId: 501, customerName: 'Sunrise Supermarket',
+    id: 601, number: 'INV/2026/0231', orderId: 501, customerId: 103, customerName: 'Sunrise Supermarket',
     invoiceDate: '2026-09-13', dueDate: '2026-09-28', currency: 'JOD',
     amountUntaxed: 316, amountTax: 50.56, amountTotal: 366.56, amountDue: 366.56, status: 'not_paid',
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [
       { id: 1, description: 'Cola 330ml Can (24pk)', qty: 10, unitPrice: 22, subtotal: 220 },
       { id: 2, description: 'Energy Drink 250ml (12pk)', qty: 3, unitPrice: 32, subtotal: 96 },
     ],
   },
   {
-    id: 602, number: 'INV/2026/0219', orderId: 502, customerName: 'Corner Shop 24/7',
+    id: 602, number: 'INV/2026/0219', orderId: 502, customerId: 104, customerName: 'Corner Shop 24/7',
     invoiceDate: '2026-08-20', dueDate: '2026-09-04', currency: 'JOD',
     amountUntaxed: 96, amountTax: 15.36, amountTotal: 111.36, amountDue: 111.36, status: 'not_paid',
+    repId: 2, repName: 'Sami Rep',
     lines: [{ id: 3, description: 'Energy Drink 250ml (12pk)', qty: 3, unitPrice: 32, subtotal: 96 }],
   },
   {
-    id: 603, number: 'INV/2026/0208', orderId: 503, customerName: 'الوردة الحمراء',
+    id: 603, number: 'INV/2026/0208', orderId: 503, customerId: 101, customerName: 'الوردة الحمراء',
     invoiceDate: '2026-08-10', dueDate: '2026-08-25', currency: 'JOD',
     amountUntaxed: 480, amountTax: 76.8, amountTotal: 556.8, amountDue: 0, status: 'paid',
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [{ id: 4, description: 'Cola 330ml Can (24pk)', qty: 20, unitPrice: 24, subtotal: 480 }],
   },
   {
-    id: 604, number: 'INV/2026/0244', orderId: 506, customerName: 'الوردة الحمراء',
+    id: 604, number: 'INV/2026/0244', orderId: 506, customerId: 101, customerName: 'الوردة الحمراء',
     invoiceDate: '2026-09-08', dueDate: '2026-09-23', currency: 'JOD',
     amountUntaxed: 227, amountTax: 36.32, amountTotal: 263.32, amountDue: 263.32, status: 'not_paid',
+    repId: 1, repName: 'Hamza Tarakhan',
     lines: [
       { id: 5, description: 'Orange Juice 1L (8pk)', qty: 5, unitPrice: 28, subtotal: 140 },
       { id: 6, description: 'Mango Nectar 1L (8pk)', qty: 3, unitPrice: 29, subtotal: 87 },

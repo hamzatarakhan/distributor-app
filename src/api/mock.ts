@@ -168,6 +168,9 @@ export const mockTransport: Transport = {
       case 'order.create': {
         const lines = (params.lines as OrderLine[]) ?? [];
         const total = orderTotal(lines);
+        // The order is built by whichever rep is signed in — __role/__repId come from the active
+        // session (see api/index.ts), same as the visit.list scoping above.
+        const rep = fx.reps.find((r) => r.id === params.__repId);
         const order: Order = {
           id: nextOrderId++,
           reference: `SO/2026/${String(500 + nextOrderId).padStart(4, '0')}`,
@@ -179,6 +182,8 @@ export const mockTransport: Transport = {
           currency: 'JOD',
           lines,
           total,
+          repId: rep?.id,
+          repName: rep?.name,
         };
         orders = [order, ...orders];
         if (params.visitId) {
@@ -198,6 +203,7 @@ export const mockTransport: Transport = {
           id: nextInvoiceId++,
           number: `INV/2026/${String(200 + nextInvoiceId).padStart(4, '0')}`,
           orderId: order.id,
+          customerId: order.customerId,
           customerName: order.customerName,
           invoiceDate: order.date,
           dueDate: order.date,
@@ -207,6 +213,8 @@ export const mockTransport: Transport = {
           amountTotal: Math.round(order.total * 1.16 * 100) / 100,
           amountDue: Math.round(order.total * 1.16 * 100) / 100,
           status: 'not_paid',
+          repId: order.repId,
+          repName: order.repName,
           lines: order.lines.map((l, i) => ({
             id: i + 1,
             description: l.discountPercent ? `${l.product} (-${l.discountPercent}%)` : l.product,

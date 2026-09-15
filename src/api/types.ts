@@ -103,6 +103,10 @@ export type Order = {
   invoiceId?: number;
   hasReturn?: boolean;
   signature?: string[]; // SVG path strings — Phase 2 proof-of-delivery, captured at confirm time
+  // Which rep placed it — set from the rep's own session at create time. Surfaced only in the
+  // manager's Orders screens; a rep already knows it was them.
+  repId?: number;
+  repName?: string;
 };
 
 // ---- Returns ----
@@ -135,6 +139,7 @@ export type Invoice = {
   id: number;
   number: string;
   orderId?: number;
+  customerId?: number;
   customerName: string;
   invoiceDate: string;
   dueDate?: string;
@@ -147,6 +152,9 @@ export type Invoice = {
   lines?: InvoiceLine[];
   pdfUrl?: string;
   payments?: Payment[];
+  // Carried over from the order it was created from — same manager-only purpose as Order.repId.
+  repId?: number;
+  repName?: string;
 };
 
 export type Profile = {
