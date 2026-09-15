@@ -127,14 +127,16 @@ sibling top-level `expo-router` groups, each with its own 5-tab navigator, gated
   either); each row opens `team/[id]`, which shows that one rep's today's visits
   plus orders/invoices totals — all derived from data already scoped by `repId`
   (`visit.list`, and `Order`/`Invoice.repId`), no invented profile fields.
-- Date/time picker (`PickerField` in `app/(manager)/index.tsx`): iOS uses the
-  native `display="compact"` control inline. Android has no inline mode — mounting
-  `<DateTimePicker>` conditionally inside a scrolling `Sheet` rendered as a broken
-  inline spinner overlapping other content, so Android instead calls the
-  imperative `DateTimePickerAndroid.open()` (a pressable field triggers it), which
-  pops the native dialog with nothing mounted in the tree to misposition. If a
-  future date/time field needs this again, reuse `PickerField` rather than going
-  back to a bare `TextInput` expecting a typed date string.
+- Date/time picker (`PickerField` in `app/(manager)/index.tsx`): neither platform
+  mounts `<DateTimePicker>` inline inside the field's own spot in the `Sheet` —
+  that's what broke twice (Android's picker has no inline mode at all; iOS's
+  `display="compact"` doesn't report its real size to the flex layout either way,
+  both rendered as a floating pill overlapping the row below). A pressable field
+  opens the picker in its own top-level overlay instead: Android via the
+  imperative `DateTimePickerAndroid.open()` (native OS dialog), iOS via a small
+  bottom `Modal` with `display="spinner"` + a Done button (mirrors this app's own
+  `Sheet` look). Reuse `PickerField` for any future date/time input rather than a
+  bare `TextInput` expecting a typed date string, or a picker mounted inline.
 - `app/(manager)/orders.tsx` and `invoices.tsx` are their own screens (not re-exports
   of the rep tabs): same list queries, plus a rep filter chip row and `repName` (who
   placed/collected it) alongside the customer on every row — what a manager actually

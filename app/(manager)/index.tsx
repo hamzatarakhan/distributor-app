@@ -1,7 +1,7 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Modal, Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
@@ -35,50 +35,80 @@ function toHHMM(d: Date) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// A single date/time picker field. iOS renders its native "compact" control inline (tap opens a
-// popover). Android has no inline mode at all — mounting <DateTimePicker> conditionally inside a
-// scrolling Sheet is exactly what rendered as a broken inline spinner overlapping other content;
-// the library's own docs call this out and recommend the imperative DateTimePickerAndroid.open()
-// instead, which pops the native dialog itself with no JSX mounted in our tree to misposition.
+// A single date/time picker field. Neither platform gets a picker mounted inline in our own
+// layout — that's what actually broke both times: iOS's "compact" control doesn't report its
+// real size to the flex layout and rendered as a floating pill overlapping the row below it;
+// Android's picker has no inline mode at all and rendering it inline produced the same kind of
+// overlap. So both platforms now open the picker in its own top-level overlay, fully decoupled
+// from this field's position in the Sheet: Android via the library's own imperative
+// DateTimePickerAndroid.open() (a native OS dialog), iOS via a small bottom Modal with a spinner
+// and a Done button (mirrors this app's own Sheet component, so it looks native to the app too).
 function PickerField({
   label, value, mode, onChange,
 }: { label?: string; value: Date; mode: 'date' | 'time'; onChange: (d: Date) => void }) {
-  const { colors, radii } = useTheme();
+  const { colors, radii, spacing } = useTheme();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(value);
   const text = mode === 'date'
     ? value.toLocaleDateString()
     : value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  if (Platform.OS === 'ios') {
-    return (
-      <View style={{ gap: 6, flex: 1 }}>
-        {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
-        <View style={{ alignItems: 'flex-start' }}>
-          <DateTimePicker value={value} mode={mode} display="compact" onChange={(_, d) => d && onChange(d)} />
-        </View>
-      </View>
-    );
-  }
+  const openPicker = () => {
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value,
+        mode,
+        display: 'default',
+        onChange: (event, d) => {
+          if (event.type === 'set' && d) onChange(d);
+        },
+      });
+      return;
+    }
+    setDraft(value);
+    setOpen(true);
+  };
 
   return (
     <View style={{ gap: 6, flex: 1 }}>
       {label ? <Text variant="captionSemi" tone="muted">{label}</Text> : null}
       <Pressable
-        onPress={() =>
-          DateTimePickerAndroid.open({
-            value,
-            mode,
-            display: 'default',
-            onChange: (event, d) => {
-              if (event.type === 'set' && d) onChange(d);
-            },
-          })
-        }
+        onPress={openPicker}
         style={{
           borderWidth: 1, borderColor: colors.border, borderRadius: radii.md,
           padding: 12, backgroundColor: colors.card,
         }}>
         <Text>{text}</Text>
       </Pressable>
+
+      {Platform.OS === 'ios' ? (
+        <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+          <Pressable
+            onPress={() => setOpen(false)}
+            style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }}>
+            <Pressable
+              onPress={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: colors.background,
+                borderTopLeftRadius: radii.lg,
+                borderTopRightRadius: radii.lg,
+                padding: spacing.lg,
+                gap: spacing.md,
+              }}>
+              <DateTimePicker value={draft} mode={mode} display="spinner" onChange={(_, d) => d && setDraft(d)} />
+              <Button
+                title={t('common.done')}
+                onPress={() => {
+                  onChange(draft);
+                  setOpen(false);
+                }}
+                fullWidth
+              />
+            </Pressable>
+          </Pressable>
+        </Modal>
+      ) : null}
     </View>
   );
 }
