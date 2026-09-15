@@ -50,9 +50,12 @@ function PickerField({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
-  const text = mode === 'date'
-    ? value.toLocaleDateString()
-    : value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // Not toLocaleDateString()/toLocaleTimeString() with no explicit locale — that "use the
+  // device's default locale" resolution is exactly what silently broke this field: Hermes on
+  // some devices can't resolve a default locale and returns garbage/empty text instead of
+  // throwing, so nothing shows. The manual pad-based formatters below (also what actually gets
+  // submitted) need no Intl/ICU data at all.
+  const text = mode === 'date' ? toIsoDate(value) : toHHMM(value);
 
   const openPicker = () => {
     if (Platform.OS === 'android') {

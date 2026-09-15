@@ -8,11 +8,13 @@ import { OrderApi } from '@/src/api/resources';
 import { logActivity } from '@/src/lib/activityLog';
 import { getQueue, removeFromQueue, type QueuedOrder } from '@/src/lib/offlineQueue';
 import { useIsOnline } from '@/src/lib/useOnline';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { useTheme } from '@/src/theme/ThemeProvider';
 
 export default function SyncQueue() {
   const { spacing } = useTheme();
   const { t } = useTranslation();
+  const { isRTL } = useLocale();
   const online = useIsOnline();
   const qc = useQueryClient();
   const [queue, setQueue] = useState<QueuedOrder[]>([]);
@@ -65,7 +67,9 @@ export default function SyncQueue() {
           <Card key={item.id}>
             <Text variant="title">{item.payload.customerName}</Text>
             <Text variant="caption" tone="muted">
-              {t('syncQueue.lineCount', { count: item.payload.lines.length })} · {new Date(item.createdAt).toLocaleString()}
+              {/* No-locale-arg toLocaleString() is the same bug that broke the manager's date/time
+                  picker text — Hermes' default-locale resolution is unreliable on-device. */}
+              {t('syncQueue.lineCount', { count: item.payload.lines.length })} · {new Date(item.createdAt).toLocaleString(isRTL ? 'ar' : 'en-US')}
             </Text>
             {errors[item.id] ? <Text variant="caption" tone="danger">{errors[item.id]}</Text> : null}
             <Button
