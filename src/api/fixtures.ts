@@ -35,10 +35,22 @@ export const customers: Customer[] = [
   { id: 102, name: 'Downtown Mini Market', currency: 'JOD', creditLimit: 300, balance: 280 },
   { id: 103, name: 'Sunrise Supermarket', currency: 'JOD', creditLimit: 1000, balance: 366.56 },
   { id: 104, name: 'Corner Shop 24/7', currency: 'JOD', creditLimit: 200, balance: 111.36 },
+  { id: 105, name: 'Al-Fajr Grocery', currency: 'JOD', creditLimit: 250, balance: 40 },
+  { id: 106, name: 'Golden Star Market', currency: 'JOD', creditLimit: 400, balance: 0 },
+  { id: 107, name: 'Al-Manara Supermarket', currency: 'JOD', creditLimit: 600, balance: 95.5 },
+  { id: 108, name: 'Nabulsi Sweets & Grocery', currency: 'JOD', creditLimit: 350, balance: 150 },
+  { id: 109, name: 'City Center Mart', currency: 'JOD', creditLimit: 300, balance: 60 },
+  { id: 110, name: 'Al-Rawda Store', currency: 'JOD', creditLimit: 200, balance: 0 },
+  { id: 111, name: 'Petra Mini Mart', currency: 'JOD', creditLimit: 250, balance: 30 },
+  { id: 112, name: 'Al-Salam Grocery', currency: 'JOD', creditLimit: 300, balance: 75 },
+  { id: 113, name: 'Blue Ocean Market', currency: 'JOD', creditLimit: 450, balance: 0 },
+  { id: 114, name: 'Al-Ameed Supermarket', currency: 'JOD', creditLimit: 500, balance: 220 },
 ];
 
 // "Al-Warda Al-Hamra" is the client's own example customer from the requirements call.
-const TODAY = '2026-09-15';
+// Derived, not a literal — a hardcoded date goes stale the moment the calendar turns over, and
+// rep sessions only ever see visits scoped to *today* (mock.ts visit.list).
+const TODAY = new Date().toISOString().slice(0, 10);
 
 export const visits: Visit[] = [
   {
@@ -61,6 +73,57 @@ export const visits: Visit[] = [
     city: 'Zarqa', phone: '+962 79 777 8888', date: TODAY, scheduledTime: '13:30', status: 'done',
     outcome: 'no_sale', note: 'Overstocked, will check back next week.', geoLat: 32.0728, geoLng: 36.0876,
     repId: 2, repName: 'Sami Rep',
+  },
+  {
+    id: 5, customerId: 105, customerName: 'Al-Fajr Grocery', address: '21 Wasfi Al-Tal St',
+    city: 'Amman', phone: '+962 79 222 1111', date: TODAY, scheduledTime: '08:30', status: 'planned',
+    geoLat: 31.9789, geoLng: 35.8734, repId: 1, repName: 'Hamza Tarakhan',
+  },
+  {
+    id: 6, customerId: 106, customerName: 'Golden Star Market', address: '9 Al-Madina St',
+    city: 'Amman', phone: '+962 79 222 3333', date: TODAY, scheduledTime: '09:15', status: 'planned',
+    geoLat: 31.9701, geoLng: 35.9284, repId: 2, repName: 'Sami Rep',
+  },
+  {
+    id: 7, customerId: 107, customerName: 'Al-Manara Supermarket', address: '47 Abdoun Circle',
+    city: 'Amman', phone: '+962 78 444 5555', date: TODAY, scheduledTime: '10:00', status: 'planned',
+    geoLat: 31.9436, geoLng: 35.8663, repId: 1, repName: 'Hamza Tarakhan',
+  },
+  {
+    id: 8, customerId: 108, customerName: 'Nabulsi Sweets & Grocery', address: '15 Al-Rainbow St',
+    city: 'Amman', phone: '+962 79 555 7777', date: TODAY, scheduledTime: '11:00', status: 'done',
+    outcome: 'no_sale', note: 'Owner not available, will retry tomorrow.', geoLat: 31.9515, geoLng: 35.9187,
+    repId: 2, repName: 'Sami Rep',
+  },
+  {
+    id: 9, customerId: 109, customerName: 'City Center Mart', address: '2 King Talal St',
+    city: 'Zarqa', phone: '+962 79 666 8888', date: TODAY, scheduledTime: '11:45', status: 'planned',
+    geoLat: 32.0754, geoLng: 36.0898, repId: 1, repName: 'Hamza Tarakhan',
+  },
+  {
+    id: 10, customerId: 110, customerName: 'Al-Rawda Store', address: '30 Al-Rawda St',
+    city: 'Amman', phone: '+962 78 111 9999', date: TODAY, scheduledTime: '14:00', status: 'planned',
+    geoLat: 31.9612, geoLng: 35.9481, repId: 2, repName: 'Sami Rep',
+  },
+  {
+    id: 11, customerId: 111, customerName: 'Petra Mini Mart', address: '6 Al-Sharif Nasser St',
+    city: 'Amman', phone: '+962 79 333 2222', date: TODAY, scheduledTime: '15:00', status: 'planned',
+    geoLat: 31.9385, geoLng: 35.9256, repId: 1, repName: 'Hamza Tarakhan',
+  },
+  {
+    id: 12, customerId: 112, customerName: 'Al-Salam Grocery', address: '11 Al-Jamaa St',
+    city: 'Zarqa', phone: '+962 79 444 6666', date: TODAY, scheduledTime: '15:45', status: 'planned',
+    geoLat: 32.0691, geoLng: 36.0952, repId: 2, repName: 'Sami Rep',
+  },
+  {
+    id: 13, customerId: 113, customerName: 'Blue Ocean Market', address: '18 Mecca St',
+    city: 'Amman', phone: '+962 78 777 4444', date: TODAY, scheduledTime: '16:30', status: 'planned',
+    geoLat: 31.9553, geoLng: 35.8811, repId: 1, repName: 'Hamza Tarakhan',
+  },
+  {
+    id: 14, customerId: 114, customerName: 'Al-Ameed Supermarket', address: '4 Queen Rania St',
+    city: 'Amman', phone: '+962 79 888 3333', date: TODAY, scheduledTime: '17:15', status: 'planned',
+    geoLat: 31.9821, geoLng: 35.9109, repId: 1, repName: 'Hamza Tarakhan',
   },
 ];
 
