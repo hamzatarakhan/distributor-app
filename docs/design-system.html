@@ -1,0 +1,738 @@
+<title>Sales Rep Design System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --surface-alt: #F1F3F5;
+    --border: #E3E6EA;
+    --text: #11181C;
+    --text-muted: #5B636B;
+    --text-faint: #8A929A;
+    --accent: #0A6EBD;
+    --accent-tint: rgba(10,110,189,0.10);
+    --accent-border: rgba(10,110,189,0.22);
+    --on-accent: #FFFFFF;
+    --success: #0F9D58; --success-tint: rgba(15,157,88,0.12);
+    --warning: #E8A100; --warning-tint: rgba(232,161,0,0.14);
+    --danger:  #D7263D; --danger-tint:  rgba(215,38,61,0.12);
+    --info:    #2F80ED; --info-tint:    rgba(47,128,237,0.12);
+    --special: #8B5CF6; --special-tint: rgba(139,92,246,0.12);
+    --code-bg: #EEF1F4;
+    --shadow: 0 1px 2px rgba(17,24,28,0.04), 0 8px 24px rgba(17,24,28,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1113;
+      --surface: #181C1F;
+      --surface-alt: #20262A;
+      --border: #2A3136;
+      --text: #ECEDEE;
+      --text-muted: #A0A8AE;
+      --text-faint: #727B81;
+      --accent: #3B9EE5;
+      --accent-tint: rgba(59,158,229,0.16);
+      --accent-border: rgba(59,158,229,0.30);
+      --on-accent: #0B1013;
+      --success: #3DD68C; --success-tint: rgba(61,214,140,0.15);
+      --warning: #F2C04D; --warning-tint: rgba(242,192,77,0.15);
+      --danger:  #FF6B7D; --danger-tint:  rgba(255,107,125,0.15);
+      --info:    #5AA2F5; --info-tint:    rgba(90,162,245,0.15);
+      --special: #A78BFA; --special-tint: rgba(167,139,250,0.16);
+      --code-bg: #1E2327;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1113; --surface: #181C1F; --surface-alt: #20262A; --border: #2A3136;
+    --text: #ECEDEE; --text-muted: #A0A8AE; --text-faint: #727B81;
+    --accent: #3B9EE5; --accent-tint: rgba(59,158,229,0.16); --accent-border: rgba(59,158,229,0.30);
+    --on-accent: #0B1013;
+    --success: #3DD68C; --success-tint: rgba(61,214,140,0.15);
+    --warning: #F2C04D; --warning-tint: rgba(242,192,77,0.15);
+    --danger:  #FF6B7D; --danger-tint:  rgba(255,107,125,0.15);
+    --info:    #5AA2F5; --info-tint:    rgba(90,162,245,0.15);
+    --special: #A78BFA; --special-tint: rgba(167,139,250,0.16);
+    --code-bg: #1E2327;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  h1, h2, h3 { font-family: "Sora", "IBM Plex Sans", sans-serif; text-wrap: balance; margin: 0; }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  a { color: var(--accent); }
+  ::selection { background: var(--accent-tint); }
+
+  .shell { display: grid; grid-template-columns: 240px 1fr; max-width: 1180px; margin: 0 auto; }
+  .sidebar {
+    position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+    padding: 28px 16px 28px 24px; border-right: 1px solid var(--border);
+  }
+  .sidebar .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+  .brand .chip {
+    width: 30px; height: 30px; border-radius: 9px; background: var(--accent-tint);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .brand .chip svg { width: 16px; height: 16px; }
+  .brand strong { font-family: "Sora"; font-size: 14.5px; font-weight: 700; display: block; }
+  .brand span { font-size: 11.5px; color: var(--text-faint); }
+  nav.toc { display: flex; flex-direction: column; gap: 1px; }
+  nav.toc a {
+    text-decoration: none; color: var(--text-muted); font-size: 13.5px; font-weight: 500;
+    padding: 7px 10px; border-radius: 8px; transition: background .12s, color .12s;
+  }
+  nav.toc a:hover { background: var(--surface-alt); color: var(--text); }
+  nav.toc a.active { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+  nav.toc .group-label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-faint);
+    margin: 16px 10px 6px; font-weight: 600;
+  }
+  nav.toc .group-label:first-child { margin-top: 0; }
+
+  main { padding: 40px 40px 120px; min-width: 0; }
+  .lede { max-width: 640px; margin-bottom: 44px; }
+  .lede .kicker {
+    font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .lede h1 { font-size: 32px; font-weight: 800; letter-spacing: -.01em; margin-bottom: 10px; }
+  .lede p { color: var(--text-muted); font-size: 15.5px; }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 21px; font-weight: 700; padding-bottom: 12px; margin-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  section h2 .num { color: var(--text-faint); font-weight: 500; margin-right: 8px; font-family: "IBM Plex Mono"; font-size: 15px; }
+  .section-note { color: var(--text-muted); font-size: 14px; margin: -10px 0 20px; max-width: 640px; }
+
+  .rule {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; margin: 14px 0;
+    font-size: 13.5px; color: var(--text-muted);
+  }
+  .rule b { color: var(--text); }
+  .rule .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
+
+  /* ---- Color swatches ---- */
+  .theme-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+  .theme-block {
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface);
+  }
+  .theme-block header {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint);
+    border-bottom: 1px solid var(--border);
+  }
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px,1fr)); gap: 0; }
+  .swatch {
+    padding: 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .swatch .sq { width: 100%; height: 38px; border-radius: 9px; margin-bottom: 8px; border: 1px solid rgba(0,0,0,.06); }
+  .swatch .name { font-size: 12px; font-weight: 600; }
+  .swatch .val { font-size: 10.5px; color: var(--text-faint); word-break: break-all; }
+
+  /* Fixed literal-value light theme block (always renders light regardless of page theme) */
+  .fixed-light { background: #FFFFFF; border-color: #E3E6EA; }
+  .fixed-light header { color: #8A929A; border-color: #E3E6EA; }
+  .fixed-light .swatch { border-color: #E3E6EA; }
+  .fixed-light .name { color: #11181C; }
+  .fixed-light .val { color: #8A929A; }
+  .fixed-dark { background: #181C1F; border-color: #2A3136; }
+  .fixed-dark header { color: #727B81; border-color: #2A3136; }
+  .fixed-dark .swatch { border-color: #2A3136; }
+  .fixed-dark .name { color: #ECEDEE; }
+  .fixed-dark .val { color: #727B81; }
+
+  /* ---- Typography ---- */
+  .type-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+    padding: 16px 0; border-bottom: 1px solid var(--border);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-sample { flex: 1; min-width: 0; }
+  .type-meta { font-family: "IBM Plex Mono"; font-size: 11.5px; color: var(--text-faint); white-space: nowrap; text-align: right; }
+  .type-meta div + div { margin-top: 2px; }
+
+  /* ---- Spacing / radii ---- */
+  .scale-row { display: flex; align-items: center; gap: 16px; padding: 9px 0; }
+  .scale-row .bar { background: var(--accent); border-radius: 4px; height: 14px; }
+  .scale-row .label { font-family: "IBM Plex Mono"; font-size: 12.5px; width: 140px; color: var(--text-muted); flex-shrink: 0; }
+  .radii-row { display: flex; gap: 22px; flex-wrap: wrap; }
+  .radii-item { text-align: center; }
+  .radii-item .box {
+    width: 64px; height: 64px; background: var(--accent-tint); border: 1.5px solid var(--accent-border);
+    margin-bottom: 8px;
+  }
+  .radii-item .label { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--text-muted); }
+
+  /* ---- Tone vocabulary ---- */
+  .tone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 12px; }
+  .tone-card {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: var(--surface);
+  }
+  .tone-pill {
+    display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 8px;
+    font-size: 12.5px; font-weight: 600; margin-bottom: 10px;
+  }
+  .tone-card .use { font-size: 12px; color: var(--text-muted); }
+
+  /* ---- Component preview shell ---- */
+  .comp { margin-bottom: 30px; }
+  .comp-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+  .comp-head h3 { font-size: 15.5px; font-weight: 700; }
+  .comp-head .file { font-family: "IBM Plex Mono"; font-size: 11.5px; color: var(--text-faint); }
+  .comp-stage {
+    background: var(--surface-alt); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  }
+  .comp-note { font-size: 12.5px; color: var(--text-muted); margin-top: 9px; }
+  .comp-note code { background: var(--code-bg); padding: 1px 5px; border-radius: 5px; font-size: 11.5px; }
+
+  /* ---- Mock UI atoms (mirroring the RN components) ---- */
+  .m-btn {
+    border-radius: 999px; padding: 12px 22px; font-weight: 600; font-size: 14.5px;
+    border: none; cursor: default; display: inline-flex; align-items: center; gap: 8px;
+    font-family: "IBM Plex Sans";
+  }
+  .m-btn.primary { background: var(--accent); color: var(--on-accent); }
+  .m-btn.secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--border); }
+  .m-btn.ghost { background: transparent; color: var(--accent); }
+  .m-btn.danger { background: var(--danger); color: #fff; }
+  .m-btn.disabled { opacity: .5; }
+
+  .m-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; min-width: 220px;
+  }
+  .m-row {
+    display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; min-width: 260px;
+  }
+  .m-row.selected { background: var(--accent-tint); border-color: var(--accent-border); border-width: .5px; }
+  .m-row .icon-badge { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .m-row .title { font-weight: 600; font-size: 15px; }
+  .m-row .title.sel { color: var(--accent); }
+  .m-row .subtitle { font-size: 12.5px; color: var(--text-muted); }
+  .m-row .chev { color: var(--text-faint); margin-left: auto; }
+
+  .m-badge { display: inline-flex; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+  .m-icon-badge { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .m-chip {
+    padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-muted);
+  }
+  .m-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .m-search {
+    display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px; min-width: 240px; color: var(--text-faint); font-size: 14px;
+  }
+  .m-stepper { display: flex; align-items: center; gap: 8px; }
+  .m-stepper button {
+    width: 34px; height: 34px; border-radius: 8px; border: none; background: var(--surface-alt);
+    color: var(--text); font-size: 16px; font-weight: 600;
+  }
+  .m-stepper .val { min-width: 30px; text-align: center; font-weight: 600; }
+  .m-money { font-weight: 600; font-family: "IBM Plex Sans"; }
+  .m-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .m-detail-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 13.5px; }
+  .m-detail-row .l { color: var(--text-muted); }
+  .m-detail-row .v { font-weight: 600; }
+  .m-section-header { font-family: "Sora"; font-weight: 700; font-size: 16px; margin-top: 8px; }
+  .m-sheet {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0;
+    padding: 20px; width: 100%; max-width: 340px; box-shadow: var(--shadow);
+  }
+  .m-sheet .handle-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .m-count {
+    width: 18px; height: 18px; border-radius: 9px; background: var(--danger); color: #fff;
+    font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700;
+  }
+  .m-stat-row { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 6px; gap: 4px; }
+  .m-stat { flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; }
+  .m-stat.sel { background: var(--accent-tint); }
+  .m-stat .v { font-size: 19px; font-weight: 700; }
+  .m-stat .l { font-size: 11.5px; color: var(--text-muted); }
+  .m-empty { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 13.5px; }
+  .m-empty .ic { font-size: 26px; margin-bottom: 8px; opacity: .5; }
+  .m-error {
+    background: var(--danger-tint); border: 1px solid var(--danger); border-radius: 12px; padding: 14px;
+    max-width: 320px;
+  }
+  .m-error .head { display:flex; align-items:center; gap:8px; color: var(--danger); font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+  .m-error .msg { font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px; }
+  .m-skel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 240px; }
+  .m-skel .bar { background: var(--surface-alt); border-radius: 8px; height: 14px; margin-bottom: 8px; }
+  .m-tab-bar { display: flex; background: var(--surface); border-top: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-width: 320px; }
+  .m-tab { flex: 1; text-align: center; padding: 10px 4px 12px; font-size: 10.5px; font-weight: 600; }
+  .m-tab .dot { width: 20px; height: 20px; border-radius: 6px; margin: 0 auto 4px; }
+
+  table.spec { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.spec th { text-align: left; color: var(--text-faint); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border); }
+  table.spec td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.spec td:first-child { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--accent); white-space: nowrap; }
+  table.spec tr:last-child td { border-bottom: none; }
+
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .checklist li { list-style: none; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+  .checklist input { margin-top: 4px; accent-color: var(--accent); flex-shrink: 0; }
+  .checklist ul { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .checklist b { display: block; }
+  .checklist span.d { color: var(--text-muted); font-size: 12.5px; }
+
+  footer.note {
+    max-width: 640px; font-size: 12.5px; color: var(--text-faint); border-top: 1px solid var(--border);
+    padding-top: 18px; margin-top: 8px;
+  }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 28px 20px 100px; }
+    .theme-pair { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+      </div>
+      <div>
+        <strong>Sales Rep</strong>
+        <span>Design system</span>
+      </div>
+    </div>
+    <nav class="toc">
+      <div class="group-label">Foundations</div>
+      <a href="#overview">Overview</a>
+      <a href="#color">Color tokens</a>
+      <a href="#typography">Typography</a>
+      <a href="#spacing">Spacing &amp; radii</a>
+      <a href="#tone">Tone vocabulary</a>
+      <div class="group-label">Components</div>
+      <a href="#buttons">Buttons</a>
+      <a href="#cards-lists">Cards &amp; lists</a>
+      <a href="#badges-chips">Badges &amp; chips</a>
+      <a href="#inputs">Inputs</a>
+      <a href="#sheets">Sheets &amp; dialogs</a>
+      <a href="#feedback">Feedback states</a>
+      <a href="#stats">Stats &amp; dashboards</a>
+      <div class="group-label">Patterns</div>
+      <a href="#navigation">Navigation chrome</a>
+      <a href="#rtl">RTL &amp; locale</a>
+      <a href="#money">Numbers &amp; money</a>
+      <a href="#checklist">Porting checklist</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="lede">
+      <div class="kicker">Internal reference · extracted from distributor-app</div>
+      <h1>One palette, one set of components, every screen.</h1>
+      <p>This is the complete token set and component vocabulary the Sales Rep app is built from. Copy the tokens verbatim into a new project's theme file, rebuild these same primitives once, then compose every screen from them — that's the whole trick to two apps looking like one family.</p>
+    </div>
+
+    <section id="overview">
+      <h2><span class="num">00</span>Overview</h2>
+      <p class="section-note">The look and feel isn't a stylesheet bolted onto screens — it's an architectural rule, enforced everywhere:</p>
+      <div class="rule"><div class="dot"></div><div><b>Tokens live in one file.</b> <code class="mono">theme/tokens.ts</code> exports <code class="mono">colorsByScheme</code>, <code class="mono">spacing</code>, <code class="mono">radii</code>, <code class="mono">typography</code> — nothing else in the app defines a color, a px value, or a font weight.</div></div>
+      <div class="rule"><div class="dot"></div><div><b>One hook reads them.</b> <code class="mono">useTheme()</code> returns <code class="mono">{ colors, spacing, radii, typography, scheme }</code>, resolved for the active light/dark/system mode. Every component and screen calls this — never <code class="mono">scheme === 'dark' ? … : …</code> inline.</div></div>
+      <div class="rule"><div class="dot"></div><div><b>A small component library sits between tokens and screens.</b> ~20 primitives (this doc) compose the tokens once each. A screen imports <code class="mono">Button</code>, <code class="mono">Card</code>, <code class="mono">ListRow</code> — it never touches a raw <code class="mono">View</code>/<code class="mono">Pressable</code> styled by hand.</div></div>
+      <div class="rule"><div class="dot"></div><div><b>No custom typeface.</b> The system font (San Francisco on iOS, Roboto on Android) is used everywhere, at a fixed 7-step size/weight scale. Nothing to load, nothing to license, and it always matches the OS.</div></div>
+    </section>
+
+    <section id="color">
+      <h2><span class="num">01</span>Color tokens</h2>
+      <p class="section-note">Every screen-facing color is semantic (<code class="mono">colors.primary</code>, not <code class="mono">"#0A6EBD"</code>). Light and dark are two complete, independently-tuned palettes — dark isn't light with a filter over it.</p>
+
+      <div class="theme-pair">
+        <div class="theme-block fixed-light">
+          <header>Light</header>
+          <div class="swatch-grid" id="swatches-light"></div>
+        </div>
+        <div class="theme-block fixed-dark">
+          <header>Dark</header>
+          <div class="swatch-grid" id="swatches-dark"></div>
+        </div>
+      </div>
+      <div class="rule"><div class="dot"></div><div><b>Brand color:</b> <code class="mono">#0A6EBD</code> (light) / <code class="mono">#3B9EE5</code> (dark) — dark mode brightens the brand hue rather than reusing the light one, so it still reads as vivid against a near-black background.</div></div>
+      <div class="rule"><div class="dot"></div><div>Every semantic color that appears as a fill also has a <code class="mono">*Tint</code> (≈10–16% opacity wash, for backgrounds) and <code class="mono">primary</code> additionally has a <code class="mono">*Border</code> (≈22–30% opacity, for a tinted card's edge). This is how every tinted pill/card/badge in the app is built — never a flat pastel color, always the real semantic color at low opacity.</div></div>
+    </section>
+
+    <section id="typography">
+      <h2><span class="num">02</span>Typography</h2>
+      <p class="section-note">Seven variants, system font, no line-height guessing per-screen.</p>
+      <div id="type-scale"></div>
+    </section>
+
+    <section id="spacing">
+      <h2><span class="num">03</span>Spacing &amp; radii</h2>
+      <div id="spacing-scale" style="margin-bottom:26px;"></div>
+      <div class="radii-row" id="radii-scale"></div>
+    </section>
+
+    <section id="tone">
+      <h2><span class="num">04</span>Tone vocabulary</h2>
+      <p class="section-note">Every badge, icon chip, and status pill in the app draws from exactly these five tones — never an invented one-off color. Pick the closest match.</p>
+      <div class="tone-grid">
+        <div class="tone-card"><span class="m-badge" style="background:var(--success-tint);color:var(--success)">Success</span><div class="use">Confirmed, paid, done, in stock</div></div>
+        <div class="tone-card"><span class="m-badge" style="background:var(--warning-tint);color:var(--warning)">Warning</span><div class="use">Remaining, low stock, needs attention</div></div>
+        <div class="tone-card"><span class="m-badge" style="background:var(--info-tint);color:var(--info)">Info</span><div class="use">Neutral informational, settings</div></div>
+        <div class="tone-card"><span class="m-badge" style="background:var(--special-tint);color:var(--special)">Special</span><div class="use">Van stock, appearance, one-off features</div></div>
+        <div class="tone-card"><span class="m-badge" style="background:var(--surface-alt);color:var(--text-muted)">Neutral</span><div class="use">Default / unremarkable state</div></div>
+      </div>
+    </section>
+
+    <section id="buttons">
+      <h2><span class="num">05</span>Buttons</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Button</h3><span class="file">components/Button.tsx</span></div>
+        <div class="comp-stage">
+          <button class="m-btn primary">Confirm order</button>
+          <button class="m-btn secondary">Change server</button>
+          <button class="m-btn ghost">Cancel</button>
+          <button class="m-btn danger">Sign out</button>
+          <button class="m-btn primary disabled">Loading…</button>
+        </div>
+        <table class="spec">
+          <tr><th>Prop</th><th>Behavior</th></tr>
+          <tr><td>variant</td><td>primary (solid brand) · secondary (card bg + border, brand text) · ghost (transparent, brand text) · danger (solid red) — that's the full set, no others</td></tr>
+          <tr><td>shape</td><td>always fully pill-rounded (<code>radii.pill</code> = 999), 14px vertical / 24px horizontal padding</td></tr>
+          <tr><td>loading</td><td>swaps label for a spinner in the foreground color, keeps the button's size</td></tr>
+          <tr><td>disabled</td><td>opacity 0.5, no color change</td></tr>
+          <tr><td>icon</td><td>optional leading icon, 18px, same color as label — flips to trailing automatically in RTL</td></tr>
+        </table>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>StickyActionBar</h3><span class="file">components/StickyActionBar.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-card" style="width:100%;max-width:360px;border-radius:0;border-left:none;border-right:none;">
+            <button class="m-btn primary" style="width:100%;justify-content:center;margin-bottom:8px;">Confirm order</button>
+            <button class="m-btn ghost" style="width:100%;justify-content:center;">View invoice</button>
+          </div>
+        </div>
+        <p class="comp-note">One full-width primary CTA pinned above the safe area, its label always reflecting live state ("Confirm order" → "Order confirmed ✓"), with an optional second, quieter action sharing the same bar instead of stacking a second footer.</p>
+      </div>
+    </section>
+
+    <section id="cards-lists">
+      <h2><span class="num">06</span>Cards &amp; lists</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Card</h3><span class="file">components/Card.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-card">radii.lg border, 1px border, 16px padding, 8px internal gap — the one wrapper every grouped block of content sits in.</div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>ListRow</h3><span class="file">components/ListRow.tsx</span></div>
+        <div class="comp-stage" style="flex-direction:column;align-items:stretch;">
+          <div class="m-row">
+            <div class="icon-badge" style="background:var(--info-tint)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+            </div>
+            <div style="flex:1"><div class="title">Sunrise Supermarket</div><div class="subtitle">09:00 · Planned</div></div>
+            <div class="chev">›</div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="m-row selected">
+            <div style="flex:1"><div class="title sel">Selected state</div><div class="subtitle">accent tint bg, accent border, accent title</div></div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+        <p class="comp-note">Selected-state convention, used identically everywhere a row can be "the current one": <code>background: primaryTint</code>, <code>border: primaryBorder</code> at 0.5px, title text recolors to <code>primary</code>. The chevron only renders when the row has an <code>onPress</code> — a row with no action never implies one.</p>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>Divider</h3><span class="file">components/misc.tsx</span></div>
+        <div class="comp-stage" style="flex-direction:column;align-items:stretch;">
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;"><span>Cola 330ml Can (24pk)</span><span class="m-money">220.00 JOD</span></div>
+            <div class="m-divider"></div>
+            <div style="display:flex;justify-content:space-between;"><span>Energy Drink 250ml (12pk)</span><span class="m-money">96.00 JOD</span></div>
+            <div class="m-divider"></div>
+            <div style="display:flex;justify-content:space-between;"><span>Sparkling Lemonade (24pk)</span><span class="m-money">192.00 JOD</span></div>
+          </div>
+        </div>
+        <p class="comp-note">A single 1px rule, always <code>colors.border</code> — <code class="mono">#E3E6EA</code> in light, <code class="mono">#2A3136</code> in dark, the same color as every card/row border, never a separate "divider gray". 4px vertical margin on either side. It only ever separates rows <i>inside</i> a Card (order lines, invoice lines, recorded payments) — a Card's own outer border already does the separating between cards, so it's never placed between two Cards.</p>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>DetailRow / SectionHeader</h3><span class="file">components/misc.tsx</span></div>
+        <div class="comp-stage" style="flex-direction:column;align-items:stretch;">
+          <div class="m-card">
+            <div class="m-detail-row"><span class="l">Invoice date</span><span class="v">2026-09-13</span></div>
+            <div class="m-divider"></div>
+            <div class="m-detail-row"><span class="l">Due date</span><span class="v" style="color:var(--danger)">2026-09-28</span></div>
+          </div>
+          <div style="height:14px"></div>
+          <div class="m-section-header"><span>Schedule</span></div>
+        </div>
+        <p class="comp-note"><b>DetailRow</b> — label/value line (label muted, value bold, right-aligned in LTR / left-aligned in RTL, flips with the locale). <b>SectionHeader</b> — the bold section title used above every grouped list (h2 weight, optional right-side action), 8px top margin, no border of its own.</p>
+      </div>
+    </section>
+
+    <section id="badges-chips">
+      <h2><span class="num">07</span>Badges &amp; chips</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Badge / IconBadge</h3><span class="file">components/Badge.tsx, IconBadge.tsx</span></div>
+        <div class="comp-stage">
+          <span class="m-badge" style="background:var(--success-tint);color:var(--success)">Paid</span>
+          <span class="m-badge" style="background:var(--warning-tint);color:var(--warning)">Low stock</span>
+          <span class="m-badge" style="background:var(--danger-tint);color:var(--danger)">Overdue</span>
+          <div class="m-icon-badge" style="background:var(--special-tint)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--special)" stroke-width="2"><path d="M20 7h-3V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1Z"/></svg></div>
+        </div>
+        <p class="comp-note">Same tinted-fill / tone-colored-text pattern as the tone vocabulary above, at two sizes: a text pill for status, a 34×34 rounded-square chip when a leading icon needs its own color.</p>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>FilterChips</h3><span class="file">components/FilterChips.tsx</span></div>
+        <div class="comp-stage">
+          <span class="m-chip active">All</span>
+          <span class="m-chip">Remaining</span>
+          <span class="m-chip">Done</span>
+        </div>
+        <p class="comp-note">Solid fill when active (not an outline) — the one selection convention distinct from ListRow's tint style. A plain wrapping row, never a horizontal scroller: keep the option count small enough to fit.</p>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>CountBadge</h3><span class="file">components/CountBadge.tsx</span></div>
+        <div class="comp-stage">
+          <div style="position:relative;width:40px;height:40px;border-radius:20px;background:var(--accent-tint);display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <div class="m-count" style="position:absolute;top:-4px;right:-4px;border:2px solid var(--surface);">3</div>
+          </div>
+        </div>
+        <p class="comp-note">Fixed 18px red dot, 2px surface-colored ring so it reads as "on top of" its host regardless of what's behind it. Caps at "99+".</p>
+      </div>
+    </section>
+
+    <section id="inputs">
+      <h2><span class="num">08</span>Inputs</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>SearchBar</h3><span class="file">components/SearchBar.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Name or reference</div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>QtyStepper</h3><span class="file">components/QtyStepper.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-stepper"><button>−</button><div class="val">4</div><button>+</button></div>
+        </div>
+        <p class="comp-note">Center number is a real numeric input (tap to type), not just +/− — clamped to <code>min</code>/<code>max</code> either way.</p>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>Money</h3><span class="file">components/Money.tsx, lib/money.ts</span></div>
+        <div class="comp-stage">
+          <span class="m-money">316.00 JOD</span>
+          <span class="m-money" style="color:var(--danger)">263.32 JOD</span>
+        </div>
+        <p class="comp-note">Currency symbol/code is always <b>trailing</b>, thousands-separated, fixed decimals — a project-wide decision applied by one shared formatter, never composed inline per-screen.</p>
+      </div>
+    </section>
+
+    <section id="sheets">
+      <h2><span class="num">09</span>Sheets &amp; dialogs</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Sheet</h3><span class="file">components/Sheet.tsx</span></div>
+        <div class="comp-stage" style="background:color-mix(in srgb, var(--text) 6%, var(--surface-alt)); justify-content:center; padding:32px 22px;">
+          <div class="m-sheet">
+            <div class="handle-row"><span style="color:var(--text-faint)">✕</span></div>
+            <div style="font-weight:700;font-size:18px;margin-bottom:6px;">Record payment</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Every bottom sheet in the app — a modal anchored to the bottom, no extra library, tap-outside to dismiss (unless it's destructive to lose the content).</div>
+            <button class="m-btn primary" style="width:100%;justify-content:center;">Save payment</button>
+          </div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>ResultSheet</h3><span class="file">components/ResultSheet.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-card" style="text-align:center;width:220px;">
+            <div style="width:56px;height:56px;border-radius:28px;background:var(--success-tint);display:flex;align-items:center;justify-content:center;margin:4px auto 10px;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div style="font-weight:700;">Order confirmed</div>
+            <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Van stock deducted, invoice created.</div>
+          </div>
+          <div class="m-card" style="text-align:center;width:220px;">
+            <div style="width:56px;height:56px;border-radius:28px;background:var(--danger-tint);display:flex;align-items:center;justify-content:center;margin:4px auto 10px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </div>
+            <div style="font-weight:700;">Could not confirm</div>
+            <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Simulated failure — retry.</div>
+          </div>
+        </div>
+        <p class="comp-note"><b>One component for every success and every failure in the app</b> — a 64px tinted circle (green check / red ×), title, optional description, optional reference line, one full-width CTA. Nothing writes its own custom success toast.</p>
+      </div>
+    </section>
+
+    <section id="feedback">
+      <h2><span class="num">10</span>Feedback states</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Skeleton / loading rows</h3><span class="file">components/Skeleton.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-skel"><div class="bar" style="width:60%"></div><div class="bar" style="width:40%;height:12px;margin-bottom:0;"></div></div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>EmptyState</h3><span class="file">components/EmptyState.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-empty" style="width:100%;"><div class="ic">🗂</div>No orders yet.</div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="comp-head"><h3>ErrorBanner</h3><span class="file">components/ErrorBanner.tsx</span></div>
+        <div class="comp-stage">
+          <div class="m-error">
+            <div class="head">⚠ Couldn't load</div>
+            <div class="msg">Simulated failure (remove __fail to succeed).</div>
+            <button class="m-btn secondary" style="padding:8px 16px;font-size:13px;">Retry</button>
+          </div>
+        </div>
+      </div>
+      <p class="section-note">Every list/detail screen wires all four states (loading, error, empty, pull-to-refresh) through one shared <code class="mono">&lt;Screen&gt;</code> wrapper — a screen never hand-rolls its own spinner or "no results" text.</p>
+    </section>
+
+    <section id="stats">
+      <h2><span class="num">11</span>Stats &amp; dashboards</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>StatCard / StatRow</h3><span class="file">components/StatCard.tsx</span></div>
+        <div class="comp-stage" style="width:100%;">
+          <div class="m-stat-row" style="width:100%;max-width:420px;">
+            <div class="m-stat sel"><div class="v">4</div><div class="l">Today</div></div>
+            <div class="m-stat"><div class="v" style="color:var(--warning)">2</div><div class="l">Remaining</div></div>
+            <div class="m-stat"><div class="v" style="color:var(--success)">2</div><div class="l">Done</div></div>
+          </div>
+        </div>
+        <p class="comp-note">Three-up stats always live inside <b>one elevated Card</b>, not three separate boxes — reads as a single cohesive summary. Tappable stats (to filter the list below) get a selected tint identical to ListRow's.</p>
+      </div>
+    </section>
+
+    <section id="navigation">
+      <h2><span class="num">12</span>Navigation chrome</h2>
+      <div class="comp">
+        <div class="comp-head"><h3>Tab bar</h3><span class="file">app/(tabs)/_layout.tsx</span></div>
+        <div class="comp-stage" style="width:100%;">
+          <div class="m-tab-bar" style="width:100%;max-width:420px;">
+            <div class="m-tab" style="color:var(--accent)"><div class="dot" style="background:var(--accent-tint)"></div>Visits</div>
+            <div class="m-tab" style="color:var(--text-faint)"><div class="dot" style="background:var(--surface-alt)"></div>Stock</div>
+            <div class="m-tab" style="color:var(--text-faint)"><div class="dot" style="background:var(--surface-alt)"></div>Orders</div>
+            <div class="m-tab" style="color:var(--text-faint)"><div class="dot" style="background:var(--surface-alt)"></div>Invoices</div>
+            <div class="m-tab" style="color:var(--text-faint)"><div class="dot" style="background:var(--surface-alt)"></div>More</div>
+          </div>
+        </div>
+        <p class="comp-note"><b>Each tab has its own active tint</b> instead of every tab sharing one brand color: Visits → primary, Stock → special (violet), Orders → warning (amber), Invoices → success (green), More → info (blue). Inactive tabs are always <code>textFaint</code>. Icons swap to a filled variant on the active tab (<code>name</code> vs <code>name-outline</code>).</p>
+      </div>
+      <div class="rule"><div class="dot"></div><div><b>Headers:</b> card-colored background, no shadow (<code class="mono">headerShadowVisible: false</code>), a border instead — flat, not floating.</div></div>
+      <div class="rule"><div class="dot"></div><div><b>Pull-to-refresh</b> tint is always <code class="mono">colors.primary</code>, wired once inside <code class="mono">&lt;Screen&gt;</code>.</div></div>
+    </section>
+
+    <section id="rtl">
+      <h2><span class="num">13</span>RTL &amp; locale</h2>
+      <div class="rule"><div class="dot"></div><div><b>RTL is manual, never native.</b> Every row-laying-out spot reads <code class="mono">isRTL</code> from <code class="mono">useLocale()</code> itself and picks <code class="mono">isRTL ? 'row-reverse' : 'row'</code> — <code class="mono">I18nManager.forceRTL()</code> is never used; that flag only takes effect after an OS-level relaunch the app can't trigger on itself.</div></div>
+      <div class="rule"><div class="dot"></div><div>The shared <code class="mono">Text</code> component already defaults its own <code class="mono">textAlign</code> to the locale. Only override it when a value column deliberately sits opposite its label (e.g. a price aligned right even in Arabic).</div></div>
+      <div class="rule"><div class="dot"></div><div>Two locales shipped end-to-end: <code class="mono">en</code> / <code class="mono">ar</code>, via <code class="mono">react-i18next</code> with two flat JSON files kept in lockstep, key-for-key.</div></div>
+    </section>
+
+    <section id="money">
+      <h2><span class="num">14</span>Numbers &amp; money</h2>
+      <table class="spec">
+        <tr><th>Rule</th><th>Detail</th></tr>
+        <tr><td>Position</td><td>currency code/symbol always trails the amount — <code>"316.00 JOD"</code>, not <code>"JOD 316.00"</code></td></tr>
+        <tr><td>Separators</td><td>comma thousands separator, fixed 2 decimals by default</td></tr>
+        <tr><td>Source of truth</td><td>one <code>formatMoney()</code> helper — no screen concatenates a currency symbol itself</td></tr>
+      </table>
+    </section>
+
+    <section id="checklist">
+      <h2><span class="num">15</span>Porting checklist</h2>
+      <p class="section-note">To make another app look and feel like this one, in order:</p>
+      <ul class="checklist">
+        <li><input type="checkbox" checked disabled><div><b>Copy <code class="mono">theme/tokens.ts</code> verbatim</b><span class="d"> — colors, spacing, radii, typography, unchanged.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>Rebuild <code class="mono">ThemeProvider</code> + <code class="mono">useTheme()</code></b><span class="d"> — same shape: mode (system/light/dark) persisted, resolved colors handed down.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>Rebuild the ~20 primitives in this doc</b><span class="d"> — Button, Card, ListRow, Badge, IconBadge, Money, FilterChips, SearchBar, QtyStepper, Sheet, ResultSheet, ConfirmSheet, StickyActionBar, EmptyState, ErrorBanner, Skeleton, StatCard/StatRow, CountBadge, Screen, Text, Icon. Every screen composes only these.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>Wrap every list/detail screen in the same <code class="mono">Screen</code> pattern</b><span class="d"> — loading/error/empty/pull-to-refresh, never hand-rolled per screen.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>Give each tab its own accent color</b><span class="d"> — don't default every active tab to one brand blue.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>Pick the tone vocabulary once</b><span class="d"> — success/warning/info/special/neutral — and never invent a sixth.</span></div></li>
+        <li><input type="checkbox" checked disabled><div><b>No custom font, no literal hex/px in a screen file</b><span class="d"> — if either shows up in review, it's a sign a token or component is missing, not an exception to make.</span></div></li>
+      </ul>
+      <footer class="note">Extracted 2026-09 from <code class="mono">distributor-app</code> (Expo SDK 57 / React Native). Values are literal — copy them, don't eyeball them off a screenshot.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var light = [
+    ['primary', '#0A6EBD'], ['primaryTint', 'rgba(10,110,189,.10)'], ['primaryBorder', 'rgba(10,110,189,.22)'],
+    ['background', '#F6F7F9'], ['card', '#FFFFFF'], ['cardAlt', '#F1F3F5'], ['border', '#E3E6EA'],
+    ['text', '#11181C'], ['textMuted', '#5B636B'], ['textFaint', '#8A929A'], ['onPrimary', '#FFFFFF'],
+    ['success', '#0F9D58'], ['successTint', 'rgba(15,157,88,.12)'],
+    ['warning', '#E8A100'], ['warningTint', 'rgba(232,161,0,.14)'],
+    ['danger', '#D7263D'], ['dangerTint', 'rgba(215,38,61,.12)'],
+    ['info', '#2F80ED'], ['infoTint', 'rgba(47,128,237,.12)'],
+    ['special', '#8B5CF6'], ['specialTint', 'rgba(139,92,246,.12)'],
+    ['overlay', 'rgba(0,0,0,.45)']
+  ];
+  var dark = [
+    ['primary', '#3B9EE5'], ['primaryTint', 'rgba(59,158,229,.16)'], ['primaryBorder', 'rgba(59,158,229,.30)'],
+    ['background', '#0E1113'], ['card', '#181C1F'], ['cardAlt', '#20262A'], ['border', '#2A3136'],
+    ['text', '#ECEDEE'], ['textMuted', '#A0A8AE'], ['textFaint', '#727B81'], ['onPrimary', '#0B1013'],
+    ['success', '#3DD68C'], ['successTint', 'rgba(61,214,140,.15)'],
+    ['warning', '#F2C04D'], ['warningTint', 'rgba(242,192,77,.15)'],
+    ['danger', '#FF6B7D'], ['dangerTint', 'rgba(255,107,125,.15)'],
+    ['info', '#5AA2F5'], ['infoTint', 'rgba(90,162,245,.15)'],
+    ['special', '#A78BFA'], ['specialTint', 'rgba(167,139,250,.16)'],
+    ['overlay', 'rgba(0,0,0,.6)']
+  ];
+  function renderSwatches(id, list) {
+    var el = document.getElementById(id);
+    el.innerHTML = list.map(function (t) {
+      return '<div class="swatch"><div class="sq" style="background:' + t[1] + '"></div>' +
+        '<div class="name">' + t[0] + '</div><div class="val">' + t[1] + '</div></div>';
+    }).join('');
+  }
+  renderSwatches('swatches-light', light);
+  renderSwatches('swatches-dark', dark);
+
+  var type = [
+    ['h1', 26, 32, 700], ['h2', 20, 26, 700], ['title', 17, 22, 600],
+    ['body', 15, 21, 400], ['bodySemi', 15, 21, 600], ['caption', 13, 17, 400], ['captionSemi', 13, 17, 600]
+  ];
+  document.getElementById('type-scale').innerHTML = type.map(function (t) {
+    return '<div class="type-row"><div class="type-sample" style="font-size:' + t[1] + 'px;line-height:' + t[2] + 'px;font-weight:' + t[3] + ';">' +
+      t[0] + ' — Confirm order for Sunrise Supermarket</div>' +
+      '<div class="type-meta"><div>' + t[1] + '/' + t[2] + 'px</div><div>weight ' + t[3] + '</div></div></div>';
+  }).join('');
+
+  var spacing = [['xs', 4], ['sm', 8], ['md', 12], ['lg', 16], ['xl', 24], ['xxl', 32]];
+  var maxSp = 32;
+  document.getElementById('spacing-scale').innerHTML = spacing.map(function (s) {
+    return '<div class="scale-row"><div class="label">spacing.' + s[0] + ' — ' + s[1] + 'px</div>' +
+      '<div class="bar" style="width:' + (s[1] / maxSp * 220) + 'px"></div></div>';
+  }).join('');
+
+  var radii = [['sm', 8], ['md', 12], ['lg', 16], ['pill', 999]];
+  document.getElementById('radii-scale').innerHTML = radii.map(function (r) {
+    var radius = r[1] > 64 ? 32 : r[1];
+    return '<div class="radii-item"><div class="box" style="border-radius:' + radius + 'px"></div><div class="label">radii.' + r[0] + '</div></div>';
+  }).join('');
+
+  var links = document.querySelectorAll('nav.toc a');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      var link = document.querySelector('nav.toc a[href="#' + e.target.id + '"]');
+      if (!link) return;
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -75% 0px' });
+  sections.forEach(function (s) { io.observe(s); });
+})();
+</script>
